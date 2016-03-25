@@ -44,3 +44,30 @@
     $ git clone ftp[s]://example.com/path/to/repo.git/
     $ git clone rsync://example.com/path/to/repo.git/
 ```
+<br>
+<br>
+
+***git remote*
+```
+    git remote    //列出所有远程主机
+    git remote -v    //可以查看网址
+    克隆版本库的时候，所使用的远程主机自动被Git命名为origin。如果想用其他的主机名，需要用git clone命令的-o选项指定。
+    git clone -o jQuery https://github.com/jquery/jquery.git
+    git remote  //jQuery
+    
+    git remote show <主机名>   //查看主机详细信息
+    
+    git remote add <主机名> <网址>  //添加远程主机
+    
+    git remote rm <主机名> //删除远程主机，应该和git remote remove一个意思（推断）
+    
+    git remote rename  <原主机名>  <新主机名>
+```
+<br>
+<br>
+**git fetch**
+一旦远程主机的版本库有了更新（Git术语叫做commit），需要将这些更新取回本地，这时就要用到git fetch命令。
+```
+    git fetch <远程主机名>    
+    //git fetch命令通常用来查看其他人的进程，因为它取回的代码对你本地的开发代码没有影响。fetch应该是放到了本地repo里，不是工作区
+```
