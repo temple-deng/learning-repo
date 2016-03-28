@@ -26,6 +26,13 @@
 >ES6明确规定，如果区块中存在let和const命令，这个区块对这些命令声明的变量，从一开始就形成了封闭作用域。凡是在声明之前就使用这些变量，就会报错。
 
 >总之，在代码块内，使用let命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”（temporal dead zone，简称TDZ）。
+暂时性死区意味着typeof 运算符不再安全
+```javascript
+	typeof x;   //ReferenceError
+	let x;
+
+	typeof undefined_variable;  //"undefined"
+```
 
 ###　     2.不允许重复声明
 　　　　let不允许在相同作用域内，重复声明同一个变量。

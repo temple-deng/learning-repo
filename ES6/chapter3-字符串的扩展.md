@@ -26,7 +26,7 @@
 <br>
 <br>
 ###　     2. includes(), startsWith(), endsWith()
-　　　　　includes()：返回布尔值，表示是否找到了参数字符串。
+　　　　　includes()：返回布尔值，表示是否找到了参数字符串。(既然有了indexOf为什么还要这个方法，注意：indexOf方法可以寻找子串，而不是仅仅单个字符)
 　　　　　startsWith()：返回布尔值，表示参数字符串是否在源字符串的头部。
 　　　　　endsWith()：返回布尔值，表示参数字符串是否在源字符串的尾部。
 ```javascript

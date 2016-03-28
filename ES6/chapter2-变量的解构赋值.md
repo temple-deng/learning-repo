@@ -53,6 +53,22 @@ var [x = 1] = [null];
 x // null
 ```
 　　　　注意，ES6内部使用严格相等运算符（===），判断一个位置是否有值。所以，如果一个数组成员不严格等于undefined，默认值是不会生效的。上面代码中，如果一个数组成员是null，默认值就不会生效，因为null不严格等于undefined。
+如果默认值是一个表达式，那么这个表达式是惰性求值的，即只有在用到的时候，才会求值。
+```
+	function foo(){
+	cosole.log('aaa');
+	}
+
+	var [x=f()] = [1];   // 1 !== undefined  所以foo不会执行
+```
+**重复声明的问题**
+```javascript
+	let foo;
+	let {foo} = {foo: 'hello'};    //SyntaxError: Duplicate declaration "foo"    //这个好理解
+
+	let foo;
+	({foo} = {foo:1});           //注意这里没有用任何声明，必须要加上外边的括号， 因为JavaScript引擎会将{x}理解成一个代码块，从而发生语法错误。只有不将大括号写在行首，避免JavaScript将其解释为代码块，才能解决这个问题。这里foo可能是一个全局变量，但是在全局对象window上没这个属性 window.foo == undefined
+```
 　　　　
 　　　　
 ###　     3.字符串的解构赋值
