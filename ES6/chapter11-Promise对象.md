@@ -9,6 +9,7 @@
  2. Promise.all()
  3. Promise.race()
  4. Promise.resolve()
+ 5. Promise.catch()
 ```
  ---
 
@@ -96,5 +97,9 @@ Promise.resolve方法允许调用时不带参数，直接返回一个Resolved状
 <br>
 Promise.reject(reason)方法也会返回一个新的Promise实例，该实例的状态为rejected。它的参数用法与Promise.resolve方法完全一致。
 
+<br>
+<br>
 
+###  5.Promise.catch
+Promise.prototype.catch方法是.then(null, rejection)的别名，用于指定发生错误时的回调函数。另外，then方法指定的回调函数，如果运行中抛出错误，也会被catch方法捕获。
 

@@ -6,9 +6,9 @@
 
 ```
  1. Object.is()方法
- 2. Array.of()
- 3. 数组实例的copyWithin()方法
- 4. 数值和布尔值的解构赋值
+ 2. Object.assign()
+ 3. Object.getOwnPropertyDescriptor()
+ 4. Object.setPrototypeOf()   Object.getPrototypeOf()
 ```
  ---
 
@@ -23,6 +23,24 @@
     var b = {c:1,d:2};
     Object.is(a,b);
     //false
+
+
+
+
+    //Object.is 的ES5实现
+    Object.defineProperty(Object, is, {
+    	value: function(x,y){
+    		if(x===y){
+    			//针对-0和+0的情况
+    			return x!==0 || 1 / x === 1 / y;
+    		}
+    		//针对NaN的情况
+    		return x!==x && y!==y;
+    	},
+    	configurable: true,
+ 	 	enumerable: false,
+  		writable: true
+    });
 ```
 <br>
 <br>
@@ -41,5 +59,13 @@ Object.assign(target, source1, source2);
 target // {a:1, b:2, c:3}
 ```
 
+<br>
+<br>
+###   3.Object.getOwnPropertyDescriptor()
+Object.getOwnPropertyDescriptor(obj, prop_name) 只能得到自有属性描述符
+要想设置属性特性， Object.defineProperty(obj, prop_name, descriptor_obj)
 
 
+###　　4.Object.setPrototypeOf()   Object.getPrototypeOf()
+Object.setPrototypeOf(object, prototype);   设置原型对象
+Object.getPrototypeOf(object);              获取原型对象

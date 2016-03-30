@@ -135,3 +135,33 @@ function* concat(iter1, iter2) {
 ```
 上面代码说明，yield*不过是for...of的一种简写形式，完全可以用后者替代前者。如果yield*后面跟着一个数组，由于数组原生支持遍历器，因此就会遍历数组成员。实际上，任何数据结构只要有Iterator接口，就可以被yield*遍历。
 
+
+<br>
+<br>
+###　6. for..of循环
+for...of循环、扩展运算符（...）、解构赋值和Array.from方法内部调用的，都是遍历器接口。这意味着，它们可以将Generator函数返回的Iterator对象，作为参数。
+```javascript
+  function* numbers () {
+    yield 1
+    yield 2
+    return 3
+    yield 4
+  }
+
+  [...numbers()] // [1, 2]
+
+  Array.from(numbers()) // [1, 2]
+
+  let [x, y] = numbers();
+  x // 1
+  y // 2
+
+  for (let n of numbers()) {
+    console.log(n)
+  }
+  // 1
+  // 2
+
+  //都是执行到2就没了，  应该是遇到返回对象done:true;就提前跳出循环
+```
+
