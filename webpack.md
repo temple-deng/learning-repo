@@ -1,4 +1,4 @@
-﻿#  webpack
+#  webpack
 ---
 		作者：张轩
 		链接：http://zhuanlan.zhihu.com/p/20367175
@@ -176,19 +176,19 @@ context：对于入口文件配置的基础目录（绝对路径）`Default: pro
 
 entry:   打包文件的入口点。可以是数组或字符串或对象（数组这个还没试过效果），如果是对象就是多个入口点，多个打包文件，key是chunk名，value可以是字符串或数组。
 
-output:
-output.filename ：指明输出文件的名字，不可以使用绝对路径。 如果创建了不止一个chunk(比如多入口点或者CommonsChunkPlugin)，就应该使用 [name][hash][chunkhash]来替换名字来确保每个文件的名字是单一的。
-		[name] 用chunk名来代替 [hash]用hash  [chunkhash]。。。
-output.path : 输出目录的绝对路径 可以有[hash]
-output.chunkFilename: 非入口chunk的文件名，相对于output.path目录。[id] chunk id[name] [hash][chunkhash]
+output:<br>
+output.filename ：指明输出文件的名字，不可以使用绝对路径。 如果创建了不止一个chunk(比如多入口点或者CommonsChunkPlugin)，就应该使用 [name][hash][chunkhash]来替换名字来确保每个文件的名字是单一的。<br>
+		[name] 用chunk名来代替 [hash]用hash  [chunkhash]。。。<br>
+output.path : 输出目录的绝对路径 可以有[hash]   <br>
+output.chunkFilename: 非入口chunk的文件名，相对于output.path目录。[id] chunk id[name] [hash][chunkhash] <br>
 
-module.loaders : 对象数组，每项可以有以下属性
-						test: 符合的情况 exclude: 不符合的情况 include: 和test一样？
-						loader: 用"!"分割的字符串加载器 loaders: 数组形式
+module.loaders : 对象数组，每项可以有以下属性<br>
+						test: 符合的情况 exclude: 不符合的情况 include: 和test一样？ <br>
+						loader: 用"!"分割的字符串加载器 loaders: 数组形式   <br>
 IMPORTANT: The loaders here are resolved relative to the resource which they are applied to. This means they are not resolved relative to the configuration file. If you have loaders installed from npm and your node_modules folder is not in a parent folder of all source files, webpack cannot find the loader. You need to add the node_modules folder as absolute path to the resolveLoader.root option. (resolveLoader: { root: path.join(__dirname, "node_modules") })
 
-module.preLoaders, module.postLoaders ：Syntax like module.loaders.
-module.noParse： RegExp或者RegExp数组， 不会解析符合的文件
+module.preLoaders, module.postLoaders ：Syntax like module.loaders.  <br>
+module.noParse： RegExp或者RegExp数组， 不会解析符合的文件   <br>
 
-resolve.alias ： 用其他的模块或者路径取代模块名。
+resolve.alias ： 用其他的模块或者路径取代模块名。<br>
 resolve.extensions ：An array of extensions that should be used to resolve modules. For example, in order to discover CoffeeScript files, your array should contain the string ".coffee".						
