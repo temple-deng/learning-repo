@@ -1,4 +1,4 @@
-﻿# 11. Promise对象
+# 11. Promise对象
 
 标签： Promise
 
@@ -16,9 +16,9 @@
 ###　     1.基本用法
 Promise对象是构造函数，用来生成Promise实例。接受一个函数作为参数，该函数有两个参数，分别是resolve和reject,这是两个函数。
 <br>
-  resolve函数的作用是，将Promise对象的状态从“未完成”变为“成功”（即从Pending变为Resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；reject函数的作用是，将Promise对象的状态从“未完成”变为“失败”（即从Pending变为Rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。
+  resolve函数的作用是，将Promise对象的状态从“未完成”变为“成功”（即从Pending变为Resolved），在异步操作成功时调用，并将异步操作的结果，作为参数传递出去；reject函数的作用是，将Promise对象的状态从“未完成”变为“失败”（即从Pending变为Rejected），在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。  
 <br>
-Promise实例生成以后，可以用then方法分别指定Resolved状态和Reject状态的回调函数。
+Promise实例生成以后，可以用then方法分别指定Resolved状态和Reject状态的回调函数。  
 ```javascript
  var promise = new Promise(function(resolve, reject){
     //some code
@@ -31,8 +31,10 @@ Promise实例生成以后，可以用then方法分别指定Resolved状态和Reje
 
 promise.then(function(value){}, function(value){});
 ```
-then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved时调用，第二个回调函数是Promise对象的状态变为Reject时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数(明明reject传出的是error，为什么这里使用了传出的值？)。
-如果调用resolve函数和reject函数时带有参数，那么它们的参数会被传递给回调函数。
+then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved时调用，第二个回调函数是Promise对象的状态变为Reject时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数(明明reject传出的是error，为什么这里使用了传出的值？)。  
+如果调用resolve函数和reject函数时带有参数，那么它们的参数会被传递给回调函数。    
+then和catch中接受的回调函数return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为return的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。  
+
 <br>
 ###　     2.Promise.all
 Promise.all方法用于将多个Promise实例，包装成一个新的Promise实例。
@@ -50,7 +52,8 @@ Promise.race方法同样是将多个Promise实例，包装成一个新的Promise
 ```javascript
 var p = Promise.race([p1,p2,p3]);
 ```
-上面代码中，只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。
+上面代码中，只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。  
+需要注意的是p1,p2,p3中有一个完成后，其余的两个并不会停止执行，但是不会再触发then回调。  
 
 Promise.race方法的参数与Promise.all方法一样，如果不是Promise实例，就会先调用下面讲到的Promise.resolve方法，将参数转为Promise实例，再进一步处理。
 <br>
