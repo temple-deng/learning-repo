@@ -26,7 +26,8 @@
 >ES6明确规定，如果区块中存在let和const命令，这个区块对这些命令声明的变量，从一开始就形成了封闭作用域。凡是在声明之前就使用这些变量，就会报错。
 
 >总之，在代码块内，使用let命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”（temporal dead zone，简称TDZ）。
-暂时性死区意味着typeof 运算符不再安全
+暂时性死区意味着typeof 运算符不再安全.  
+
 ```javascript
 	typeof x;   //ReferenceError
 	let x;
@@ -63,8 +64,18 @@ function func(arg) {
 
 ```
 
+同时要注意，函数其实也是变量，所以当函数声明在块级作用域中（不同于之前的函数块级作用域而是大括号包含的块级作用域），括号外部也是无法引用函数的。
+```javascript
+    {
+        function f(){
+            console.log("haha");
+        }
+    }
+    f();    //RederenceError : f is not defined
+```
+
 ###　     3.  const命令
-　　　　const命令一旦声明变量，就必须立即初始化。
+　　　　const命令一旦声明变量，就必须立即初始化。但是在非严格模式下，无论是在定义const常量时不初始化，还是在定义后再赋值，均不会报错，只有在严格模式下才会报错。
 ```
     const PI
     //SyntaxError: missing = in const declaration
