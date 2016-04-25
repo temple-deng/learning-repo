@@ -1,8 +1,11 @@
-﻿## 阮一峰的React实例教程笔记
-```
-	
-```
+## 阮一峰的React实例教程笔记
 
+-----
+   1. JSX
+   2. 组件
+   3. Prop验证
+   4. State
+   
 --------
 
 ###  1、JSX
@@ -87,3 +90,64 @@ React.createClass({
   /* ... */
 });
 ```
+<br>
+<br>
+
+###  4. State
+鉴别哪些数据做state、哪些数据做prop:
++ 数据是从父级组件传递过来的吗？如果是，它可能不是state  
++ 数据是否会随着时间而变化？如果没有，它可能不是state  
++ 数据是否能根据组件中其他的state或者props计算出来，如果可以，它可能不是state  
+<br>
+<br>
+
+###  5. ES6 Classes
+```javascript
+//ES6 Classes define method
+ class HelloMessage extends React.Component {
+		render(){
+			return (
+				<div>Hello!
+				</div>
+			);
+		}
+ }
+```
+这种方式定义的组件，并没有getInitialState()方法，需要在构造函数中自己设置state属性。还有就是 propTypes和 defaultProps是作为构造函数的属性定义的，而不是在类内部定义的方法。  
+```javascript
+	export class Counter extends React.Component {
+	  constructor(props) {
+	    super(props);
+	    this.state = {count: props.initialCount};
+	    this.tick = this.tick.bind(this);
+	  }
+	  tick() {
+	    this.setState({count: this.state.count + 1});
+	  }
+	  render() {
+	    return (
+	      <div onClick={this.tick}>
+	        Clicks: {this.state.count}
+	      </div>
+	    );
+	  }
+	}
+	Counter.propTypes = { initialCount: React.PropTypes.number };
+	Counter.defaultProps = { initialCount: 0 };
+```
+**非自动绑定**  
+使用ES6 Class语法定义的组件类不会自动绑定this到组件实例上，必须明确地使用 .bind(this)或者箭头函数.
+```javascript
+// You can use bind() to preserve `this`
+<div onClick={this.tick.bind(this)}>
+
+// Or you can use arrow functions
+<div onClick={() => this.tick()}>
+```
+推荐绑定事件处理函数在构造函数中，这样就可以为每个实例绑定一次  
+
+<br>
+<br>
+###  6.表单
+**受控组件**  
+受控组件是指带有value属性的input标签
