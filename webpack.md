@@ -191,4 +191,19 @@ module.preLoaders, module.postLoaders ：Syntax like module.loaders.  <br>
 module.noParse： RegExp或者RegExp数组， 不会解析符合的文件   <br>
 
 resolve.alias ： 用其他的模块或者路径取代模块名。<br>
-resolve.extensions ：An array of extensions that should be used to resolve modules. For example, in order to discover CoffeeScript files, your array should contain the string ".coffee".						
+resolve.extensions ：An array of extensions that should be used to resolve modules. For example, in order to discover CoffeeScript files, your array should contain the string ".coffee".  
+<br>
+<br>
+
+### webpack-dev-serve
+#### iframe mode
+使用这种模式自动刷新页面无需额外的配置，只要打开浏览器到http://<path>:<port>/webpack-dev-server/<path>即可。使用这种模式有下面的几个特点：  
++ 无需更改配置  
++ 会有一个信息导航栏在app上面  
++ url变化不会反应到浏览器上的url部分  
+
+#### inline mode
+自动刷新使用这种模式有以下几种方式：  
++ 在command启动server的时候加入 --inline参数  
++ 在配置文件中在每个入口文件数组前加入 `webpack-dev-server/client?http://<path>:<port>/`的参数  
++ 或者直接在页面中引入js文件`<script src="http://localhost:8080/webpack-dev-server.js"></script>`						

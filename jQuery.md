@@ -4,104 +4,104 @@
 
 ---
 
-1. $();
-```javascript
-    可以传递一个jQuery对象进去，这个对象的一个克隆对象将被创建。这个新的jQuery对象引用同一DOM元素。所以意味着两者指向同一个对象。
-```
-
-2. .each( function(index, Element) )
-这个方法和forEach()显著的区别是如果回调函数在任一元素上返回false，遍历将在该元素后终止。  
-
 
 
 ##  源码解析
----
-
-### 实例继承的方法
-93~178行
 ```javascript
-    jQuery.fn = jQuery.prototype = {
+	// 45~63 行， 定义一些常用方法的简写名字
+	
+	// 71行，jQuery构造函数,这里不需要使用new操作符来生成jQuery实例，而是使用jQuery.prototype上init方法来实例对象，
+	// 但是这时候在init方法中 this指向的是返回的实例对象，而这个实例对象并不是jQuery实例，这样的话实例对象就无法从jQuery的原
+	// 上继承属性和方法
+	jQuery = function(selector, context){
+		return new jQuery.prototype.init(selector, context);
+	}	
 
-        jquery: version,
+	// 因此在2832和2942行有
+	init = jQuery.fn.init = function(){/.../};
+	init.prototype = jQuery.fn;
+	// 其实效果就是 jQuery.fn.init.prototype = jQuery.fn;
+	// 这样的话init方法中的this就是一个jQuery的实例了。
 
-        constructor: jQuery,
+	// 91~173行，在jQuery.prototype定义了一些数组操作的方法，方便从jQuery对象返回DOM对象
+jQuery.fn = jQuery.prototype = {
 
-        selector: "",
+	jquery: version,
 
-        length: 0,
+	constructor: jQuery,
 
-        toArray: function() {
-            return slice.call( this );             //等价于 [].slice.call(this), 将jQuery实例类数组对象转换为数组呗
-        },
+	selector: "",
 
-        //jQuery对象实例的get方法，获取到DOM元素
-        get: function( num ) {
-                    //注意这里用的并不是严格不等符， 所以这里不传参数默认是undefined，undefind == null，所以这里如果不传参，走的是slice.call(this)
-            return num != null ?
+	length: 0,
 
-                //根据 this[ num ]来看，jQuery函数返回的jQuery对象中的可以用数字索引， 而且还接受负数
-                ( num < 0 ? this[ num + this.length ] : this[ num ] ) :
+	// 转换为DOM数组
+	toArray: function() {
+		return slice.call( this );
+	},
 
-                slice.call( this );
-        },
+	
+	// 获取指定索引的DOM元素，或者返回整个数组
+	get: function( num ) {
+		return num != null ?
 
-        // Take an array of elements and push it onto the stack
-        // (returning the new matched element set)
-        pushStack: function( elems ) {
+			( num < 0 ? this[ num + this.length ] : this[ num ] ) :
 
-            // Build a new jQuery matched element set
-            var ret = jQuery.merge( this.constructor(), elems );
+			slice.call( this );
+	},
 
-            // Add the old object onto the stack (as a reference)
-            ret.prevObject = this;
-            ret.context = this.context;
+	// 将传入元素栈中，注意这个不同于add方法，这个并不是合并操作，推入后之前的实例对象保存在prevObject属性上。
 
-            // Return the newly-formed element set
-            return ret;
-        },
+	pushStack: function( elems ) {
 
-        // Execute a callback for every element in the matched set.
-        each: function( callback ) {
-            return jQuery.each( this, callback );
-        },
+		var ret = jQuery.merge( this.constructor(), elems );
 
-        map: function( callback ) {
-            return this.pushStack( jQuery.map( this, function( elem, i ) {
-                return callback.call( elem, i, elem );
-            } ) );
-        },
+		ret.prevObject = this;
+		ret.context = this.context;
 
-        slice: function() {
-            return this.pushStack( slice.apply( this, arguments ) );
-        },
+		return ret;
+	},
 
-        first: function() {
-            return this.eq( 0 );
-        },
+	each: function( callback ) {
+		return jQuery.each( this, callback );
+	},
 
-        last: function() {
-            return this.eq( -1 );
-        },
+	map: function( callback ) {
+		return this.pushStack( jQuery.map( this, function( elem, i ) {
+			return callback.call( elem, i, elem );
+		} ) );
+	},
 
-        eq: function( i ) {
-            var len = this.length,
-                j = +i + ( i < 0 ? len : 0 );
-            return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
-        },
+	// 这里slice方法用pushStack将DOM元素转换成jQuery对象
+	slice: function() {
+		return this.pushStack( slice.apply( this, arguments ) );
+	},
 
-        end: function() {
-            return this.prevObject || this.constructor();
-        },
+	first: function() {
+		return this.eq( 0 );
+	},
 
-        // For internal use only.
-        // Behaves like an Array's method, not like a jQuery method.
-        push: push,
-        sort: arr.sort,
-        splice: arr.splice
-    };
+	last: function() {
+		return this.eq( -1 );
+	},
+
+	eq: function( i ) {
+		var len = this.length,
+			j = +i + ( i < 0 ? len : 0 );
+		return this.pushStack( j >= 0 && j < len ? [ this[ j ] ] : [] );
+	},
+
+	// 返回之前栈中的实例对象，如果没有的话就是空jQuery对象
+	end: function() {
+		return this.prevObject || this.constructor();
+	},
+
+	push: push,
+	sort: arr.sort,
+	splice: arr.splice
+};
+
 ```
-类数组对象转为数组  [].slice.call(this);  
-如何使数组的方法接受负数索引 this[ num + this.length]
+
 
 
 
