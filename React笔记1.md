@@ -150,4 +150,8 @@ React.createClass({
 <br>
 ###  6.表单
 **受控组件**  
-受控组件是指带有value属性的input标签
+受控组件是指带有value属性的input标签  
+
+受控组件的问题(不涉及React)：
+
+对于定义了value属性的input的元素， 当输入内容时， input.value值时随着输入而变化的，但input.attributes.value.value仍然是定义在input上的value属性的值，input.getAttribute('value')返回的值也是这样。

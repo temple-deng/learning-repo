@@ -1,4 +1,4 @@
-﻿# 10. Generator函数
+# 10. Generator函数
 
 标签： Generator
 
@@ -40,6 +40,8 @@
 （4）如果该函数没有return语句，则返回的对象的value属性值为undefined。
 
 yield语句不能用在普通函数中，否则会报错。
+
+要注意Generator函数有没有return语句的区别，当有return语句时，返回的对象value值就是return语句后面的表达式，而done值为true，表示遍历结束，而如果最后的语句没有用return而是普通的yield，那么此时的done仍然为false.
 
 <br>
 <br>
