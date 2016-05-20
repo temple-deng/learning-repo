@@ -109,5 +109,3 @@ export default function thunkMiddleware({ dispatch, getState }) {
 可以看出这个中间件会判断action是否是函数，如果是函数就调用这个函数，否则继续将dispatch的返回值传递下去。
 
 
-## 7. Redux
-###
