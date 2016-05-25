@@ -233,7 +233,21 @@ A float is a box that is shifted to the left or right on the current line. The m
 
 A floated box is shifted to the left or right until its outer edge touches the containing block edge or the outer edge of another float. If there is a line box, the outer top of the floated box is aligned with the top of the current line box.
 
-浮动盒子会向左右移动，直到它的外边缘触碰到包含块的外边缘或者其他浮动元素的外边缘为止。
+浮动盒子会向左右移动，直到它的外边缘触碰到包含块的外边缘或者其他浮动元素的外边缘为止。如果有行框，那么浮动盒子顶端的外部会和当前行框的顶端对齐。
+
+
+If there is not enough horizontal room for the float, it is shifted downward until either it fits or there are no more floats present.
+
+如果在水平方向上的空间不够放下浮动的元素，它就会往下移动，知道找到可以放下它的地方，或者找到没有其他浮动元素的地方。
+
+Since a float is not in the flow, non-positioned block boxes created before and after the float box flow vertically as if the float did not exist. However, the current and subsequent line boxes created next to the float are shortened as necessary to make room for the margin box of the float.
+
+由于浮动元素不在常规流中，非定位元素的块盒子在垂直方向上会出现在浮动元素的前边或后边，就好像浮动元素不存在一样。然而，紧挨着浮动元素的当前的和后面的行框，有必要缩短自己的宽度来为浮动元素的margin box留下空间。
+
+A line box is next to a float when there exists a vertical position that satisfies all of these four conditions: (a) at or below the top of the line box, (b) at or above the bottom of the line box, (c) below the top margin edge of the float, and (d) above the bottom margin edge of the float.
+
+在垂直方向的位置上满足下面四种情况才能说一个行框紧挨着浮动盒子：
+1. 
 
   [1]: http://blog.doyoe.com/image/boxes/block-boxes.png
   [2]: https://www.w3.org/TR/CSS2/images/anon-block.png
