@@ -1,76 +1,12 @@
-﻿# CSS
+﻿# CSS2.1第9章 visual formatting context
 
-Tags： CSS 优先级
+标签（空格分隔）： 未分类
 
 ---
 
-###  1. 优先级
-计算选择器的优先级按照下面的顺序：
-+ !important 声明的样式优先级最高
-+ 内联样式
-+ ID选择器
-+ 类选择器，属性选择器，伪类选择器
-+ 类型选择器和伪元素选择器
-+ 通用选择器和层级关系的选择器如子选择器、兄弟选择器不参与计算
-+ 注意:not()伪类选择器也不参与运算，但伪类中的选择器会参与运算。
-
-### 2. 外边距重叠
-产生折叠的必备条件：margin必须是邻接的。
-+ 必须是出于常规文档流的块级盒子，并且出于同一个BFC中。
-+ 没有线盒，没有空隙，没有padding和border将它们分开。
-+ 都属于垂直方向上相邻的外边距，可以是下面一种情况。
-  + 元素的margin-top与其第一个常规文档流的子元素的margin-top
-  + 元素的margin-bottom与其下一个常规文档流的兄弟元素的margin-top
-  + height为auto的元素的margin-bottom与其最后一个常规文档流的子元素的margin-bottom
-  + 高度为0且最小高度也为0，不包含常规文档流的子元素，并且自身没有建立新的BFC的元素的margin-top和margin-bottom。
-
-
-### 3. 如何创建一个块级格式化上下文BFC
-+ 根元素或其它包含它的元素
-+ 浮动 (元素的 float 不为 none)
-+ 绝对定位元素 (元素的 position 为 absolute 或 fixed)
-+ 行内块 inline-blocks (元素的 display: inline-block)
-+ 表格单元格 (元素的 display: table-cell，HTML表格单元格默认属性)
-+ 表格标题 (元素的 display: table-caption, HTML表格标题默认属性)
-+ overflow 的值不为 visible的元素
-弹性盒子 flex boxes (元素的 display: flex 或 inline-flex)
-
-
-### 4. BFC的布局的原则
-+ 内部的盒子在垂直方向，一个挨一个的放置。
-+ Box垂直方向的距离由margin决定。属于同一BFC的两个相邻box的margin会发生重叠
-+ 每个元素的margin box的左边，与包含块border box的左边相接触。即使存在浮动也是如此。
-+ BFC的区域不会与float box重叠。
-+ BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
-+ 计算BFC的高度时，浮动元素也参与计算。
-
-因为BFC内部的元素和外部的元素绝对不会相互影响。因此，当BFC外部存在浮动时，它不应该影响BFC内部的box的布局，BFC会通过变窄，而不与浮动有重叠。同样的，当BFC内部有浮动时，为了不影响外部元素的布局，BFC计算高度时会包括浮动的高度。避免margin重叠也是这样的道理。
-
-
-### 4. 视觉格式化上下文
-#### 包含块(containing block?)
-每个元素都是相对于其包含块摆放的，可以这么说，包含块就是一个元素的“布局上下文”。
-
-对于正常的西方语言文本流中的一个元素，包含块由最近的块级祖先框、表单元格或行内块祖先框的内容边界(content edge)，考虑下面元素：
-```
-<body>
-	<div>
-		<p>This is a paragraph</p>
-	</div>
-</body>
-```
-p元素的包含块是div元素，因此p的布局依赖于div的布局。
-
-行内元素的摆放方式并不直接依赖于包含块。
-
-### 5. line-height的继承问题
-当一个块级元素从另一个元素继承line-height时，需要注意不同值得区别，当设置为em，或者百分数时，此时行高计算的基数是按照父元素的font-size。如果想要设置成按照子元素的font-size，需要指定成一个数，这个数将作为缩放因子参与计算。
-
-
-###  CSS2.1标准的视觉上下文模型
 > 部分内容摘自 http://blog.doyoe.com/2015/03/09/css/%E8%A7%86%E8%A7%89%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%A8%A1%E5%9E%8B%E4%B8%AD%E7%9A%84%E5%90%84%E7%A7%8D%E6%A1%86/
 
-#### 9.1 visual formatting model 简介
+### 9.1 visual formatting model 简介
 This chapter and the next describe the visual formatting model: how user agents process the document tree for visual media.
 
 视觉上下文模型描述了用户代理（浏览器）为了视觉媒体如何处理文档树。
@@ -87,10 +23,19 @@ In the visual formatting model, each element in the document tree generates zero
 + 盒子的尺寸和类型
 + 定位模式（常规文档流，浮动，或者是绝对定位）
 + 元素之间的关系。
-+ 外部信息（例如：视口 ① 大小，置换元素的固有尺寸等等）。
++ 外部信息（例如：视口大小，置换元素的固有尺寸等等）。
+
+
+An element is called out of flow if it is floated, absolutely positioned, or is the root element.
+
+An element is called in-flow if it is not out-of-flow. The flow of an element A is the set consisting of A and all in-flow elements whose nearest out-of-flow ancestor is A.
+
+如果一个元素是浮动的，或者是绝对定位的，或者是根元素，那么这个元素就叫做在**流外**。
+
+如果一个元素不在流外，那就说它是**流内的**。
 
 <br>
-##### 9.1.2 Containing blocks包含框
+#### 9.1.2 Containing blocks包含框
 In CSS 2.1, many box positions and sizes are calculated with respect to the edges of a rectangular box called a containing block. In general, generated boxes act as containing blocks for descendant boxes; we say that a box "establishes" the containing block for its descendants. The phrase "a box's containing block" means "the containing block in which the box lives," not the one it generates.
 
 在CSS 2.1中， 许多盒子的位置和尺寸是由一个叫做包含块的矩形盒子的边缘计算出来的。通常来说，一个元素生成的盒子通常会充当其子盒子的包含块；我们说一个盒子为它的子盒子“建立”了包含框。 短语“一个盒子的包含块”意味着“该盒子所处的包含块”， 而不是它生成的包含块。
@@ -99,13 +44,13 @@ Each box is given a position with respect to its containing block, but it is not
 
 每个盒子都会由包含块给与一个位置，但是这个盒子并不受包含块的控制，它可能会溢出(overflow)
 <br>
-#### 9.2 Controlling box generation
+### 9.2 Controlling box generation
  A box's type affects, in part, its behavior in the visual formatting model. The 'display' property, described below, specifies a box's type.
  
  盒子的类型会部分影响它在视觉上下文模型中的行为。 ‘display’属性则会说明盒子的类型。
 
 <br>
-##### 9.2.1 Block-level elements and block boxes 块级元素和块盒子
+#### 9.2.1 Block-level elements and block boxes 块级元素和块盒子
 Block-level elements are those elements of the source document that are formatted visually as blocks (e.g., paragraphs). The following values of the 'display' property make an element block-level: 'block', 'list-item', and 'table'.
 
 块级元素就是那些在文档中视觉上格式化为块（比如 段落p）的元素。`display`属性为`block`,`list-item`,`table`,`flex`, `grid`的元素会成为块级元素。
@@ -114,9 +59,9 @@ Block-level boxes are boxes that participate in a block formatting context. Each
 
 块级元素生成的块级盒子参与了BFC。每个块级元素都会生成一个主要的块级盒子来包含它的子盒子和生成的内容，同时这个盒子参与了任何的定位方式。某些块级元素还会在主要的块级框之外产生额外的框：例如 list-item 元素，它需要生成一个额外的框用于包含 list-style-type。这些额外的框会相对于主要的块级框来进行排版。
 
-Except for table boxes, which are described in a later chapter, and replaced elements, a block-level box is also a block container box. A block container box either contains only block-level boxes or establishes an inline formatting context and thus contains only inline-level boxes. Not all block container boxes are block-level boxes: non-replaced inline blocks and non-replaced table cells are block containers but not block-level boxes. Block-level boxes that are also block containers are called block boxes.
+Except for table boxes, which are described in a later chapter, and replaced elements, a block-level box is also a block container box. A block container box either contains only block-level boxes or establishes an inline formatting context and thus contains only inline-level boxes. An element whose principal box is a block container box is a block container element. Values of the 'display' property which make a non-replaced element generate a block container include 'block', 'list-item' and 'inline-block'.Not all block container boxes are block-level boxes: non-replaced inline blocks and non-replaced table cells are block containers but not block-level boxes. Block-level boxes that are also block containers are called block boxes.
 
-除了表格元素`table`和替换元素生成的块级盒，一个块级盒子也是一个块容器盒。一个块容器盒要么只包含块级盒子，要么创建一个IFC而只包含行内级盒子，但不能同时包含块级盒子和行内级盒子。（why?）并不是所有的块容器盒子都是块级盒子：非替换行内块(display:inline-block)和非替换表单元格是块容器盒，但不是块级盒子。既是块级盒子(block-level boxes)也是块容器盒(block container boxes)的叫做块盒子(block boxes)。
+除了表格元素`table`和替换元素生成的块级盒，一个块级盒子也是一个块容器盒。一个块容器盒要么只包含块级盒子，要么创建一个IFC而只包含行内级盒子，但不能同时包含块级盒子和行内级盒子。一个元素如果它生成的主要盒子是块容器盒，那么这个元素就是一个块容器元素。可以让一个非置换元素生成块容器盒的`display`属性值包括`block`,`list-item`和`inline-block`. 并不是所有的块容器盒子都是块级盒子：非替换行内块(display:inline-block)和非替换表单元格是块容器盒，但不是块级盒子。既是块级盒子(block-level boxes)也是块容器盒(block container boxes)的叫做块盒子(block boxes)。
 ![此处输入图片的描述][1]
 
 **9.2.1.1 Anonymous block boxes**
@@ -141,7 +86,7 @@ In other words: if a block container box (such as that generated for the DIV abo
 
 When an inline box contains an in-flow block-level box, the inline box (and its inline ancestors within the same line box) are broken around the block-level box (and any block-level siblings that are consecutive or separated only by collapsible whitespace and/or out-of-flow elements), splitting the inline box into two boxes (even if either side is empty), one on each side of the block-level box(es). The line boxes before the break and after the break are enclosed in anonymous block boxes, and the block-level box becomes a sibling of those anonymous boxes. When such an inline box is affected by relative positioning, any resulting translation also affects the block-level box contained in the inline box.
 
-当一个行内盒子包含一个非常规的块级盒子，这个行内盒子（以及和它在同一行内盒子中的行内祖先盒子）会被这个块级盒子打断， 被分成两个盒子（即使有一边是空的）。。。。
+当一个行内盒子包含一个流内的块级盒子， 这个行内盒子(以及它同一行框内的内联祖先)会在块级盒子处断开， 将行内盒子分割为两个盒子(即便有一边是空的), 块级盒子一边放一个。 在断开处之前和之后的行内盒子被装入到匿名的块盒子中， 并且那个块级盒子变成这个匿名盒子的兄弟。当这样的一个行内盒子受相对定位影响时， 任何的结果都会影响其中的块级盒子。
 
 <br>
 
@@ -171,13 +116,13 @@ An inline box is one that is both inline-level and whose contents participate in
 块级元素生成主要的块级盒子，行内级元素生成主要的行内级盒子，这两种盒子分别参与BFC或者IFC，并且参与定位。
 
 <br>
-#### 9.4 Normal flow 常规流
+### 9.4 Normal flow 常规流
 Boxes in the normal flow belong to a formatting context, which may be block or inline, but not both simultaneously. Block-level boxes participate in a block formatting context. Inline-level boxes participate in an inline formatting context.
 
 常规流中的各种盒子属于一个格式化的上下文，这个上下文可能是块的也可能是行内的，但不会两者皆是。块级盒子参与BFC，行内级盒子参与IFC。
 
 <br>
-##### 9.4.1 Block formatting contexts
+#### 9.4.1 Block formatting contexts
 Floats, absolutely positioned elements, block containers (such as inline-blocks, table-cells, and table-captions) that are not block boxes, and block boxes with 'overflow' other than 'visible' (except when that value has been propagated to the viewport) establish new block formatting contexts for their contents.
 
 非块盒子的浮动元素，绝对定位的元素，块容器盒（例如 行内块，table-cells和table-captions，这就是属于块容器盒但不属于块级盒的那部分），以及那些`overflow`属性值不为`visible`的块盒子为它们的内容建立了一个新的BFC。（要注意普通的块级盒子只是参与BFC，这些是建立了新的BFC）
@@ -191,7 +136,7 @@ In a block formatting context, each box's left outer edge touches the left edge 
 在一个BFC中，每个盒子的左外边缘紧挨着包含块的左边缘。即便有浮动的影响也是这样的，除非这个盒子建立了一个新的BFC。
 
 <br>
-##### 9.4.2 Inline formatting contexts
+#### 9.4.2 Inline formatting contexts
 In an inline formatting context, boxes are laid out horizontally, one after the other, beginning at the top of a containing block. Horizontal margins, borders, and padding are respected between these boxes. The boxes may be aligned vertically in different ways: their bottoms or tops may be aligned, or the baselines of text within them may be aligned. The rectangular area that contains the boxes that form a line is called a line box.
 
 在一个IFC中， 盒子都是从包含块的顶部边缘一个接一个水平排列的。 这些盒子会遵守水平方向的`marings`, `borders` 和 `padding`。 这些盒子在垂直方向对齐时有不同的方式： 可能是底部对齐，也可能是顶部对齐，又或者是盒子内文本的基线对齐。 包含这些盒子的矩形区域形成了行框。
@@ -226,7 +171,7 @@ Line boxes are created as needed to hold inline-level content within an inline f
 行框是为了维持行内级文本在一个IFC而建立的。后面的完全不理解。。。
 
 <br>
-#### 9.5 Floats
+### 9.5 Floats
 A float is a box that is shifted to the left or right on the current line. The most interesting characteristic of a float (or "floated" or "floating" box) is that content may flow along its side (or be prohibited from doing so by the 'clear' property). Content flows down the right side of a left-floated box and down the left side of a right-floated box. The following is an introduction to float positioning and content flow; the exact rules governing float behavior are given in the description of the 'float' property.
 
 浮动盒子是一个移动到当前行左边或右边的盒子。float盒子最有趣的特性是文本可能包裹在它的边上（如果设置了`clear`属性的话就没有这样的效果）。文本包裹在一个左浮动盒子的右边或者在一个右浮动盒子的左边。
@@ -238,17 +183,83 @@ A floated box is shifted to the left or right until its outer edge touches the c
 
 If there is not enough horizontal room for the float, it is shifted downward until either it fits or there are no more floats present.
 
-如果在水平方向上的空间不够放下浮动的元素，它就会往下移动，知道找到可以放下它的地方，或者找到没有其他浮动元素的地方。
+如果在水平方向上的空间不够放下浮动的元素，它就会往下移动，直到找到可以放下它的地方，或者找到没有其他浮动元素的地方。
 
 Since a float is not in the flow, non-positioned block boxes created before and after the float box flow vertically as if the float did not exist. However, the current and subsequent line boxes created next to the float are shortened as necessary to make room for the margin box of the float.
 
-由于浮动元素不在常规流中，非定位元素的块盒子在垂直方向上会出现在浮动元素的前边或后边，就好像浮动元素不存在一样。然而，紧挨着浮动元素的当前的和后面的行框，有必要缩短自己的宽度来为浮动元素的margin box留下空间。
+由于浮动元素不在流中，非定位元素的块盒子在垂直方向上会出现在浮动元素的前边或后边，就好像浮动元素不存在一样。然而，紧挨着浮动元素的当前的和后面的行框(注意是行框，意味着行框内的内容与浮动元素之间有margin值)，有必要缩短自己的宽度来为浮动元素的margin box留下空间。
 
 A line box is next to a float when there exists a vertical position that satisfies all of these four conditions: (a) at or below the top of the line box, (b) at or above the bottom of the line box, (c) below the top margin edge of the float, and (d) above the bottom margin edge of the float.
 
 在垂直方向的位置上满足下面四种情况才能说一个行框紧挨着浮动盒子：
-1. 
+1. 在行框的top位置或位置之下  
+2. 在行框的bottom位置或位置之上  
+3. 在浮动元素的top margin边缘之下
+4. 在浮动元素的bottom margin边缘之上
+
+If a shortened line box is too small to contain any content, then the line box is shifted downward (and its width recomputed) until either some content fits or there are no more floats present. Any content in the current line before a floated box is reflowed in the same line on the other side of the float. In other words, if inline-level boxes are placed on the line before a left float is encountered that fits in the remaining line box space, the left float is placed on that line, aligned with the top of the line box, and then the inline-level boxes already on the line are moved accordingly to the right of the float (the right being the other side of the left float) and vice versa for rtl and right floats.
+
+如果一个缩短了的行框宽度太小以至于放不小任何的文本，那么这个行框就会下移(宽度会重新计算)，直到一个可以放下文本或者没有浮动元素存在的位置。 当前行中任何在浮动元素前面的内容都会"流回"到当前行浮动元素的另一侧。 换句话说， 如果行内级盒子位于一个左浮动元素前面，并且行框剩余空间可以放下它的内容，那么左浮动就会放置在这一行，和行框的top对齐，并且那个行内级盒子移动到浮动盒子的右边。
+
+The border box of a table, a block-level replaced element, or an element in the normal flow that establishes a new block formatting context (such as an element with 'overflow' other than 'visible') must not overlap the margin box of any floats in the same block formatting context as the element itself. If necessary, implementations should clear the said element by placing it below any preceding floats, but may place it adjacent to such floats if there is sufficient space. They may even make the border box of said element narrower than defined by section 10.3.3. CSS2 does not define when a UA may put said element next to the float or by how much said element may become narrower.
+
+一个表格元素的border box， 一个块级置换元素，或者一个常规流中建立了一个新的BFC(例如一个元素overflow属性不为`visible`)的元素，
+不能够和处于同一BFC中的浮动元素的margin box重叠。如果有必要的话， 浏览器的实现者应该将元素放置到位于其之前的任意浮动元素下方，当时如果有足够空间的话，也可以将这个元素放置到浮动元素的相邻位置。它们甚至可以缩短在10.3.3部分定义的上述元素的border box。CSS2没有定义浏览器什么时候应该将上述元素放置到紧挨着浮动元素的位置，或者上述元素应该缩短多少。
+
+<br>
+<br>
+
+#### 9.5.1 Positioning the float: the 'float' property
+Here are the precise rules that govern the behavior of floats:
+
+下面是一些控制浮动元素行为的明确的规则： 
+
+1. The left outer edge of a left-floating box may not be to the left of the left edge of its containing block. An analogous rule holds for right-floating elements.
+
+2. If the current box is left-floating, and there are any left-floating boxes generated by elements earlier in the source document, then for each such earlier box, either the left outer edge of the current box must be to the right of the right outer edge of the earlier box, or its top must be lower than the bottom of the earlier box. Analogous rules hold for right-floating boxes.
+
+3. The right outer edge of a left-floating box may not be to the right of the left outer edge of any right-floating box that is next to it. Analogous rules hold for right-floating elements.
+
+4. A floating box's outer top may not be higher than the top of its containing block. When the float occurs between two collapsing margins, the float is positioned as if it had an otherwise empty anonymous block parent taking part in the flow. The position of such a parent is defined by the rules in the section on margin collapsing.
+
+5. The outer top of a floating box may not be higher than the outer top of any block or floated box generated by an element earlier in the source document.
+
+6. The outer top of an element's floating box may not be higher than the top of any line-box containing a box generated by an element earlier in the source document.
+
+7. A left-floating box that has another left-floating box to its left may not have its right outer edge to the right of its containing block's right edge. (Loosely: a left float may not stick out at the right edge, unless it is already as far to the left as possible.) An analogous rule holds for right-floating elements.
+
+8. A floating box must be placed as high as possible.
+
+9. A left-floating box must be put as far to the left as possible, a right-floating box as far to the right as possible. A higher position is preferred over one that is further to the left/right.
+
+
+
+1. 浮动元素的左外边缘不能位于其包含块的左边缘的左边。右浮动元素有相同的规则。
+2. 如果当前盒子是左浮动的，并且存在任意的相同文档中之前元素生成的左浮动盒子，那么对于这些文档中靠前的盒子，要么当前盒子的左外边缘必须在这些盒子的右外边缘的右边，要么当前盒子的top要比这些盒子的bottom更低（也就是要么在右边，要么在下边）。
+3. 左浮动盒子的右外边缘不能位于紧挨着它的右浮动盒子的左外边缘的右边。
+4. 一个浮动盒子的top的外边不能比其包含块还高。当浮动元素出现在两个重叠的margin之间，浮动元素定位时仿佛它有一个空的匿名的父级block参与到流中，这个父级的位置通过margin合并章节中的规则来定义。
+5. 浮动元素的top外边不可以比任何文档中位于其前部的块元素或者浮动元素高。
+6. 一个元素的浮动盒的外top不能高于任何含有源文档中在此之前的元素生成的盒的行框的top 
+7. 左边存在另一个左浮动盒的左浮动盒的right外边不能位于其包含块的right边的右边（不严谨的：一个左浮动盒不能超出right边，除非它已经尽量向左（紧挨着包含块的left边）了）。右浮动元素也有类似的规则 
+8. 浮动盒必须尽量高往高放（A floating box must be placed as high as possible） 
+9. 左浮动盒必须尽量往左放，右浮动盒尽量往右放。更高的位置要比更左/右的位置优先 。
+
+
+
+
+
+
+
+
+
+
+
+
 
   [1]: http://blog.doyoe.com/image/boxes/block-boxes.png
   [2]: https://www.w3.org/TR/CSS2/images/anon-block.png
   [3]: http://blog.doyoe.com/image/boxes/inline-boxes.png
+
+
+
+
