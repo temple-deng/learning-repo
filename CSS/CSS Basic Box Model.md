@@ -51,6 +51,34 @@ If ‘height’ and ‘width’ both have computed values of ‘auto’ and the 
 
 > (used height) * (intrinsic ratio)
 
+If ‘height’ and ‘width’ both have computed values of ‘auto’ and the element has no intrinsic height, but does have an intrinsic width and intrinsic ratio; or if ‘height’ has a computed value of ‘auto’, ‘width’ has some other computed value, and the element has an intrinsic ratio; then the used value of ‘height’ is:
+
+如果`height`和`width`都是计算值`auto`， 元素没有内在的高度，但有内在的宽度和比例；或者`width`有其他的计算值，并且元素有内在的比例，那么`height`使用的计算值是:
+
+> (used width) / (intrinsic ratio)
+
+If ‘height’ and ‘width’ both have computed values of ‘auto’ and the element has an intrinsic ratio but no intrinsic height or width and the containing block's width doesn't itself depend on the replaced element's width, then the used value of ‘width’ is calculated from the constraint equation used for block-level, non-replaced elements in normal flow. The used value for ‘height’ is: (used width) / (intrinsic ratio).
+
+如果`height`和`width`都有计算值`auto`, 并且元素有内在的比例，但没有内在的高度或宽度， 并且其包含块的宽度不取决于替换元素的宽度， 那么`width`计算值就使用常规流中块级非替换元素的计算公式， `height`的使用值就是`(used width) / (intrinsic ratio).`
+
+If ‘width’ has a computed value of ‘auto’, but none of the conditions above are met, then the used value of ‘width’ becomes 300px. If 300px is too wide to fit the device, UAs should use the width of the largest rectangle that has a 2:1 ratio and fits the device instead.
+
+如果`width`有计算值`auto`, 但是不满足上面的情况， 那么`width`的使用值是 300px， 如果300px像素对于设备来说过宽，用户代理应该使用最大的矩形，比例是2:1， 来适配设备。
+
+If ‘height’ has a computed value of ‘auto’ and none of the rules above define its used value, then the used value of ‘height’ must be set to the height of the largest rectangle that has a 2:1 ratio, has a height not greater than 150px, and has a width not greater than the device width.
+
+blabla.....
+
+#### 9.3. Block-level, non-replaced elements in normal flow when ‘overflow’ computes to ‘visible’
+This section also applies to block-level non-replaced elements in normal flow when ‘overflow’ does not compute to ‘visible’ but has been propagated to the viewport.
+
+The following constraints must hold among the used values of the properties.
+
+对于常规流中非替换块级元素来说， 属性间的使用值必须满足下面的约束条件：
+
+‘margin-left’ + ‘border-left-width’ + ‘padding-left’ + ‘width’ + ‘padding-right’ + ‘border-right-width’ + ‘margin-right’ + scrollbar width (if any) = width of containing block
+
+
 
 
 

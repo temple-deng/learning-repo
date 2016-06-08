@@ -1,4 +1,4 @@
-﻿# 3. 字符串的扩展
+# 3. 字符串的扩展
 
 标签： for..of
 
@@ -50,10 +50,14 @@ s.codePointAt(1) // 57271
 s.charCodeAt(2) // 97
 ```
 codePointAt方法的参数，是字符在字符串中的位置（从0开始）。上面代码中，JavaScript将“𠮷a”视为三个字符，codePointAt方法在第一个字符上，正确地识别了“𠮷”，返回了它的十进制码点134071（即十六进制的20BB7）。在第二个字符（即“𠮷”的后两个字节）和第三个字符“a”上，codePointAt方法的结果与charCodeAt方法相同。  
+
 但是这样还是有点尴尬啊。。。如果是两个𠮷，那只有在0,2位置才能返回正确的码点。  
 
 ES5提供String.fromCharCode方法，用于从码点返回对应字符，但是这个方法不能识别32位的UTF-16字符（Unicode编号大于0xFFFF）。  
+
 ES6提供了String.fromCodePoint方法，可以识别0xFFFF的字符，弥补了String.fromCharCode方法的不足。  
+
+如果String.fromCodePoint()有多个参数，那么会合并成一个字符串返回。
 <br>
 <br>
 
