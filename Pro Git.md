@@ -3,7 +3,84 @@
 标签（空格分隔）： 未分类
 
 ---
+```
+ // 常用操作
+ 克隆远程库 
+git clone url repo-name
 
+重新提交
+git commit --amend
+
+取消文件的暂存操作
+git reset HEAD <file>
+
+将工作区文件还原成上次提交的样子
+git checkout -- <file>
+
+添加远程仓库
+git remote add <shortname> <url>
+
+拉取远程仓库的内容
+git fetch <remote-name>
+
+查看远程仓库更多信息
+git remote show <remote-name>
+
+列出已有标签
+git tag
+
+创建附注标签
+git tag -a v1.4 -m 'my version 1.4'
+
+创建轻量标签
+git tag v1.4-lw
+
+给特定的提交创建标签
+git tag -a v1.2 <commit hash>
+
+推送标签到远程服务器上
+git push <remote-name> <tagname>
+
+一次性推送很多标签
+git push <remote-name> --tags
+
+暂存操作： 计算每个文件的校验和，将文件快照保存在git仓库中，将校验和加入到暂存区域等待提交
+
+提交操作： 计算每个子目录的校验和， 然后在git仓库中将校验和保存为树对象， 然后创建提交对象。
+
+创建分支
+git branch <branch-name>
+
+切换到一个已存在的分支
+git checkout <branch-name>
+
+创建新分支并直接切换到该分支
+git checkout -b <branch-name>
+
+合并分支
+git merge <branch-name>
+
+删除分支
+git branch -d <branch-name>
+
+推送本地分支到远程
+git push origin serverfix 等价于 git push origin serverfix:serverfix ,即 git push origin <branch-name>:<remote-branch-name>
+
+从远程分支检出本地的跟踪分支
+git checkout -b <branch-name> <remote-name>/<branch-name>  
+或者 git checkout --track <remote-name>/<branch-name> 注意这种方式好像没法重命名本次的跟踪分支吧
+
+查看设置的所有跟踪分支
+git bracnch --vv
+
+简单的变基操作
+git checkout experiment
+git rebase master
+git checkout master
+git merge experiment
+
+```
+---
 ### 第一章  介绍
 Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为的配置变量。 这些变量存储在三个不同的位置：
 
@@ -29,7 +106,11 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 
 `$ git clone https://github.com/libgit2/libgit2 mylibgit`
 
+注意这个仓库的名字的意思好像就是文件夹名， 没什么特别的。其实本地的仓库名貌似就是文件夹的名字
+
 #### 记录每次更新到仓库
+**忽略文件**
+
 请记住，你工作目录下的每一个文件都不外乎这两种状态：已跟踪或未跟踪。 已跟踪的文件是指那些被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改，已修改或已放入暂存区。 工作目录中除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区。 初次克隆某个仓库的时候，工作目录中的所有文件都属于已跟踪文件，并处于未修改状态。
 
 文件 .gitignore 的格式规范如下：
@@ -46,6 +127,8 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 
 所谓的 glob 模式是指 shell 所使用的简化了的正则表达式。 星号（*）匹配零个或多个任意字符；[abc] 匹配任何一个列在方括号中的字符（这个例子要么匹配一个 a，要么匹配一个 b，要么匹配一个 c）；问号（?）只匹配一个任意字符；如果在方括号中使用短划线分隔两个字符，表示所有在这两个字符范围内的都可以匹配（比如 [0-9] 表示匹配所有 0 到 9 的数字）。 使用两个星号（*) 表示匹配任意中间目录，比如a/**/z 可以匹配 a/z, a/b/z 或 a/b/c/z等。
 
+**比较差异**
+
 要查看尚未暂存的文件更新了哪些部分，不加参数直接输入 git diff.
 
 此命令比较的是工作目录中当前文件和暂存区域快照之间的差异， 也就是修改之后还没有暂存起来的变化内容。
@@ -53,6 +136,12 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 若要查看已暂存的将要添加到下次提交里的内容，可以用 git diff --cached 命令。（Git 1.6.1 及更高版本还允许使用 git diff --staged，效果是相同的，但更好记些。）
 
 尽管使用暂存区域的方式可以精心准备要提交的细节，但有时候这么做略显繁琐。 Git 提供了一个跳过使用暂存区域的方式， 只要在提交的时候，给 git commit 加上 -a 选项，Git 就会自动把所有已经跟踪过的文件暂存起来一并提交，从而跳过 git add 步骤.
+
+**删除和移动操作**
+
+我们想把文件从 Git 仓库中删除（亦即从暂存区域移除），但仍然希望保留在当前工作目录中。 换句话说，你想让文件保留在磁盘，但是并不想让 Git 继续跟踪。 当你忘记添加 .gitignore 文件，不小心把一个很大的日志文件或一堆 .a 这样的编译生成文件添加到暂存区时，这一做法尤其有用。 为达到这一目的，使用 --cached 选项：
+
+`$ git rm --cached README`  
 
 移动文件或者改名文件， 使用git mv 命令。
 
@@ -98,8 +187,11 @@ M	CONTRIBUTING.md
 ```
 不加选项地调用 git reset 并不危险 — 它只会修改暂存区域。
 
+这样的情况会很奇怪， 这样做会将上次提交与本次撤销的暂存之间的修改完全丢弃掉。
+
 如果你并不想保留对 CONTRIBUTING.md 文件的修改怎么办？ 你该如何方便地撤消修改 - 将它还原成上次提交时的样子（或者刚克隆完的样子，或者刚把它放入工作目录时的样子）, 需要使用`$ git checkout -- <file>`
 
+你需要知道 git checkout -- [file] 是一个危险的命令，这很重要。 你对那个文件做的任何修改都会消失 - 你只是拷贝了另一个文件来覆盖它。 除非你确实清楚不想要那个文件了，否则不要使用这个命令。
 
 ####  远程仓库的使用
 如果想查看你已经配置的远程仓库服务器，可以运行 git remote 命令。 它会列出你指定的每一个远程服务器的简写。 如果你已经克隆了自己的仓库，那么至少应该能看到 origin - 这是 Git 给你克隆的仓库服务器的默认名字。
@@ -140,6 +232,8 @@ From https://github.com/paulboone/ticgit
  ```shell
  $ git fetch <remote-name>
  ```
+ 
+ 这个命令会访问远程仓库，从中拉取所有你还没有的数据。 执行完成后，你将会拥有那个远程仓库中所有分支的引用，可以随时合并或查看。
 
 如果你使用 clone 命令克隆了一个仓库，命令会自动将其添加为远程仓库并默认以 “origin” 为简写。 所以，git fetch origin 会抓取克隆（或上一次抓取）后新推送的所有工作。 必须注意 git fetch 命令会将数据拉取到你的本地仓库 - 它并不会自动合并或修改你当前的工作。 当准备好时你必须手动将其合并入你的工作。 (也就是说fetch把远程仓库的内容抓到本地仓库， 但是还需要手动和本地仓库的内容合并分支， 或者用下面的pull命令自动合并)
 
@@ -549,9 +643,35 @@ $ git merge experiment
 
 
 ### 分布式Git
-这是一个最简单的工作流程。 你通常在一个特性分支工作一会儿，当它准备好整合时合并回你的 master 分支。 当想要共享工作时，将其合并回你自己的 master 分支，如果有改动的话然后抓取并合并 origin/master，最终推送到服务器上的 master 分支。 通常顺序像这样：
+#### 集中式工作流
+集中式系统中通常使用的是单点协作模型——集中式工作流。 一个中心集线器，或者说仓库，可以接受代码，所有人将自己的工作与之同步。 若干个开发者则作为节点——也就是中心仓库的消费者——并且与其进行同步。
+
+只需要搭建好一个中心仓库，并给开发团队中的每个人推送数据的权限，就可以开展工作了。Git 不会让用户覆盖彼此的修改。 例如 John 和 Jessica 同时开始工作。 John 完成了他的修改并推送到服务器。 接着 Jessica 尝试提交她自己的修改，却遭到服务器拒绝。 她被告知她的修改正通过非快进式（non-fast-forward）的方式推送，只有将数据抓取下来并且合并后方能推送。 这种模式的工作流程的使用非常广泛，因为大多数人对其很熟悉也很习惯。
 
 ![此处输入图片的描述][23]
+
+####集成管理者工作流
+Git 允许多个远程仓库存在，使得这样一种工作流成为可能：每个开发者拥有自己仓库的写权限和其他所有人仓库的读权限。 这种情形下通常会有个代表“官方”项目的权威的仓库。 要为这个项目做贡献，你需要从该项目克隆出一个自己的公开仓库，然后将自己的修改推送上去。 接着你可以请求官方仓库的维护者拉取更新合并到主项目。 维护者可以将你的仓库作为远程仓库添加进来，在本地测试你的变更，将其合并入他们的分支并推送回官方仓库。 这一流程的工作方式如下所示
+
+1. 项目维护者推送到主仓库。
+
+2. 贡献者克隆此仓库，做出修改。
+
+3. 贡献者将数据推送到自己的公开仓库。
+
+4. 贡献者给维护者发送邮件，请求拉取自己的更新。
+
+5. 维护者在自己本地的仓库中，将贡献者的仓库加为远程仓库并合并修改。
+
+6. 维护者将合并后的修改推送到主仓库。
+
+![此处输入图片的描述][24]
+
+
+#### 私有小型团队工作流
+这是一个最简单的工作流程。 你通常在一个特性分支工作一会儿，当它准备好整合时合并回你的 master 分支。 当想要共享工作时，将其合并回你自己的 master 分支，如果有改动的话然后抓取并合并 origin/master，最终推送到服务器上的 master 分支。 通常顺序像这样：
+
+![此处输入图片的描述][25]
 
 
   [1]: http://o8qr19y3a.bkt.clouddn.com/commit-and-tree.png
@@ -576,4 +696,6 @@ $ git merge experiment
   [20]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-2.png
   [21]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-3.png
   [22]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-4.png
-  [23]: http://o8qr19y3a.bkt.clouddn.com/small-team-flow.png
+  [23]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/centralized_workflow.png
+  [24]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/integration-manager.png
+  [25]: http://o8qr19y3a.bkt.clouddn.com/small-team-flow.png
