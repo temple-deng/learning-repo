@@ -47,4 +47,10 @@ id sem consectetuer libero luctus adipiscing.
 >     return shell_exec("echo $input | $markdown_script");
 
 
+http://f2er.club/
 
+https://zhuanlan.zhihu.com/FrontendMagazine
+
+http://www.html-js.com/static/htmljs-year-2015.html
+
+http://javascript.ruanyifeng.com/
