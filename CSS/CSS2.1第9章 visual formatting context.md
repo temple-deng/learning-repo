@@ -13,7 +13,7 @@ This chapter and the next describe the visual formatting model: how user agents 
 
 In the visual formatting model, each element in the document tree generates zero or more boxes according to the box model. The layout of these boxes is governed by:
 
-在视觉上下文模型中，文档数中的每个元素都会根据盒模型生成0或多个盒子。这些盒子的布局受下面的几个元素控制：
+在视觉上下文模型中，文档树中的每个元素都会根据盒模型生成0或多个盒子。这些盒子的布局受下面的几个元素控制：
 
 + box dimensions and type.
 + positioning scheme (normal flow, float, and absolute positioning).
@@ -125,7 +125,7 @@ Boxes in the normal flow belong to a formatting context, which may be block or i
 #### 9.4.1 Block formatting contexts
 Floats, absolutely positioned elements, block containers (such as inline-blocks, table-cells, and table-captions) that are not block boxes, and block boxes with 'overflow' other than 'visible' (except when that value has been propagated to the viewport) establish new block formatting contexts for their contents.
 
-非块盒子的浮动元素，绝对定位的元素，块容器盒（例如 行内块，table-cells和table-captions，这就是属于块容器盒但不属于块级盒的那部分），以及那些`overflow`属性值不为`visible`的块盒子为它们的内容建立了一个新的BFC。（要注意普通的块级盒子只是参与BFC，这些是建立了新的BFC）
+浮动元素，绝对定位的元素，块容器盒（例如 行内块，table-cells和table-captions，这就是属于块容器盒但不属于块级盒的那部分），以及那些`overflow`属性值不为`visible`的块盒子为它们的内容建立了一个新的BFC。（要注意普通的块级盒子只是参与BFC，这些是建立了新的BFC）
 
 In a block formatting context, boxes are laid out one after the other, vertically, beginning at the top of a containing block. The vertical distance between two sibling boxes is determined by the 'margin' properties. Vertical margins between adjacent block-level boxes in a block formatting context collapse.
 
