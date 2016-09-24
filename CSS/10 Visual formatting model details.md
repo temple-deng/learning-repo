@@ -231,3 +231,48 @@ Then the shrink-to-fit width is: min(max(preferred minimum width, available widt
 <br>
 <br>
 
+###  10.3.6  Floating, replaced elements 浮动置换元素
+
+If 'margin-left' or 'margin-right' are computed as 'auto', their used value is '0'. The used value of 'width' is determined as for inline replaced elements.  
+
+如果 margin-left 或 margin-right 计算值为 auto，则其使用值为 0。width 的使用值同行内置换元素。  
+
+<br>
+<br>
+
+###  10.3.7  Absolutely positioned, non-replaced elements 绝对定位非置换元素  
+
+For the purposes of this section and the next, the term "static position" (of an element) refers, roughly, to the position an element would have had in the normal flow. More precisely:  
+
+在这一节和下一节， 术语"静态位置"(一个元素的)粗略来讲指的是元素处于常规流内的位置(应该就是定位元素在文档流中未偏移时的位置)。精确的说：  
+
++ The static-position containing block is the containing block of a hypothetical box that would have been the first box of the element if its specified 'position' value had been 'static' and its specified 'float' had been 'none'. (Note that due to the rules in section 9.7 this hypothetical calculation might require also assuming a different computed value for 'display'.)  
+
++ 静态位置的包含块指的是假设一个元素的'position'属性是'static', 'float'属性是'none'，元素的第一个盒子的包含块。  
+
++ The static position for 'left' is the distance from the left edge of the containing block to the left margin edge of a hypothetical box that would have been the first box of the element if its 'position' property had been 'static' and 'float' had been 'none'. The value is negative if the hypothetical box is to the left of the containing block.  
+
++ left 的静态位置是从包含块的左边缘到假定元素 position 值为 static 且 float 值为 none 时，成为其第一个盒的假定盒的左外边距边缘的距离。如果假定盒在包含块左边，该值为负。  
+
++ The static position for 'right' is the distance from the right edge of the containing block to the right margin edge of the same hypothetical box as above. The value is positive if the hypothetical box is to the left of the containing block's edge.  
+
++ right 的静态位置是从包含块的右边缘到上述假定盒的右外边距边缘的距离。如果假定盒在包含块左侧，该值为正。
+
+But rather than actually calculating the dimensions of that hypothetical box, user agents are free to make a guess at its probable position.  
+
+用户代理可以自由的假定假想盒子的位置，而不是真正的计算其位置。  
+
+For the purposes of calculating the static position, the containing block of fixed positioned elements is the initial containing block instead of the viewport, and all scrollable boxes should be assumed to be scrolled to their origin.
+
+为了计算静态位置， fixed定位的元素的包含块是初始包含块而不是视口， 并且所有可滚动各自假设滚动到起始位置。
+
+The constraint that determines the used values for these elements is:  
+
+决定这些元素的使用值的是下列约束：  
+
+> 'left' + 'margin-left' + 'border-left-width' + 'padding-left' + 'width' + 'padding-right' + 'border-right-width' + 'margin-right' + 'right' = width of containing block  
+
+If all three of 'left', 'width', and 'right' are 'auto': First set any 'auto' values for 'margin-left' and 'margin-right' to 0. Then, if the 'direction' property of the element establishing the static-position containing block is 'ltr' set 'left' to the static position and apply rule number three below; otherwise, set 'right' to the static position and apply rule number one below.  
+
+如果'left','right','width'3个值都是auto, 首先左右外边距中任意的auto值设置为0，之后如果元素建立的静态位置的包含块的'direction'属性是'ltr'， 使用下面第3条原则设置'left'静态位置；否则使用下面的第1条原则元素设置'right'静态位置。
+
