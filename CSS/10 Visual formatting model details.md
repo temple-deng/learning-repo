@@ -77,14 +77,18 @@ This property specifies the content width of boxes.
 
 This property does not apply to non-replaced inline elements. The content width of a non-replaced inline element's boxes is that of the rendered content within them (before any relative offset of children). Recall that inline boxes flow into line boxes. The width of line boxes is given by the their containing block, but may be shorted by the presence of floats.
 
-这个属性不能应用到非置换的行内元素。非置换行内元素盒子的内容区域的宽度是其内部渲染内容的宽度。回忆一下行框中的行内盒。行框的宽度是由它们包含块控制的，但可能由于浮动元素的存在而缩短。
+这个属性不能应用到非置换的行内元素。非置换行内元素盒子的内容区域的宽度是其内部渲染内容的宽度。回忆一下行框中的行内盒。行框的宽度是由它们包含块控制的，但可能由于浮动元素的存在而缩短。  
+
+百分比值的意义： 百分比的计算值考虑了生成盒的包含块的宽度。 如果其包含块的宽度取决于这个元素的宽度，那么最终的结果是未定义的在CSS2.2中。 **注意：对于那些包含块是一个块容器元素的绝对定位元素， 百分比值是关于元素的padding box的宽度。（也就是说这样的绝对定位元素的百分比值要按包含块的width+padding left+padding right计算）**  
+
+width属性不接受赋值。
 
 ### 10.3 Calculating widths and margins
 ***
 The values of an element's 'width', 'margin-left', 'margin-right', 'left' and 'right' properties as used for layout depend on the type of box generated and on each other. (The value used for layout is sometimes referred to as the used value.) In principle, the values used are the same as the computed values, with 'auto' replaced by some suitable value, and percentages calculated based on the containing block, but there are exceptions. The following situations need to be distinguished:
 
 
-元素布局使用的`width`, `margin-left` `margin-right` `left` `right`的属性值取决于生成盒子和彼此之间盒子的类型。原则上，使用的值和计算值是一样的，`auto`值被一些自适应的值取代，百分比值计算包含块计算，但是也有例外。需要分辨一下几种情况。
+元素布局使用的`width`, `margin-left` `margin-right` `left` `right`的属性值取决于生成盒子和彼此之间盒子的类型。原则上，使用的值和计算值是一样的，`auto`值被一些自适应的值取代，百分比值根据包含块计算，但是也有例外。需要分辨以下几种情况。
 
 1. inline, non-replaced elements
 
@@ -148,7 +152,7 @@ If 'height' and 'width' both have computed values of 'auto' and the element also
  
  If 'height' and 'width' both have computed values of 'auto' and the element has an intrinsic ratio but no intrinsic height or width, then the used value of 'width' is undefined in CSS 2.2. However, it is suggested that, if the containing block's width does not itself depend on the replaced element's width, then the used value of 'width' is calculated from the constraint equation used for block-level, non-replaced elements in normal flow.
  
- 如果`height`和`width`都是计算值`auto`，并且元素既没有固有宽高，也没有固有比例，那么`width`的使用值在CSS2.2中是未定义的。然而，推荐这样做，如果包含块的宽度不取决置换元素的宽度，那么`width`使用值是根据常规流中块级非置换元素的等式计算的。
+ 如果`height`和`width`都是计算值`auto`，并且元素既没有固有宽高，也没有固有比例，那么`width`的使用值在CSS2.2中是未定义的。然而，这表明，如果包含块的宽度不取决置换元素的宽度，那么`width`使用值是根据常规流中块级非置换元素的等式计算的。
  
  Otherwise, if 'width' has a computed value of 'auto', and the element has an intrinsic width, then that intrinsic width is the used value of 'width'.
  
