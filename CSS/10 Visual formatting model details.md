@@ -162,5 +162,57 @@ If 'height' and 'width' both have computed values of 'auto' and the element also
  
  否则，如果`width`有计算值`auto`，但是都不满足上述的情况，那么就使用`300px`。
 
+#### 10.3.3  Block-level, non-placed elements in normal flow 常规流中的块级非置换元素
 
+The following constraints must hold among the used values of the other properties:  
+
+其他属性的使用值必须满足下列的约束条件：  
+
+> 'margin-left' + 'border-left-width' + 'padding-left' + 'width' + 'padding-right' + 'border-right-width' + 'margin-right' = width of containing block  
+
+感觉这样说并不严谨啊， 左边值的和大于右边不就是溢出了么。  
+
+If 'width' is not 'auto' and 'border-left-width' + 'padding-left' + 'width' + 'padding-right' + 'border-right-width' (plus any of 'margin-left' or 'margin-right' that are not 'auto') is larger than the width of the containing block, then any 'auto' values for 'margin-left' or 'margin-right' are, for the following rules, treated as zero.  
+
+如果'width'值不是auto并且左右外边距 + 左右边框宽度 + width(并且左右外边距中任意一值不是auto)的和是大于包含块的宽度， 那么左右外边距中的任意一个值是auto的话， 根据下列的规则， 会被当做0看待。  
+
+If all of the above have a computed value other than 'auto', the values are said to be "over-constrained" and one of the used values will have to be different from its computed value. If the 'direction' property of the containing block has the value 'ltr', the specified value of 'margin-right' is ignored and the value is calculated so as to make the equality true. If the value of 'direction' is 'rtl', this happens to 'margin-left' instead.  
+
+如果上面的所有值(应该是等式)最终的和是除auto以外的计算值， 那这个值(应该指的是和)就说是'over-constrained'， 其中一个的使用值将不同于其计算值。如果包含块的'direction'属性是'ltr'，那么'margin-right'的指定值将会被忽视，计算出的值将满足等式。反之则是'margin-left'。(个人理解是假如除外边距之外的宽度和已经固定，那么根据书写方向的不同，左右外边距中有一个会失效)。  
+
+If there is exactly one value specified as 'auto', its used value follows from the equality.  
+
+如果其中刚好只有一个值是auto, 那么最终的使用值将会由等式推断出。  
+
+If 'width' is set to 'auto', any other 'auto' values become '0' and 'width' follows from the resulting equality.
+
+如果width是auto,  那么其他任何 auto 值变为 0 并且 width 由等式计算得出。  
+
+If both 'margin-left' and 'margin-right' are 'auto', their used values are equal. This horizontally centers the element with respect to the edges of the containing block.
+
+如果左右外边距都是auto, 它们最终使用的值是相等的。 在水平方向上会让元素在包含块中居中。  
+
+#### 10.3.4 Block-level, replaced elements in normal flow 常规流中的块级置换元素
+The used value of 'width' is determined as for inline replaced elements. Then the rules for non-replaced block-level elements are applied to determine the margins.  
+
+width的使用值和行内置换元素计算方法相同的。margin的计算方式是按照块级非置换元素的规则。  
+
+
+#### 10.3.5 Floating, non-replaced elements 浮动非置换元素
+
+If 'margin-left', or 'margin-right' are computed as 'auto', their used value is '0'.  
+
+如果左外边距或者右外边距是计算为auto, 那使用值就是0.
+
+If 'width' is computed as 'auto', the used value is the "shrink-to-fit" width.  
+
+如果width计算为auto， 那使用值就是‘收缩至自适应’宽度。
+
+Calculation of the shrink-to-fit width is similar to calculating the width of a table cell using the automatic table layout algorithm. Roughly: calculate the preferred width by formatting the content without breaking lines other than where explicit line breaks occur, and also calculate the preferred minimum width, e.g., by trying all possible line breaks. CSS 2.2 does not define the exact algorithm. Thirdly, find the available width: in this case, this is the width of the containing block minus the used values of 'margin-left', 'border-left-width', 'padding-left', 'padding-right', 'border-right-width', 'margin-right', and the widths of any relevant scroll bars.  
+
+计算收缩适应宽度同计算使用自动表格布局算法的表格单元格的宽度相似。大致上：以除明确换行以外的地方以外都不断行的方式格式化内容来计算首选宽度，同时也计算首选最小宽度，比如说，通过尝试所有断行来计算。接着，找到可用宽度：在这种情况下，该宽度是包含块的宽度减去 margin-left，border-left-width，padding-left，padding-right，border-right-width，margin-right，以及所有相关滚动条的宽度。  
+
+Then the shrink-to-fit width is: min(max(preferred minimum width, available width), preferred width).  
+
+那么该收缩适应宽度即：min(max(首选最小宽度,可用宽度),首选宽度)。  
 
