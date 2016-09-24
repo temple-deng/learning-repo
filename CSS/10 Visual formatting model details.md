@@ -4,7 +4,7 @@
 
 ---
 
-### 10.1 Definition of "containing block"
+## 10.1 Definition of "containing block"
 ***
 The position and size of an element's box(es) are sometimes calculated relative to a certain rectangle, called the containing block of the element. The containing block of an element is defined as follows:
 
@@ -34,7 +34,7 @@ If there is no such ancestor, the containing block is the initial containing blo
 
 如果没有这样的祖先元素，包含块就是初始包含块。
 
-### 10.2 Content width: the 'width' property
+## 10.2 Content width: the 'width' property
 ***
 <table>
 	<tbody>
@@ -83,7 +83,7 @@ This property does not apply to non-replaced inline elements. The content width 
 
 width属性不接受赋值。
 
-### 10.3 Calculating widths and margins
+## 10.3 Calculating widths and margins
 ***
 The values of an element's 'width', 'margin-left', 'margin-right', 'left' and 'right' properties as used for layout depend on the type of box generated and on each other. (The value used for layout is sometimes referred to as the used value.) In principle, the values used are the same as the computed values, with 'auto' replaced by some suitable value, and percentages calculated based on the containing block, but there are exceptions. The following situations need to be distinguished:
 
@@ -130,12 +130,12 @@ The values of an element's 'width', 'margin-left', 'margin-right', 'left' and 'r
 
 10. 常规流中的 `inline-block`非置换元素
 
-#### 10.3.1 行内非置换元素
+### 10.3.1 行内非置换元素
 The 'width' property does not apply. A computed value of 'auto' for 'margin-left' or 'margin-right' becomes a used value of '0'.
 
 `width`属性无效果，`margin-left`和`margin-right`的auto计算值会使用0.
 
-#### 10.3.2 行内置换元素
+### 10.3.2 行内置换元素
 A computed value of 'auto' for 'margin-left' or 'margin-right' becomes a used value of '0'.
 
 `margin-left`和`margin-right`的auto计算值使用值0.
@@ -162,7 +162,7 @@ If 'height' and 'width' both have computed values of 'auto' and the element also
  
  否则，如果`width`有计算值`auto`，但是都不满足上述的情况，那么就使用`300px`。
 
-#### 10.3.3  Block-level, non-placed elements in normal flow 常规流中的块级非置换元素
+### 10.3.3  Block-level, non-placed elements in normal flow 常规流中的块级非置换元素
 
 The following constraints must hold among the used values of the other properties:  
 
@@ -192,13 +192,13 @@ If both 'margin-left' and 'margin-right' are 'auto', their used values are equal
 
 如果左右外边距都是auto, 它们最终使用的值是相等的。 在水平方向上会让元素在包含块中居中。  
 
-#### 10.3.4 Block-level, replaced elements in normal flow 常规流中的块级置换元素
+### 10.3.4 Block-level, replaced elements in normal flow 常规流中的块级置换元素
 The used value of 'width' is determined as for inline replaced elements. Then the rules for non-replaced block-level elements are applied to determine the margins.  
 
 width的使用值和行内置换元素计算方法相同的。margin的计算方式是按照块级非置换元素的规则。  
 
 
-#### 10.3.5 Floating, non-replaced elements 浮动非置换元素
+### 10.3.5 Floating, non-replaced elements 浮动非置换元素
 
 If 'margin-left', or 'margin-right' are computed as 'auto', their used value is '0'.  
 
