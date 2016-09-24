@@ -5,7 +5,7 @@
 ---
 
 ## 10.1 Definition of "containing block"
-***
+
 The position and size of an element's box(es) are sometimes calculated relative to a certain rectangle, called the containing block of the element. The containing block of an element is defined as follows:
 
 一个元素的盒子的位置和尺寸有时计算时是相对于一个已经确定的矩形计算的，这个矩形叫做元素的包含块。一个元素的包含块是按如下规则定义的：
@@ -35,7 +35,7 @@ If there is no such ancestor, the containing block is the initial containing blo
 如果没有这样的祖先元素，包含块就是初始包含块。
 
 ## 10.2 Content width: the 'width' property
-***
+
 <table>
 	<tbody>
 		<tr>
@@ -84,7 +84,7 @@ This property does not apply to non-replaced inline elements. The content width 
 width属性不接受赋值。
 
 ## 10.3 Calculating widths and margins
-***
+
 The values of an element's 'width', 'margin-left', 'margin-right', 'left' and 'right' properties as used for layout depend on the type of box generated and on each other. (The value used for layout is sometimes referred to as the used value.) In principle, the values used are the same as the computed values, with 'auto' replaced by some suitable value, and percentages calculated based on the containing block, but there are exceptions. The following situations need to be distinguished:
 
 
@@ -135,6 +135,9 @@ The 'width' property does not apply. A computed value of 'auto' for 'margin-left
 
 `width`属性无效果，`margin-left`和`margin-right`的auto计算值会使用0.
 
+<br>
+<br>
+
 ### 10.3.2 行内置换元素
 A computed value of 'auto' for 'margin-left' or 'margin-right' becomes a used value of '0'.
 
@@ -160,7 +163,10 @@ If 'height' and 'width' both have computed values of 'auto' and the element also
  
  Otherwise, if 'width' has a computed value of 'auto', but none of the conditions above are met, then the used value of 'width' becomes 300px. If 300px is too wide to fit the device, UAs should use the width of the largest rectangle that has a 2:1 ratio and fits the device instead.
  
- 否则，如果`width`有计算值`auto`，但是都不满足上述的情况，那么就使用`300px`。
+ 否则，如果`width`有计算值`auto`，但是都不满足上述的情况，那么就使用`300px`。  
+ 
+ <br>
+ <br>
 
 ### 10.3.3  Block-level, non-placed elements in normal flow 常规流中的块级非置换元素
 
@@ -192,10 +198,16 @@ If both 'margin-left' and 'margin-right' are 'auto', their used values are equal
 
 如果左右外边距都是auto, 它们最终使用的值是相等的。 在水平方向上会让元素在包含块中居中。  
 
+<br>
+<br>
+
 ### 10.3.4 Block-level, replaced elements in normal flow 常规流中的块级置换元素
 The used value of 'width' is determined as for inline replaced elements. Then the rules for non-replaced block-level elements are applied to determine the margins.  
 
 width的使用值和行内置换元素计算方法相同的。margin的计算方式是按照块级非置换元素的规则。  
+
+<br>
+<br>
 
 
 ### 10.3.5 Floating, non-replaced elements 浮动非置换元素
@@ -215,4 +227,7 @@ Calculation of the shrink-to-fit width is similar to calculating the width of a 
 Then the shrink-to-fit width is: min(max(preferred minimum width, available width), preferred width).  
 
 那么该收缩适应宽度即：min(max(首选最小宽度,可用宽度),首选宽度)。  
+
+<br>
+<br>
 
