@@ -81,7 +81,7 @@ git merge experiment
 
 ```
 ---
-### 第一章  介绍
+## 第一章  介绍
 Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为的配置变量。 这些变量存储在三个不同的位置：
 
 1. /etc/gitconfig 文件: 包含系统上每一个用户及他们仓库的通用配置。 如果使用带有 --system 选项的 git config 时，它会从此文件读写配置变量。
@@ -95,13 +95,13 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 在 Windows 系统中，Git 会查找 $HOME 目录下（一般情况下是 C:\Users\$USER）的 .gitconfig 文件。 Git 同样也会寻找 /etc/gitconfig 文件，但只限于 MSys 的根目录下，即安装 Git 时所选的目标位置。
 
 
-#### 检查配置信息
+### 检查配置信息
 如果想要检查你的配置，可以使用 git config --list 命令来列出所有 Git 当时能找到的配置。
 
 你可以通过输入 git config &lt;key&gt;： 来检查 Git 的某一项配置
 
 
-### 第二章 Git基础
+## 第二章 Git基础
 如果你想在克隆远程仓库的时候，自定义本地仓库的名字，你可以使用如下命令：  
 
 `$ git clone https://github.com/libgit2/libgit2 mylibgit`
