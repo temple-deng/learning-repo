@@ -1,8 +1,8 @@
-﻿# Pro Git
+# Pro Git
 
 标签（空格分隔）： 未分类
 
----
+
 ```
  // 常用操作
  克隆远程库 
@@ -80,8 +80,15 @@ git checkout master
 git merge experiment
 
 ```
----
+<br>
+<br>
 ## 第一章  介绍
+
+Git 更像是把数据看作是对小型文件系统的一组快照。 每次你提交更新，或在 Git 中保存项目状态时，它主要对当时的全部文件制作一个快照并保存这个快照的索引。 为了高效，如果文件没有修改，Git 不再重新存储该文件，而是只保留一个链接指向之前存储的文件。 Git 对待数据更像是一个 快照流。  
+
+![此处输入图片的描述][1]   
+
+
 Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为的配置变量。 这些变量存储在三个不同的位置：
 
 1. /etc/gitconfig 文件: 包含系统上每一个用户及他们仓库的通用配置。 如果使用带有 --system 选项的 git config 时，它会从此文件读写配置变量。
@@ -100,6 +107,8 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 
 你可以通过输入 git config &lt;key&gt;： 来检查 Git 的某一项配置
 
+<br>
+<br>
 
 ## 第二章 Git基础
 如果你想在克隆远程仓库的时候，自定义本地仓库的名字，你可以使用如下命令：  
@@ -152,7 +161,7 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 
 `$ git commit --amend`
 
-这个命令会将暂存区中的文件提交。 如果自上次提交以来你还未做任何修改（例如，在上次提交后马上执行了此命令），那么快照会保持不变，而你所修改的只是提交信息。
+这个命令会将暂存区中的文件提交。 如果自上次提交以来你还未做任何修改（例如，在上次提交后马上执行了此命令），那么快照会保持不变，而你所修改的只是提交信息。(这句话和下面的例子有冲突，根据例子来看forgotten_file是自上次提交有过修改的文件，并不是未做任何修改)
 
 文本编辑器启动后，可以看到之前的提交信息。 编辑后保存会覆盖原来的提交信息。
 
@@ -369,10 +378,11 @@ Date:   Mon Mar 17 21:52:11 2008 -0700
 默认情况下，git push 命令并不会传送标签到远程仓库服务器上。 在创建完标签后你必须显式地推送标签到共享服务器上。 这个过程就像共享远程分支一样 - 你可以运行 git push origin [tagname]。
 
 如果想要一次性推送很多标签，也可以使用带有 --tags 选项的 git push 命令。 这将会把所有不在远程仓库服务器上的标签全部传送到那里。
+<br>
+<br>
 
-
-### Git分支
-#### 分支简介
+## Git分支
+### 分支简介
 在进行提交操作时，Git 会保存一个提交对象（commit object）。知道了 Git 保存数据的方式，我们可以很自然的想到——该提交对象会包含一个指向暂存内容快照的指针。 但不仅仅是这样，该提交对象还包含了作者的姓名和邮箱、提交时输入的信息以及指向它的父对象的指针。首次提交产生的提交对象没有父对象，普通提交操作产生的提交对象有一个父对象，而由多个分支合并产生的提交对象有多个父对象，
 
 为了说得更加形象，我们假设现在有一个工作目录，里面包含了三个将要被暂存和提交的文件。 暂存操作会为每一个文件计算校验和（使用我们在 起步 中提到的 SHA-1 哈希算法），然后会把当前版本的文件快照保存到 Git 仓库中（Git 使用 blob 对象来保存它们），最终将校验和加入到暂存区域等待提交( 也就是说在add操作时已经保存好了快照)：
@@ -386,11 +396,11 @@ $ git commit -m 'The initial commit of my project'
 
 现在，Git 仓库中有五个对象：三个 blob 对象（保存着文件快照）、一个树对象（记录着目录结构和 blob 对象索引）以及一个提交对象（包含着指向前述树对象的指针和所有提交信息）。
 
-![首次提交对象及其树结构][1]
+![首次提交对象及其树结构][2]
 
 做些修改后再次提交，那么这次产生的提交对象会包含一个指向上次提交对象（父对象）的指针。
 
-![此处输入图片的描述][2]
+![此处输入图片的描述][3]
 
 **Git 的分支，其实本质上仅仅是指向提交对象的可变指针。** Git 的默认分支名字是 master。 在多次提交操作之后，你其实已经有一个指向最后那个提交对象的 master 分支。 它会在每次的提交操作中自动向前移动。
 
@@ -401,11 +411,11 @@ Git 是怎么创建新分支的呢？ 很简单，它只是为你创建了一个
 
 这会在当前所在的提交对象上创建一个指针。
 
-![此处输入图片的描述][3]
+![此处输入图片的描述][4]
 
 那么，Git 又是怎么知道当前在哪一个分支上呢？ 也很简单，它有一个名为 HEAD 的特殊指针。 请注意它和许多其它版本控制系统（如 Subversion 或 CVS）里的 HEAD 概念完全不同。 在 Git 中，它是一个指针，指向当前所在的本地分支（译注：将 HEAD 想象为当前分支的别名）。 在本例中，你仍然在 master 分支上。 因为 git branch 命令仅仅 创建 一个新分支，并不会自动切换到新分支中去。
 
-![此处输入图片的描述][4]
+![此处输入图片的描述][5]
 
 
 **分支切换**
@@ -415,7 +425,7 @@ Git 是怎么创建新分支的呢？ 很简单，它只是为你创建了一个
 
 这样 HEAD 就指向 testing 分支了。
 
-![此处输入图片的描述][5]
+![此处输入图片的描述][6]
 
 那么，这样的实现方式会给我们带来什么好处呢？ 现在不妨再提交一次：
 
@@ -424,20 +434,20 @@ $ vim test.rb
 $ git commit -a -m 'made a change'
 ```
 
-![此处输入图片的描述][6]
+![此处输入图片的描述][7]
 
 如图所示，你的 testing 分支向前移动了，但是 master 分支却没有，它仍然指向运行 git checkout 时所指的对象。 这就有意思了，现在我们切换回 master 分支看看：
 
 `$ git checkout master`
 
-![此处输入图片的描述][7]
+![此处输入图片的描述][8]
 
 这条命令做了两件事。 一是使 HEAD 指回 master 分支，二是将工作目录恢复成 master 分支所指向的快照内容。 也就是说，你现在做修改的话，项目将始于一个较旧的版本。 本质上来讲，这就是忽略 testing 分支所做的修改，以便于向另一个方向进行开发。
 
 #### 分支的新建与合并
 首先，我们假设你正在你的项目上工作，并且已经有一些提交。
 
-![此处输入图片的描述][8]
+![此处输入图片的描述][9]
 
 现在，你已经决定要解决你的公司使用的问题追踪系统中的 #53 问题。 想要新建一个分支并同时切换到那个分支上，你可以运行一个带有 -b 参数的 git checkout 命令：
 
@@ -447,11 +457,11 @@ $ git commit -a -m 'made a change'
 
 `$ git branch iss53   $ git checkout iss53`
 
-![此处输入图片的描述][9]
+![此处输入图片的描述][10]
 
 你继续在 #53 问题上工作，并且做了一些提交。 在此过程中，iss53 分支在不断的向前推进，因为你已经检出到该分支（也就是说，你的 HEAD 指针指向了 iss53 分支）
 
-![此处输入图片的描述][10]
+![此处输入图片的描述][11]
 
 现在你接到那个电话，有个紧急问题等待你来解决。 有了 Git 的帮助，你不必把这个紧急问题和 iss53 的修改混在一起，你也不需要花大力气来还原关于 53# 问题的修改，然后再添加关于这个紧急问题的修改，最后将这个修改提交到线上分支。 你所要做的仅仅是切换回 master 分支。
 
@@ -467,7 +477,7 @@ $ vim index.html
 $ git commit -a -m 'fixed the broken email address'
 ```
 
-![此处输入图片的描述][11]
+![此处输入图片的描述][12]
 
 你可以运行你的测试，确保你的修改是正确的，然后将其合并回你的 master 分支来部署到线上。 你可以使用 git merge 命令来达到上述目的：
 
@@ -480,7 +490,7 @@ $ git merge hotfix
 
 现在，最新的修改已经在 master 分支所指向的提交快照中，你可以着手发布该修复了。
 
-![此处输入图片的描述][12]
+![此处输入图片的描述][13]
 
 关于这个紧急问题的解决方案发布之后，你准备回到被打断之前时的工作中。 然而，你应该先删除 hotfix 分支，因为你已经不再需要它了 —— master 分支已经指向了同一个位置。 你可以使用带 -d 选项的 git branch 命令来删除分支：
 
@@ -492,11 +502,11 @@ $ git merge hotfix
 
 这和你之前合并 hotfix 分支的时候看起来有一点不一样。 在这种情况下，你的开发历史从一个更早的地方开始分叉开来（diverged）。 因为，master 分支所在提交并不是 iss53 分支所在提交的直接祖先，Git 不得不做一些额外的工作。 出现这种情况的时候，Git 会使用两个分支的末端所指的快照（C4 和 C5）以及这两个分支的工作祖先（C2），做一个简单的三方合并。
 
-![此处输入图片的描述][13]
+![此处输入图片的描述][14]
 
 和之前将分支指针向前推进所不同的是，Git 将此次三方合并的结果做了一个新的快照并且自动创建一个新的提交指向它。 这个被称作一次合并提交，它的特别之处在于他有不止一个父提交。
 
-![此处输入图片的描述][14]
+![此处输入图片的描述][15]
 
 需要指出的是，Git 会自行决定选取哪一个提交作为最优的共同祖先，并以此作为合并的基础；这和更加古老的 CVS 系统或者 Subversion （1.5 版本之前）不同，在这些古老的版本管理系统中，用户需要自己选择最佳的合并基础。 Git 的这个优势使其在合并操作上比其他系统要简单很多。
 
@@ -537,24 +547,24 @@ $ git branch -v
 
 
 #### 远程分支
-![此处输入图片的描述][15]
+![此处输入图片的描述][16]
 
 如果你在本地的 master 分支做了一些工作，然而在同一时间，其他人推送提交到 git.ourcompany.com 并更新了它的 master 分支，那么你的提交历史将向不同的方向前进。 也许，只要你不与 origin 服务器连接，你的 origin/master 指针就不会移动。
 
-![此处输入图片的描述][16]
+![此处输入图片的描述][17]
 
 如果要同步你的工作，运行 git fetch origin 命令。 这个命令查找 “origin” 是哪一个服务器（在本例中，它是 git.ourcompany.com），从中抓取本地没有的数据，并且更新本地数据库，移动 origin/master 指针指向新的、更新后的位置。
 
-![此处输入图片的描述][17]
+![此处输入图片的描述][18]
 
 为了演示有多个远程仓库与远程分支的情况，我们假定你有另一个内部 Git 服务器，仅用于你的 sprint 小组的开发工作。 这个服务器位于 git.team1.ourcompany.com。 你可以运行 git remote add 命令添加一个新的远程仓库引用到当前的项目，这个命令我们会在 Git 基础 中详细说明。 将这个远程仓库命名为 teamone，将其作为整个 URL 的缩写。
 
-![此处输入图片的描述][18]
+![此处输入图片的描述][19]
 
 现在，可以运行 git fetch teamone 来抓取远程仓库 teamone 有而本地没有的数据。 因为那台服务器上现有的数据是 origin 服务器上的一个子集，所以 Git 并不会抓取数据而是会设置远程跟踪分支 teamone/master 指向 teamone 的 master 分支。
 
 
-![此处输入图片的描述][19]
+![此处输入图片的描述][20]
 
 **推送**
 
@@ -621,7 +631,7 @@ $ git branch -vv
 之前介绍过，整合分支最容易的方法是 merge 命令。 它会把两个分支的最新快照（C3 和 C4）以及二者最近的共同祖先（C2）进行三方合并，合并的结果是生成一个新的快照（并提交）。
 
 
-![此处输入图片的描述][20]
+![此处输入图片的描述][21]
 
 其实，还有一种方法：你可以提取在 C4 中引入的补丁和修改，然后在 C3 的基础上再应用一次。 在 Git 中，这种操作就叫做 变基。 你可以使用 rebase 命令将提交到某一分支上的所有修改都移至另一分支上，就好像“重新播放”一样。
 
@@ -631,7 +641,7 @@ $ git rebase master
 First, rewinding head to replay your work on top of it...
 Applying: added staged command
 ```
-![此处输入图片的描述][21]
+![此处输入图片的描述][22]
 
 现在回到 master 分支，进行一次快进合并。
 
@@ -639,7 +649,7 @@ Applying: added staged command
 $ git checkout master
 $ git merge experiment
 ```
-![此处输入图片的描述][22]
+![此处输入图片的描述][23]
 
 
 ### 分布式Git
@@ -648,7 +658,7 @@ $ git merge experiment
 
 只需要搭建好一个中心仓库，并给开发团队中的每个人推送数据的权限，就可以开展工作了。Git 不会让用户覆盖彼此的修改。 例如 John 和 Jessica 同时开始工作。 John 完成了他的修改并推送到服务器。 接着 Jessica 尝试提交她自己的修改，却遭到服务器拒绝。 她被告知她的修改正通过非快进式（non-fast-forward）的方式推送，只有将数据抓取下来并且合并后方能推送。 这种模式的工作流程的使用非常广泛，因为大多数人对其很熟悉也很习惯。
 
-![此处输入图片的描述][23]
+![此处输入图片的描述][24]
 
 ####集成管理者工作流
 Git 允许多个远程仓库存在，使得这样一种工作流成为可能：每个开发者拥有自己仓库的写权限和其他所有人仓库的读权限。 这种情形下通常会有个代表“官方”项目的权威的仓库。 要为这个项目做贡献，你需要从该项目克隆出一个自己的公开仓库，然后将自己的修改推送上去。 接着你可以请求官方仓库的维护者拉取更新合并到主项目。 维护者可以将你的仓库作为远程仓库添加进来，在本地测试你的变更，将其合并入他们的分支并推送回官方仓库。 这一流程的工作方式如下所示
@@ -665,37 +675,38 @@ Git 允许多个远程仓库存在，使得这样一种工作流成为可能：�
 
 6. 维护者将合并后的修改推送到主仓库。
 
-![此处输入图片的描述][24]
+![此处输入图片的描述][25]
 
 
 #### 私有小型团队工作流
 这是一个最简单的工作流程。 你通常在一个特性分支工作一会儿，当它准备好整合时合并回你的 master 分支。 当想要共享工作时，将其合并回你自己的 master 分支，如果有改动的话然后抓取并合并 origin/master，最终推送到服务器上的 master 分支。 通常顺序像这样：
 
-![此处输入图片的描述][25]
+![此处输入图片的描述][26]
 
 
-  [1]: http://o8qr19y3a.bkt.clouddn.com/commit-and-tree.png
-  [2]: http://o8qr19y3a.bkt.clouddn.com/commits-and-parents.png
-  [3]: http://o8qr19y3a.bkt.clouddn.com/two-branches.png
-  [4]: http://o8qr19y3a.bkt.clouddn.com/head-to-master.png
-  [5]: http://o8qr19y3a.bkt.clouddn.com/head-to-testing.png
-  [6]: http://o8qr19y3a.bkt.clouddn.com/advance-testing.png
-  [7]: http://o8qr19y3a.bkt.clouddn.com/checkout-master.png
-  [8]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-1.png
-  [9]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-2.png
-  [10]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-3.png
-  [11]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-4.png
-  [12]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-5.png
-  [13]: http://o8qr19y3a.bkt.clouddn.com/basic-merging-1.png
-  [14]: http://o8qr19y3a.bkt.clouddn.com/basic-merging-2.png
-  [15]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-1.png
-  [16]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-2.png
-  [17]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-3.png
-  [18]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-4.png
-  [19]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-5.png
-  [20]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-2.png
-  [21]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-3.png
-  [22]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-4.png
-  [23]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/centralized_workflow.png
-  [24]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/integration-manager.png
-  [25]: http://o8qr19y3a.bkt.clouddn.com/small-team-flow.png
+  [1]: http://o8qr19y3a.bkt.clouddn.com/new/snapshots.png
+  [2]: http://o8qr19y3a.bkt.clouddn.com/commit-and-tree.png
+  [3]: http://o8qr19y3a.bkt.clouddn.com/commits-and-parents.png
+  [4]: http://o8qr19y3a.bkt.clouddn.com/two-branches.png
+  [5]: http://o8qr19y3a.bkt.clouddn.com/head-to-master.png
+  [6]: http://o8qr19y3a.bkt.clouddn.com/head-to-testing.png
+  [7]: http://o8qr19y3a.bkt.clouddn.com/advance-testing.png
+  [8]: http://o8qr19y3a.bkt.clouddn.com/checkout-master.png
+  [9]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-1.png
+  [10]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-2.png
+  [11]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-3.png
+  [12]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-4.png
+  [13]: http://o8qr19y3a.bkt.clouddn.com/basic-branching-5.png
+  [14]: http://o8qr19y3a.bkt.clouddn.com/basic-merging-1.png
+  [15]: http://o8qr19y3a.bkt.clouddn.com/basic-merging-2.png
+  [16]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-1.png
+  [17]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-2.png
+  [18]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-3.png
+  [19]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-4.png
+  [20]: http://o8qr19y3a.bkt.clouddn.com/remote-branches-5.png
+  [21]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-2.png
+  [22]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-3.png
+  [23]: http://o8qr19y3a.bkt.clouddn.com/basic-rebase-4.png
+  [24]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/centralized_workflow.png
+  [25]: http://o8qr19y3a.bkt.clouddn.com/workflow/jpg/integration-manager.png
+  [26]: http://o8qr19y3a.bkt.clouddn.com/small-team-flow.png
