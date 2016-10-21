@@ -35,7 +35,7 @@ An element is called in-flow if it is not out-of-flow. The flow of an element A 
 如果一个元素不在流外，那就说它是**流内的**。
 
 <br>
-#### 9.1.2 Containing blocks包含框
+#### 9.1.2 Containing blocks包含块
 In CSS 2.1, many box positions and sizes are calculated with respect to the edges of a rectangular box called a containing block. In general, generated boxes act as containing blocks for descendant boxes; we say that a box "establishes" the containing block for its descendants. The phrase "a box's containing block" means "the containing block in which the box lives," not the one it generates.
 
 在CSS 2.1中， 许多盒子的位置和尺寸是由一个叫做包含块的矩形盒子的边缘计算出来的。通常来说，一个元素生成的盒子通常会充当其子盒子的包含块；我们说一个盒子为它的子盒子“建立”了包含框。 短语“一个盒子的包含块”意味着“该盒子所处的包含块”， 而不是它生成的包含块。
@@ -125,7 +125,7 @@ Boxes in the normal flow belong to a formatting context, which may be block or i
 #### 9.4.1 Block formatting contexts
 Floats, absolutely positioned elements, block containers (such as inline-blocks, table-cells, and table-captions) that are not block boxes, and block boxes with 'overflow' other than 'visible' (except when that value has been propagated to the viewport) establish new block formatting contexts for their contents.
 
-浮动元素，绝对定位的元素，块容器盒（例如 行内块，table-cells和table-captions，这就是属于块容器盒但不属于块级盒的那部分），以及那些`overflow`属性值不为`visible`的块盒子为它们的内容建立了一个新的BFC。（要注意普通的块级盒子只是参与BFC，这些是建立了新的BFC）
+浮动元素，绝对定位的元素，非块级盒子的块容器盒（例如 行内块，table-cells和table-captions），以及那些`overflow`属性值不为`visible`的块盒子为它们的内容建立了一个新的BFC。（要注意普通的块级盒子只是参与BFC，这些是建立了新的BFC）
 
 In a block formatting context, boxes are laid out one after the other, vertically, beginning at the top of a containing block. The vertical distance between two sibling boxes is determined by the 'margin' properties. Vertical margins between adjacent block-level boxes in a block formatting context collapse.
 
