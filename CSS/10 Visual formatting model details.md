@@ -81,7 +81,7 @@ This property does not apply to non-replaced inline elements. The content width 
 
 百分比值的意义： 百分比的计算值考虑了生成盒的包含块的宽度。 如果其包含块的宽度取决于这个元素的宽度，那么最终的结果是未定义的在CSS2.2中。 **注意：对于那些包含块是一个块容器元素的绝对定位元素， 百分比值是关于元素的padding box的宽度。（也就是说这样的绝对定位元素的百分比值要按包含块的width+padding left+padding right计算）**  
 
-width属性不接受赋值。
+width属性不接受负值。
 
 ## 10.3 Calculating widths and margins
 
