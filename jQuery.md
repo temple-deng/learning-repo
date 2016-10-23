@@ -102,6 +102,98 @@ jQuery.fn = jQuery.prototype = {
 
 ```
 
+## Ajax
 
+### Ajax event 
+Ajax event 分为两种类型： local enents, global events.  
+
+**Local Events**: 绑定在每个 Ajax 请求上或请求对象中的事件处理回调函数。  
+
+```javascript
+ $.ajax({
+   beforeSend: function(){
+     // Handle the beforeSend event
+   },
+   complete: function(){
+     // Handle the complete event
+   }
+   // ......
+ });
+```  
+
+**Global Events**: 在 document 对象上绑定并触发的事件。每个 Ajax 请求都可能触发全局的 Ajax 事件处理函数。  
+
+```javascript
+ $(document).bind("ajaxSend", function(){
+   $("#loading").show();
+ }).bind("ajaxComplete", function(){
+   $("#loading").hide();
+ });
+```  
+
+#### 事件列表  
+除了 ajaxStart 和 ajaxStop 事件，其他的事件在每个 ajax 请求上都有可能触发。  
+
++ **ajaxStart**(Global): 当一个 ajax 请求触发，并且没有任何其他的 ajax 请求在运行中。  
++ **beforeSend**(Local)
++ **ajaxSend**(Global)  
++ **success**(Local)  
++ **ajaxSuccess**(Global)
++ **error**(Local)
++ **ajaxError**(Global)
++ **complete**(Local)
++ **ajaxComplete**(Global)
++ **ajaxStop**(Global): 当没有任何 ajax 请求在处理中时触发。  
+
+
+### Ajax全局事件
+
+ajax全局事件会在页面中每个 ajax 请求发生时依次触发，除非在 `$.ajaxSetup` 函数中设置 `global` 属性为 `false`(默认为`true`)或者在 ajax 请求中的请求对象中设置 `global` 属性为`false`。 注意全局事件不会由跨域脚本或 JSONP 请求触发。并且所有的 ajax 全局事件都是绑定在 document 事件。  
+
++ **.ajaxComplete( handler )**  
+  handler: Function( Event event, jqXHR jqXHR, PlainObject ajaxOptions )  
+
++ **.ajaxError( handler )**  
+  handler: Function( Event event, jqXHR jqXHR, PlainObject ajaxSettings, String thrownError )   最后一个参数应该是 HTTP 请求中的状态短语，应该就是 xhr.statusText  
+
++ **.ajaxSend( handler )**  
+  handler: Function( Event event, jqXHR jqXHR, PlainObject ajaxOptions )  
+  这个事件应该是和 beforeSend 事件对应，也是咋请求还没有发出时触发  
+
++ **.ajaxStart( handler )**  
+  handler: Function()  
+  当一个 ajax 准备 send 时，如果没有其他的 ajax 请求在处理中触发。  
+
++ **.ajaxStop( handler )**  
+  handler: Function()  
+  无论何时有 ajax 请求结束时，都会检查是否还有 ajax 请求存在，如果没有就触发。  
+
++ **.ajaxSuccess( handler )**  
+  handler:  Function( Event event, jqXHR jqXHR, PlainObject ajaxOptions, PlainObject data )  
+
+
+### 底层接口
+
+#### $.ajax()
+`jQuery.ajax( url [, settings ] )` 或者 `jQuery.ajax( [settings ] )`  
+
+return： jqXHR  
+
+settings 所有选项都是可选的，默认设置是 `$.ajaxSetup` 中设置的。  
+
++ **accepts**(PlainObject，默认值取决于 dataType属性): 期望接受的MIME类型。  
++ **async**(Boolean, true)  
++ **beforeSend**(Function( jqXHR jqXHR, PlainObject settings)): 在请求发出前的回调函数，用来修改jqXHR对象，修改请求头等，函数返回 false 意味着取消这次请求。
++ **cache**(Boolean, true, false for dataType 'script' and 'jsonp'):只有GET和HEAD请求时，将cache设为false才有用，做法是在请求URL中添加一个时间戳的查询参数。
++ **complete**(Function( jqXHR jqXHR, String textStatus )): 第二个参数指明了请求的状态("success", "notmodified", "nocontent", "error", "timeout", "abort", or "parsererror"), 1.5以上接受一个函数数组，依次调用。  
+。。。。。  
+
+返回的 jqXHR 实现了以下的 Promise 接口：
++ jqXHR.done(function(data, textStatus, jqXHR) {}) 
++ jqXHR.fail(function(jqXHR, textStatus, errorThrown) {})
++ jqXHR.always(function( data|jqXHR, textStatus, jqXHR|errorThrown ) { }) : 参数视情况而定，如果是 `success`就和 `done` 方法一致， 否则就和 `fail`方法参数一致。
++ jqXHR.then(function( data, textStatus, jqXHR ) {}, function( jqXHR, textStatus, errorThrown ) {}): `done`方法和`fail`方法的组合咯。  
+
+回调函数中的 this 对象均是 settings 中的 `context`，如果没设置 `context`对象那就是 settings 本身。
 
 
