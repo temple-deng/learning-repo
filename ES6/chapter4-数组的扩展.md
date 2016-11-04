@@ -13,15 +13,18 @@
  ---
 
 ###　     1.Array.from()
-　　　　　这个方法用于将类数组对象和具有迭代器接口的数据结构转换为数组。类数组对象本质特点只有一个，即具有length属性。
+这个方法用于将类数组对象和具有迭代器接口的数据结构转换为数组。类数组对象本质特点只有一个，即具有length属性。  
 
 ```javascript
 Array.from({ length: 3 });
 // [ undefined, undefined, undefinded ]
-```
-　　　　　 Array.from还可以接受第二个参数，作用类似于数组的map方法，用来对每个元素进行处理，将处理后的值放入返回的数组。
+```  
 
-Array.from()的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种Unicode字符，可以避免JavaScript将大于\uFFFF的Unicode字符，算作两个字符的bug。
+Array.from还可以接受第二个参数，作用类似于数组的map方法，用来对每个元素进行处理，将处理后的值放入返回的数组。  
+
+Array.from()的另一个应用是，将字符串转为数组，然后返回字符串的长度。因为它能正确处理各种Unicode字符，可以避免JavaScript将大于\uFFFF的Unicode字符，算作两个字符的bug。  
+
+底层应该是会将原始值转换为对象，因此`null` 和 `undeifined`会报错，布尔值和数字最终为空数组。
 
 <br>
 <br>
