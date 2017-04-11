@@ -118,14 +118,14 @@ An inline box is one that is both inline-level and whose contents participate in
 
 块级元素生成主要的块级盒子，行内级元素生成主要的行内级盒子，这两种盒子分别参与BFC或者IFC，并且参与定位。
 
-<br>
+<br />
 ### 9.4 Normal flow 常规流  
 
 Boxes in the normal flow belong to a formatting context, which may be block or inline, but not both simultaneously. Block-level boxes participate in a block formatting context. Inline-level boxes participate in an inline formatting context.  
 
 常规流中的各种盒子属于一个格式化的上下文，这个上下文可能是块的也可能是行内的，但不会两者皆是。块级盒子参与BFC，行内级盒子参与IFC。  
 
-<br>
+<br />
 #### 9.4.1 Block formatting contexts  
 
 Floats, absolutely positioned elements, block containers (such as inline-blocks, table-cells, and table-captions) that are not block boxes, and block boxes with 'overflow' other than 'visible' (except when that value has been propagated to the viewport) establish new block formatting contexts for their contents.  
@@ -140,7 +140,7 @@ In a block formatting context, each box's left outer edge touches the left edge 
 
 在一个BFC中，每个盒子的左外边缘紧挨着包含块的左边缘。即便有浮动的影响也是这样的，除非这个盒子建立了一个新的BFC。  
 
-<br>
+<br />
 #### 9.4.2 Inline formatting contexts  
 
 In an inline formatting context, boxes are laid out horizontally, one after the other, beginning at the top of a containing block. Horizontal margins, borders, and padding are respected between these boxes. The boxes may be aligned vertically in different ways: their bottoms or tops may be aligned, or the baselines of text within them may be aligned. The rectangular area that contains the boxes that form a line is called a line box.  
