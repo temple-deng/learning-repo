@@ -1,6 +1,6 @@
 ## React的原理
 
-###摘自infoq深入浅出React系列
+### 摘自infoq深入浅出React系列
 --------
 
 ###  1、Virtual Dom
