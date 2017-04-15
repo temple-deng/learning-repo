@@ -1,6 +1,6 @@
-﻿## React的原理
+## React的原理
 
-######摘自infoq深入浅出React系列
+### 摘自infoq深入浅出React系列
 --------
 
 ###  1、Virtual Dom
@@ -8,7 +8,7 @@
 
 
 ### 2.webpack
-配置文件通常放在项目根目录之下，其本身也是一个标准的CommonJS模块。
+配置文件通常放在项目根目录之下，其本身也是一个标准的CommonJS模块。  
 
 一个最简单的Webpack配置文件webpack.config.js如下所示：
 ```javascript
@@ -51,8 +51,8 @@ React并不会真正的绑定事件到每一个具体的元素上，而是采用
 <div style={{color: '#ff0000', fontSize: '14px'}}>Hello World.</div>
 ```
 乍一看，这段JSX中的大括号是双的，有点奇怪，但实际上里面的大括号只是标准的JavaScript对象表达式，外面的大括号是JSX的语法。
-<br>
-<br>
+<br />
+<br />
 ### 4.组件
 组件自身定义了一组props作为对外接口，展示一个组件时只需要指定props作为XML节点的属性。组件很少需要对外公开方法，唯一的交互途径就是props。这使得使用组件就像使用函数一样简单，给定一个输入，组件给定一个界面输出。当给予的参数一定时，那么输出也是一定的。
 
@@ -63,33 +63,7 @@ componentDidMount: 在组件第一次render之后调用，这时组件对应的D
 componentWillUnmount: 在DOM节点移除之后被调用，这里可以做一些相关的清理工作。
 
 shouldComponentUpdate: 这是一个和性能非常相关的方法，在每一次render方法之前被调用。它提供了一个机会让你决定是否要对组件进行实际的render。
-<br>
-<br>
 
-###  5.FLUX
-全面的架构图则如下所示
-![FLUX架构图][2]
-在Flux中，View完全是Store的展现形式，Store的更新则完全由Action触发。得益于React的View每次更新都是整体刷新的思路，我们可以完全不必关心Store的变化细节，只需要监听Store的onChange事件，每次变化都触发View的re-render。
-
-**一个具体的例子**
-在文章评论页面提交一条评论。为此，我们需要向服务器发送一个请求提交新的评论，同时要将新的评论显示在列表中。这样的场景如果使用Flux去实现，大概需要实现以下几个部分：
-
- 1.React组件用于显示评论列表以及评论框，并绑定到Store；
- 2.一个Store用于存储评论数据；
- 3.Action Creator用于向服务器发送请求；
- 4.Store中监听Action并进行处理，从而对Store自身进行更新。
- 整个架构如下图所示：
- ![实例架构图][3]
-整个流程的运行大概如下：
-
-1.用户点击提交按钮，Action Creator负责向服务器发送请求；
-2.请求如果成功，那么将评论本身被添加到Store；
-3.请求如果失败，那么在Store中标记一个特别的错误状态；
-4.View监听了Store的onChange的事件，因此，无论请求成功和失败，Store都会触发onChange事件，这时View就会进行整体更新。
-
-在Flux架构中，View即React的组件，而Store则存储的是应用程序的状态。在前面的文章中我们已经介绍过，React是完全面向View的解决方案，它提供了一种始终都是整体刷新的思路来构建界面。在React的思路中，UI就是一个状态机，每个确定的状态对应着一个确定的界面。对于一个小的组件，它的状态可能是在其内部进行维护；而对于多个组件组成的应用程序，如果某些状态需要在组件之间进行共享，则可以将这部分状态放到Store中进行维护。
 
 
   [1]: http://cdn3.infoqstatic.com/statics_s2_20160322-0135u2/resource/articles/react-jsx-and-component/zh/resources/0702001.png
-  [2]: http://cdn4.infoqstatic.com/statics_s2_20160322-0135u2/resource/articles/react-flux/zh/resources/1209002.png
-  [3]: http://cdn4.infoqstatic.com/statics_s2_20160322-0135u2/resource/articles/react-flux/zh/resources/1209003.png
