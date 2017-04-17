@@ -1,8 +1,5 @@
 # 14. Porxy和Reflect
 
-标签： 
-
----
 
 ```
  1. Proxy
@@ -10,9 +7,10 @@
  3. Object.getOwnPropertyDescriptor()
  4. Object.setPrototypeOf()   Object.getPrototypeOf()
 ```
- ---
 
-###　     1.Proxy
+
+## 1.Proxy  
+
 ```
 	var proxy = new Proxy(target, handler)
 
@@ -53,4 +51,4 @@
 
 	construct(target, args, proxy)
 	//拦截Proxy实例作为构造函数调用的操作，比如new proxy(...args)。
-```
+```  
