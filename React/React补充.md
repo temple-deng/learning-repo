@@ -49,19 +49,13 @@ function HelloMessage(props) {
   return <div>Hello {props.name}</div>;
 }
 ReactDOM.render(<HelloMessage name="Sebastian" />, mountNode);
-
-// 或者写作
-function HelloMessage(props) {
-  return <div>Hello {props.name}</div>;
-}
-ReactDOM.render(<HelloMessage name="Sebastian" />, mountNode);
 ```
 
 
 
 
 ##  2. tutorial 部分的补充
----
+
 
 render方法需要返回React的组件树。然而并不需要必须返回HTML标签， 可以返回我们自己新建的React组件， 这就是React可组合的关键所在。  
 
@@ -72,7 +66,7 @@ React 提供一个工具方法 React.Children 来处理 this.props.children 。�
 
 
 ##  3. ReactElement/ReactComponent/ReactComponent Class
----
+
 
 ReactElement应该就是DOM Element在Virtual DOM中的表示，可以使用React.createElement创建一个ReactElement：  
 
@@ -90,7 +84,7 @@ var root = React.createElement('div');
 
 
 ## JSX
----
+
 
 ```javascript
 const str = 'world';
@@ -149,8 +143,8 @@ const element = {
 };
 ```  
 
-### Rendering Elements
----  
+## Rendering Elements
+
 
 Elements 是 React apps 最小的构建单元。  
 
@@ -163,8 +157,8 @@ React Elements 是不可修改的(immutable)，一旦创建了一个Element以�
 
 
 
-### Component and Props
----  
+## Component and Props
+
 
 从概念上来说，组件是与JS函数类似的。它们接受任意的输入(叫做"props")，然后返回React Elements，描述屏幕上该显示的内容。  
 
@@ -189,8 +183,8 @@ React elements 可以表示 DOM 标签，也可以表示用户定义的组件。
 
 
 
-### State and Lifecycle
----  
+## State and Lifecycle
+
 
 State 于 props 相似，但是是私有的并且完全受组件的控制。  
 
@@ -230,8 +224,8 @@ this.setState((prevState, props) => ({
 
 
 
-### Handling Events
----
+## Handling Events
+
 
 React elements 中处理事件与 在 DOM 元素上处理事件是相似的，主要有两点不同：  
 
@@ -243,8 +237,8 @@ React elements 中处理事件与 在 DOM 元素上处理事件是相似的，�
 
 
 
-### List and Key
----
+## List and Key
+
 
 我们可以在 JSX 中用 `{}` 将集合引入其中。  
 
@@ -253,14 +247,14 @@ React elements 中处理事件与 在 DOM 元素上处理事件是相似的，�
 
 
 
-### Forms
----
+## Forms
+
 
 受控组件， textarea 标签， select 标签
 
 
-### ref
----
+## ref
+
 
 ####  什么时候使用 Refs
 + 处理 `focus`， `text selection`,  `media playback`
@@ -277,8 +271,8 @@ React elements 中处理事件与 在 DOM 元素上处理事件是相似的，�
 
 
 
-### Reconciliation
----
+## Reconciliation
+
 
 #### diffing 算法
 
@@ -292,7 +286,8 @@ React elements 中处理事件与 在 DOM 元素上处理事件是相似的，�
 
 当比较相同类型的组件元素时，组件实例保持不变，React会更新底层组件实例的`props`以匹配新的element, 然后在底层实例上调用`componentWillReceiveProps()`和`componentWillUpdate()`，之后`render()`方法。  
 
-### Context
+## Context
+
 通过定义`getChildContext()`方法和`childContextTypes`静态属性，context的提供者可以将信息传递给下面的子孙组件。  
 
 而context的接收者则通过定义`contextTypes`静态属性得到这个对象，通过组件实例的context属性获取这个对象。`this.context.propName`。如果不定义静态属性，则这个属性为空对象。  
@@ -317,8 +312,8 @@ Button.contextTypes = {color: React.PropTypes.string};
 ```
 
 
-### API
----
+## API
+
 
 + `constructor(props)`
 + `componentWillMount()`

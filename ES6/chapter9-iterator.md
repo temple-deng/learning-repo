@@ -31,9 +31,14 @@ Iterator的遍历过程是这样的。
     //Object {value: 1, done:false};
 ```
 
-<br>
-<br>
-## 2. Iterator的应用场合
+
+## 2. return() 和 throw() 方法
+
+return() 方法的一种使用场合是，如果 `for...of` 循环提前退出，就会调用 return 方法，且这个方法必须返回一个对象。
+
+throw() 方法主要是 Generator 函数返回的迭代器用来在函数外抛出异常。  
+
+## 3. Iterator的应用场合
 
 + 解构赋值
   对数组和Set结构进行解构赋值时，会默认调用Symbol.iterator方法。

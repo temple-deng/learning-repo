@@ -7,7 +7,7 @@
  3. Generator.prototype.return()
  4. yield*语句
 ```
- ---
+
 
 ## 1.简介
 
@@ -42,8 +42,6 @@ yield语句不能用在普通函数中，否则会报错。
 
 要注意Generator函数有没有return语句的区别，当有return语句时，返回的对象value值就是return语句后面的表达式，而done值为true，表示遍历结束，而如果最后的语句没有用return而是普通的yield，那么此时的done仍然为false.  
 
-<br>
-<br>
 
 ## 2.next()的参数
 
@@ -68,9 +66,34 @@ b.next(13) // { value:42, done:true }
 ```
 
 注意，在上例中，第一次调用next()不会执行y的赋值操作，在第二次next()调用时才首先完成该赋值语句。  
-<br>
 
-## 3. Generator.prototype.return()
+
+## 3. throw() 方法
+Generator函数返回的遍历器对象，都有一个 `throw` 方法，可以在函数体外抛出错误，然后在Generator函数体内捕获。  
+
+throw方法可以接受一个参数，该参数会被catch语句接收，建议抛出Error对象的实例。  
+
+throw方法被捕获以后，会附带执行下一条yield语句。也就是说，会附带执行一次next方法。
+
+```javascript
+var gen = function* gen(){
+  try {
+    yield console.log('a');
+  } catch (e) {
+    // ...
+  }
+  yield console.log('b');
+  yield console.log('c');
+}
+
+var g = gen();
+g.next() // a
+g.throw() // b
+g.next() // c
+```  
+
+
+## 4. Generator.prototype.return()
 
 可以返回给定的值，并且终结遍历Generator函数。  
 
@@ -89,9 +112,31 @@ b.next(13) // { value:42, done:true }
 ```  
 
 如果return方法调用时，不提供参数，则返回值的vaule属性为undefined。　　
+
+如果Generator函数内部有try...finally代码块，那么return方法会推迟到finally代码块执行完再执行。  
+
+```javascript
+function* numbers () {
+  yield 1;
+  try {
+    yield 2;
+    yield 3;
+  } finally {
+    yield 4;
+    yield 5;
+  }
+  yield 6;
+}
+var g = numbers();
+g.next() // { value: 1, done: false }
+g.next() // { value: 2, done: false }
+g.return(7) // { value: 4, done: false }
+g.next() // { value: 5, done: false }
+g.next() // { value: 7, done: true }
+```  
 　  
 　  
-## 4.yield*语句
+## 5.yield*语句
 
 在Generator()函数调用另一个Generator()函数时，需要使用yield*。  
 
@@ -143,11 +188,13 @@ function* concat(iter1, iter2) {
 }
 ```  
 
-上面代码说明，yield*不过是for...of的一种简写形式，完全可以用后者替代前者。如果yield*后面跟着一个数组，由于数组原生支持遍历器，因此就会遍历数组成员。实际上，任何数据结构只要有Iterator接口，就可以被yield*遍历。
+上面代码说明，`yield*` 后面的Generator函数（没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，则需要用`var value = yield* iterator`的形式获取return语句的值。由于 return 语句返回的对象 `done` 为 `true`，所以 `return` 的值不会被迭代出来，只是会被接收。  
+
+如果yield*后面跟着一个数组，由于数组原生支持遍历器，因此就会遍历数组成员。实际上，任何数据结构只要有Iterator接口，就可以被yield*遍历。
 
 
-<br>
-<br>
+
+
 ## 6. for..of循环
 for...of循环、扩展运算符（...）、解构赋值和Array.from方法内部调用的，都是遍历器接口。这意味着，它们可以将Generator函数返回的Iterator对象，作为参数。  
 

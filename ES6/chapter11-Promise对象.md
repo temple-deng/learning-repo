@@ -7,7 +7,6 @@
  4. Promise.resolve()
  5. Promise.catch()
 ```
- ---
 
 ## 1.基本用法
 Promise对象是构造函数，用来生成Promise实例。接受一个函数作为参数，该函数有两个参数，分别是resolve和reject,这是两个函数。  
@@ -34,7 +33,7 @@ then方法可以接受两个回调函数作为参数。第一个回调函数是P
 
 then和catch中接受的回调函数return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为return的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。  
 
-<br>
+
 ## 2.Promise.all
 Promise.all方法用于将多个Promise实例，包装成一个新的Promise实例。
 
@@ -45,8 +44,7 @@ p的状态由p1、p2、p3决定，分成两种情况。
 （1）只有p1、p2、p3的状态都变成fulfilled，p的状态才会变成fulfilled，此时p1、p2、p3的返回值组成一个数组，传递给p的回调函数。
 
 （2）只要p1、p2、p3之中有一个被rejected，p的状态就变成rejected，此时第一个被reject的实例的返回值，会传递给p的回调函数。
-<br>
-<br>
+
 
 ## 3.Promise.race
 Promise.race方法同样是将多个Promise实例，包装成一个新的Promise实例。  
@@ -60,8 +58,8 @@ var p = Promise.race([p1,p2,p3]);
 需要注意的是p1,p2,p3中有一个完成后，其余的两个并不会停止执行，但是不会再触发then回调。  
 
 Promise.race方法的参数与Promise.all方法一样，如果不是Promise实例，就会先调用下面讲到的Promise.resolve方法，将参数转为Promise实例，再进一步处理。
-<br>
-<br>
+
+
 ## 4.Promise.resolve()
 Promise.resolve()用于将现有对象转为Promise对象。  
 
@@ -112,9 +110,14 @@ Promise.resolve方法允许调用时不带参数，直接返回一个Resolved状
 
 Promise.reject(reason)方法也会返回一个新的Promise实例，该实例的状态为rejected。它的参数用法与Promise.resolve方法完全一致。
 
-<br>
-<br>
+
 
 ## 5.Promise.catch  
 
 Promise.prototype.catch方法是.then(null, rejection)的别名，用于指定发生错误时的回调函数。另外，then方法指定的回调函数，如果运行中抛出错误，也会被catch方法捕获。
+
+## 6. Promise.reject()  
+
+`Promise.reject(reason)` 方法也会返回一个新的 Promise 实例，该实例的状态为 `rejected`。
+
+注意，`Promise.reject()` 方法的参数，会原封不动地作为reject的理由，变成后续方法的参数。这一点与 `Promise.resolve` 方法不一致。

@@ -90,8 +90,8 @@ Object.assign([1, 2, 3], [4, 5])
 
 上面代码中，Object.assign把数组视为属性名为0、1、2的对象，因此目标数组的0号属性4覆盖了原数组的0号属性1。  
 
-<br>
-<br>
+Object.assign() 无法正确处理 setter 和 getter 函数，只能得到 undefined。
+
 ## 3.Object.getOwnPropertyDescriptor()
 Object.getOwnPropertyDescriptor(obj, prop_name) 只能得到自有属性描述符  
 
@@ -101,4 +101,14 @@ Object.getOwnPropertyDescriptor(obj, prop_name) 只能得到自有属性描述�
 ## 4.Object.setPrototypeOf()   Object.getPrototypeOf()
 Object.setPrototypeOf(object, prototype);   设置原型对象  
 
+如果第一个参数不是对象，会自动转为对象，但是由于返回的还是第一个参数，所以操作不会产生任何效果。  
+
 Object.getPrototypeOf(object);              获取原型对象
+
+## 5. 其他
+
+获取 Symbol 键名类型的属性或方法： `Object.getOwnPropertySymbols()` `Reflect.ownKeys()`(返回所有自有属性键名)。  
+
+`Object.keys(), Object.values(), Object.entries()` 都会过滤掉 Symbol 键名的属性和方法。  
+
+`...rest` 的对象结构只解构自身属性， `...` 扩展运算符会扩展所有可遍历属性。
