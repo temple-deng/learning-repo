@@ -1,8 +1,5 @@
 ﻿# 10 Visual formatting model details
 
-标签（空格分隔）： 未分类
-
----
 
 ## Definition of "containing block"
 
@@ -10,12 +7,13 @@
 
 包含块的定义：  
 
-1. 根元素所在的包含块叫做初始包含块。
-2. 如果元素的定位属性是 `relative` 或者 `static`， 包含块就是最近的生成格式化上下文的块容器盒的 content edge。
-3. 如果是 `fixed` 元素，包含块是视口。
+1. 根元素所在的包含块叫做初始包含块。一般来说就是视口。
+2. 如果元素的定位属性是 `relative` 或者 `static`， 包含块是由生成盒子是块容器盒或者建立了新的格式化上下文的最近的祖先盒子的 content edge 生成的。
+3. 如果是 `fixed` 元素，包含块是视口建立的。
 4. 如果是 `absolute` 元素，包含块就是最近的 `relative`, `absolute`, `fixed` 祖先元素按照下列规则建立的：
-  + 如果祖先是行内元素，包含块就是这个祖先行内盒子的 padding box。
+  + 如果祖先是行内元素，包含块就是这个祖先行内盒子的第一个行内盒子和最后一个行内盒子的 padding box生成的 bounding box。
   + 否则的话，包含块是祖先的 padding edge。
+  如果没有这样的祖先元素，那包含块就是初始包含块。
 
 ## Content width: the 'width' property
 

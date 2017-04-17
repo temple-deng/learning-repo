@@ -1,17 +1,16 @@
 ﻿# CSS Basic Box Model
 
----
 
 ### margin
 
 <table>
   <tr>
     <td>名字</td>
-    <td>*margin-top, margin-bottom, margin-left, margin-top*</td>
+    <td> <i>margin-top, margin-bottom, margin-left, margin-top </i> </td>
   </tr>
   <tr>
     <td>值</td>
-    <td>`<margin-width>`| inherit</td>
+    <td>&lt;margin-width&gt;| inherit</td>
   </tr>
   <tr>
     <td>初始值</td>
@@ -48,15 +47,16 @@
 
 
 ### padding
+---
 
 <table>
     <tr>
       <td>名字</td>
-      <td>*padding-top, padding-bottom, padding-left, padding-top*</td>
+      <td><i>padding-top, padding-bottom, padding-left, padding-top</i></td>
     </tr>
     <tr>
       <td>值</td>
-      <td>`<padding-width>`| inherit</td>
+      <td>&lt;padding-width&gt;| inherit</td>
     </tr>
     <tr>
       <td>初始值</td>

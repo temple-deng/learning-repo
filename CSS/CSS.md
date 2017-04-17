@@ -48,7 +48,7 @@
 
 
 ### 4. 视觉格式化上下文
-#### 包含块(containing block?)
+#### 包含块(containing block)
 每个元素都是相对于其包含块摆放的，可以这么说，包含块就是一个元素的“布局上下文”。    
 
 对于正常的西方语言文本流中的一个元素，包含块由最近的块级祖先框、表单元格或行内块祖先框的内容边界(content edge)，考虑下面元素：   
@@ -89,7 +89,7 @@ margin box和padding box的四个属性，`margin-top,margin-bottom,margin-left,
 
 
 # A
----
+
 
 ### `:active`
 匹配被用户激活的元素。当用鼠标交互时，它代表的是用户按下按键和松开按键之间的时间。  
@@ -282,7 +282,7 @@ default: `border-box`
   + `padding-box`
   + `content-box`
 
-###　`<color>`
+### `<color>`
 
 ### `color`
 
