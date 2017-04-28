@@ -92,9 +92,63 @@ SVG 的 MIME 类型为 "image/svg+xml"。文件扩展名为 ".svg"。gzip压缩�
 
 **outermost svg element**  
 
-**paint**
+**paint**  
   绘制代表了将颜色值放到画布上的一种方式。绘制可以包含颜色值和相关的控制与画布上已存在的颜色混合的alpha值。SVG支持
   3种内置的绘制：颜色，渐变和 patterns。  
 
 **shape**  
   通过组合一些直线和曲线得到的图形元素。'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon'。  
+
+**stroke**  
+绘制一个形状的轮廓的操作，或者绘制字符串中字符的轮廓的操作。  
+
+**structural element**  
+定义一个 SVG 文档主要结构的元素。 'defs', 'g', 'svg', 'symbol', 'use'。  
+
+**SVG canvas**  
+绘制SVG内容的画布。  
+
+**SVG context**  
+
+**SVG document fragment**  
+XML文档中从 'svg' 元素开始的子树。一个 SVG 文档片段可能包含一个独立的 SVG 文档，或者由 'svg' 元素包围的父XML文档的片段。当一个 'svg' 元素是另一个 'svg' 元素的后代时，这时有两个 SVG 文档片段，每一个 'svg' 元素都是一个片段。  
+
+**SVG viewport**  
+SVG画布中的视口定义了呈现SVG内容的矩形区域。  
+
+**text content element**  
+文本内容元素是在画布上生成渲染文本字符的SVG元素。 'altGlyph', 'textPath', 'text', 'tref', 'tspan'。  
+
+**text content child element**  
+文本内容子元素是允许作为另一个文本元素的后代的文本元素。'altGlyph', 'textPath', 'tref', 'tspan'。  
+
+**text content block element**  
+文本块级元素是作为文本单位的独立元素的文本元素，可以选择性的包含文本子元素。  
+
+**transformation**  
+通过提供一个一系列简单变形声明修改当前变形矩阵。  
+
+**user coordinate system**  
+一般来说，一个坐标系统在当前画布上定义了位置和距离。当前的用户坐标系统是指当前激活的，用来定义在当前画布上如何定位及计算坐标和长度的坐标系统。  
+
+**user space**  
+用户坐标系统的同义词。  
+
+**user units**  
+一个用用户单位表示的坐标值或者长度代表了在当前用户坐标系统中的坐标值或者长度。
+因此，10个用户单位代表了在当前用户坐标系统中的10个单位的长度。  
+
+**viewport**  
+绘制图形元素的画布中的一个矩形区域。  
+
+**viewport coordinate system**  
+一般来说，一个坐标系统在当前画布上定义了位置和距离。视口坐标系统是指在开始处理 'svg' 元素，在处理可选的 'viewBox' 属性之前的激活的坐标系统。在将SVG文档片段嵌入到使用CSS来布局的父文档中情况下，视口坐标系统和CSS中的方向与长度是一致的。  
+
+**viewport units**  
+一个用视口单位表示的坐标值或者长度代表了在视口坐标系统中的坐标值或者长度。
+因此，10个视口单位代表了在视口坐标系统中的10个单位的长度。  
+
+**XLink attributes**  
+XLink attributes 是在 XML Linking Language规范中定义的7个睡醒，用来在各个 SVG 上引用资源。 'xlink:type', 'xlink:role', 'xlink:arcrole', 'xlink:title', 'xlink:show', 'xlink:actuate'。  
+
+  
