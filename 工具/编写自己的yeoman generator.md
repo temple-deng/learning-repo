@@ -8,26 +8,27 @@
 ---
 
 ### 1. 开始
-yeoman官方有一个`generator-generator`的模块用来帮助用户生成自己的generator. 使用方式如下:
+yeoman官方有一个`generator-generator`的模块用来帮助用户生成自己的generator. 使用方式如下:  
 
 ```shell
 install :  npm install -g generator-generator
 run : yo generator
-```
+```  
 
-如果没有使用官方的生成器的话， 需要自己手动搭建目录结构。
+如果没有使用官方的生成器的话， 需要自己手动搭建目录结构。  
 
-**第一步： 新建一个npm 模块**
-首先新建一个文件夹， 文件夹的名称必须是 generator-name， name就是自己的生成器的名字， 下面以 generator-temple为例。新建文件夹:
+**第一步： 新建一个npm 模块**  
 
-`mkdir generator-temple`  
+首先新建一个文件夹， 文件夹的名称必须是 generator-name， name就是自己的生成器的名字， 下面以 generator-temple为例。新建文件夹:  
 
-然后进入文件夹中新建一个package.json文件， 复制粘贴下面的内容到文件中:
+`mkdir generator-temple`    
+
+然后进入文件夹中新建一个package.json文件， 复制粘贴下面的内容到文件中:  
 
 ```json
 // package.json
 {
-  "name": "generator-name", 
+  "name": "generator-name",
   "version": "0.1.0",
   "description": "",
   "files": [
@@ -39,35 +40,38 @@ run : yo generator
     "yeoman-generator": "^0.20.2"
   }
 }
-```
+```  
 
-注意上面name字段应该改成自己的generator的名字， 且必须以generator-为前缀，本例即generator-temple.
+注意上面name字段应该改成自己的generator的名字， 且必须以generator-为前缀，本例即generator-temple.  
 keywords字段数组中必须包含`yeoman-generator`。 同时为了确保依赖的是最新版的yeoman-generator， 因此不推荐想上面一样写死。 而是直接从npm仓库安装:
 
-`npm install --save yeoman-generator`
+`npm install --save yeoman-generator`  
 
-**继承generator模块**
+**继承generator模块**  
+
 ```javascript
 const generators = require('yeoman-generator');
 
 module.exports = generators.Base.extend();
-```
+```  
 
-**重写constructor构造函数**
-当我们想在构造函数中调用一些构造函数无法调用的函数中， 我们可能去重写构造函数:
+**重写constructor构造函数**  
+
+当我们想在构造函数中调用一些构造函数无法调用的函数中， 我们可能去重写构造函数:  
 
 ```javascript
 module.exports = generators.Base.extend({
   constructor: function() {
     generators.Base.apply(this, arguments);
-    
+
     this.option('coffee');
   }
 );
 ```
 
-**添加自己的函数**
-添加在原型上的每一个函数都会由generator按顺序依次调用， 但是一些特殊的函数名可能会按照不一样的顺序执行。
+**添加自己的函数**  
+
+添加在原型上的每一个函数都会由generator按顺序依次调用， 但是一些特殊的函数名可能会按照不一样的顺序执行。  
 
 ```javascript
 module.exports = generators.Base.extend({
@@ -78,14 +82,14 @@ module.exports = generators.Base.extend({
     console.log('method 2 just ran');
   }
 });
-```
+```  
 
 **运行我们的generator**
 在根目录下新建一个app文件夹， 在其中新建一个index.js文件， 文件内容如下
 
 ```javascript
  // app/index.js
- 
+
  const generators = require('yeoman-generator');
 
 module.exports = generators.Base.extend({
@@ -138,7 +142,7 @@ var MyBase = generators.Base.extend({
       console.log('methods on the parent generator won\'t be called automatically');
     }
   });
-  
+
   module.exports = MyBase.extend({
     exec: function () {
       this.helper();
@@ -205,7 +209,7 @@ module.exports = generators.Base.extend({
 
 这个例子中 `my-project` 就是第一个参数。
 
-为了通知系统我们需要一个argument， 我们可以使用`generator.argument()`方法， 这个方法接受一个字符参数name， 和一个可选的配置参数对象。 
+为了通知系统我们需要一个argument， 我们可以使用`generator.argument()`方法， 这个方法接受一个字符参数name， 和一个可选的配置参数对象。
 
 这个name参数会新建一个getter函数在generator实例上 `generator['name']`.
 
@@ -219,7 +223,7 @@ module.exports = generators.Base.extend({
 
 这个方法必须在`constructor`方法中调用，  否则 Yeoman无法输出相关的帮助信息当用户调用你的generator时有help选项：eg `yo webapp --help`
 
-栗子： 
+栗子：
 ```javascript
 var _ = require('lodash');
 
@@ -291,7 +295,7 @@ inquirer.prompt([/* Pass your questions in here */]).then(function (answers) {
 });
 ```
 
-共有3个API，这里只说最基本的 inquirer.prompt(questions) 
+共有3个API，这里只说最基本的 inquirer.prompt(questions)
 + questions 参数是一个question对象的数组，包含一组问题
 + 返回值是Promise
 
