@@ -338,3 +338,27 @@ Button.contextTypes = {color: React.PropTypes.string};
 在 DOM 中的 `container` 内渲染一个 React element。返回这个组件的引用（或者对于无状态的组件返回 `null`）。  
 
 如果 React element 之前已经在 `container` 渲染了， 就会执行更新操作。如果提供可选的回调函数，会在组件渲染或者更新后执行。
+
+## 补充
+
+组件可以看成是接受 props 和 state做参数，产出 React Elements 的工厂函数。  
+
+如何判断数据是否是state:  
+
++ 是否通过 props 由父级传递下来的，如果是，不是state。
++ 是否不随时间变化而变化，如果是，不是state。
++ 是否可以基于组件其他的 props 或 state计算出来，如果是，不是state。  
+
+false, null, undefined, true 都是合法的子节点（props.children），但是都通通不渲染。  
+
+```javascrip
+Greeting.propTypes = {
+  'propName': PropTypes.string
+};
+
+Greeting.defaultProps = {
+  'propName': value
+}
+```  
+
+defaultProps 会在类型检查前应用。  

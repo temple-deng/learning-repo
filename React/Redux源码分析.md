@@ -7,17 +7,17 @@
 + initialState 可选的初始状态
 + enhancer 函数类型的加强器，扩展store的功能，内部就是这样实现的：
 
-```javascript	
+```javascript
 return enhancer(createStore)(reducer, initialState)
 ```
 
 #### 返回值
-store 对象，保存着当前的state 树，包含下面几个属性和方法： 
+store 对象，保存着当前的state 树，包含下面几个属性和方法：
 + dispatch
 + subscribe
 + getState
 + replaceReducer
-+ [$$observable]: observable (这个不清楚，没研究过)
++ `[$$observable]`: observable (这个不清楚，没研究过,貌似给其他库用到)
 
 
 #### 源码分析
@@ -110,9 +110,8 @@ store 对象，保存着当前的state 树，包含下面几个属性和方法�
       )
     }
 
-   // 从提示信息应该可以看出， 这个标志变量是防止在一个reducer操作后， 
-   // 抛出异常， 阻止下一次dispatch操作， 如果reducer操作时出了错
-   // isDispatch就一直为true
+   // 从提示信息应该可以看出， 这个标志变量是防止在一个reducer操作中 dispatch action，
+   // 这时由于标志为 true 会抛出异常 。
     if (isDispatching) {
       throw new Error('Reducers may not dispatch actions.')
     }
@@ -183,9 +182,9 @@ function combineReducer(reducerObj) {
 **源码解析**
 ```javascript
 export default function combineReducers(reducers) {
-  var reducerKeys = Object.keys(reducers)  // 保存键名， 这个键名也就是子reducer要处理的state键名 
+  var reducerKeys = Object.keys(reducers)  // 保存键名， 这个键名也就是子reducer要处理的state键名
   var finalReducers = {}
-  
+
   // 这个循环看起来只进行了过滤操作， 将不是function类型的reducer过滤掉
   for (var i = 0; i < reducerKeys.length; i++) {
     var key = reducerKeys[i]
@@ -231,7 +230,7 @@ export default function combineReducers(reducers) {
       nextState[key] = nextStateForKey          // 拼接成完整的state对象
       hasChanged = hasChanged || nextStateForKey !== previousStateForKey
     }
-    
+
     // 用了一个hasChanged标志而没有直接返回nextState应该是性能上的考虑吧
     return hasChanged ? nextState : state
   }
@@ -344,7 +343,7 @@ export default function applyMiddleware(...middlewares) {
     }
     // chain数组应该是个每个元素参数为store.dispatch方法的函数数组
     chain = middlewares.map(middleware => middleware(middlewareAPI))
-    
+
     // 返回包装过的dispatch方法， 注意包装的顺序， 先从middlewares的最后一个开始包装
     dispatch = compose(...chain)(store.dispatch)
 
