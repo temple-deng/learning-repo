@@ -120,4 +120,34 @@ Class作为构造函数的语法糖，同时有prototype属性和__proto__属性
 
 ## `new.target`
 
-`new` 是从构造函数生成实例的命令。ES6为`new` 命令引入了一个`new.target`属性，（在构造函数中）返回 `new` 命令作用于的那个构造函数。如果构造函数不是通过`new` 命令调用的，`new.target` 会返回`undefined`，因此这个属性可以用来确定构造函数是怎么调用的。
+`new` 是从构造函数生成实例的命令。ES6为`new` 命令引入了一个`new.target`属性，（在构造函数中）返回 `new` 命令作用于的那个构造函数。如果构造函数不是通过`new` 命令调用的，`new.target` 会返回`undefined`，因此这个属性可以用来确定构造函数是怎么调用的。  
+
+## 4. 静态属性和实例属性
+
+静态属性指的是 Class 本身的属性，即 `Class.propname`，而不是定义在实例对象上的属性。  
+
+1. 类的实例属性  
+
+```javascript
+class MyClass {
+  myProp = 42;
+
+  constructor() {
+    console.log(this.myProp);  //42
+  }
+}
+```  
+
+奇怪的是怎么在构造函数前就定义好了呢。。。  
+
+2. 类的静态属性
+
+```javascript
+class MyClass {
+  static myStaticProp = 42;
+
+  constructor() {
+    console.log(MyClass.myStaticProp); //42
+  }
+}
+```  
