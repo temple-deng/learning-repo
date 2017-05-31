@@ -87,6 +87,25 @@ margin box和padding box的四个属性，`margin-top,margin-bottom,margin-left,
 + 最后，根据展示环境使用值最终转换成实际值(actual value).
 
 
+### 8. @import
+
+`@import` 规则可以让我们从其他样式表中导入样式规则。如果 `@import` 引用了一个有效的
+样式表，用户代理必须将样式表的内容类似于插入的样子写到 `@import` 规则使用的地方。   
+
+任何的 `@import` 规则在样式表中的位置必须先于所有其他的 at-rules 及样式规则（除了 `@charset`，这个必须是样式表中第一
+个规则），语法如下：   
+
+```css
+@import [ <url> | <string> ]
+        [ supports( [ <supports-condition> | <declaration> ] ) ]?
+        <media-query-list>? ;
+```    
+
+注意官方文档的语法表示中， `[]` 是用来分组的，如果是可选的话应该是 `?`，`|` 表示只能有一个存在。  
+
+`@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);`   
+
+
 
 # A
 

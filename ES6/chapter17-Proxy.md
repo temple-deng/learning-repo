@@ -1,0 +1,367 @@
+# Proxy  
+
+## 1. 概述
+
+Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。Proxy 这个词的原意是代理，用在这里表示由它来“代理”某些操作，可以译为“代理器”。  
+
+```javascript
+var obj = new Proxy({}, {
+  get: function (target, key, receiver) {
+    console.log(`getting ${key}!`);
+    return Reflect.get(target, key, receiver);
+  },
+  set: function (target, key, value, receiver) {
+    console.log(`setting ${key}!`);
+    return Reflect.set(target, key, value, receiver);
+  }
+});
+```    
+
+上面代码对一个空对象架设了一层拦截，重定义了属性的读取（get）和设置（set）行为。  
+
+
+ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。  
+
+`var proxy = new Proxy(target, handler)`  
+
+Proxy 对象的所有用法，都是上面这种形式，不同的只是`handler`参数的写法。其中，`new Proxy()`表示生成一个Proxy实例，`target`参数表示所要拦截的目标对象，`handler`参数也是一个对象，用来定制拦截行为。  
+
+注意，要使得Proxy起作用，必须针对Proxy实例进行操作，而不是针对目标对象进行操作。    
+
+一个技巧是将 Proxy 对象，设置到`object.proxy`属性，从而可以在object对象上调用。  
+
+`var object = { proxy: new Proxy(target, handler) };`  
+
+Proxy 实例也可以作为其他对象的原型对象。   
+
+```javascript
+var proxy = new Proxy({}, {
+  get: function(target, property) {
+    return 35;
+  }
+});
+
+let obj = Object.create(proxy);
+obj.time // 35
+```    
+
+上面代码中，`proxy`对象是`obj`对象的原型，`obj`对象本身并没有`time`属性，所以根据原型链，会在`proxy`对象上读取该属性，导致被拦截。   
+
+
+## 2. 具体的拦截可以实现的方法
+
+### 1. get(target, propKey, receiver)  
+
+`get`方法用于拦截某个属性的读取操作。下面是一个拦截读取操作的例子。  
+
+```javascript
+var person = {
+  name: "张三"
+};
+
+var proxy = new Proxy(person, {
+  get: function(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      throw new ReferenceError("Property \"" + property + "\" does not exist.");
+    }
+  }
+});
+
+proxy.name // "张三"
+proxy.age // 抛出一个错误
+```  
+
+上面代码表示，如果访问目标对象不存在的属性，会抛出一个错误。如果没有这个拦截函数，访问不存在的属性，只会返回undefined。  
+
+如果一个属性不可配置（configurable）和不可写（writable），则该属性不能被代理，通过 Proxy 对象访问该属性会报错。  
+
+```javascript
+
+const target = Object.defineProperties({}, {
+  foo: {
+    value: 123,
+    writable: false,
+    configurable: false
+  },
+});
+
+const handler = {
+  get(target, propKey) {
+    return 'abc';
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+proxy.foo
+// TypeError: Invariant check failed  
+```  
+
+### 2. set(target, propKey, value, receiver)
+
+set方法用来拦截某个属性的赋值操作。  
+
+```javascript
+let validator = {
+  set: function(obj, prop, value) {
+    if (prop === 'age') {
+      if (!Number.isInteger(value)) {
+        throw new TypeError('The age is not an integer');
+      }
+      if (value > 200) {
+        throw new RangeError('The age seems invalid');
+      }
+    }
+
+    // 对于age以外的属性，直接保存
+    obj[prop] = value;
+  }
+};
+
+let person = new Proxy({}, validator);
+
+person.age = 100;
+
+person.age // 100
+person.age = 'young' // 报错
+person.age = 300 // 报错
+```   
+
+注意，如果目标对象自身的某个属性，不可写也不可配置，那么set不得改变这个属性的值，只能返回同样的值，否则报错。  
+
+### 3. apply(target, object, args)  
+
+apply方法拦截函数的调用、call和apply操作。   
+
+apply方法可以接受三个参数，分别是目标对象、目标对象的上下文对象（this）和目标对象的参数数组。  
+
+这种情况的话 target 应该必须是个函数吧。  
+
+```javascript
+var target = function () { return 'I am the target'; };
+var handler = {
+  apply: function () {
+    return 'I am the proxy';
+  }
+};
+
+var p = new Proxy(target, handler);
+
+p()
+// "I am the proxy"
+```   
+
+```javascript
+var twice = {
+  apply (target, ctx, args) {
+    return Reflect.apply(...arguments) * 2;
+  }
+};
+function sum (left, right) {
+  return left + right;
+};
+var proxy = new Proxy(sum, twice);
+proxy(1, 2) // 6
+proxy.call(null, 5, 6) // 22
+proxy.apply(null, [7, 8]) // 30
+```   
+
+上面代码中，每当执行proxy函数（直接调用或`call`和`apply`调用），就会被apply方法拦截。
+
+另外，直接调用`Reflect.apply`方法，也会被拦截。   
+
+`Reflect.apply(proxy, null, [9, 10]) // 38`   
+
+### 4. has(target, propKey)  
+
+has方法用来拦截HasProperty操作，即判断对象是否具有某个属性时，这个方法会生效。典型的操作就是`in`运算符。      
+
+```javascript
+var handler = {
+  has (target, key) {
+    if (key[0] === '_') {
+      return false;
+    }
+    return key in target;
+  }
+};
+var target = { _prop: 'foo', prop: 'foo' };
+var proxy = new Proxy(target, handler);
+'_prop' in proxy // false
+```   
+
+如果原对象不可配置或者禁止扩展，这时has拦截会报错。  
+
+```javascript
+var obj = { a: 10 };
+Object.preventExtensions(obj);
+
+var p = new Proxy(obj, {
+  has: function(target, prop) {
+    return false;
+  }
+});
+
+'a' in p // TypeError is thrown
+```  
+
+上面代码中，obj对象禁止扩展，结果使用has拦截就会报错。也就是说，如果某个属性不可配置（或者目标对象不可扩展），则`has`方法就不得“隐藏”（即返回false）目标对象的该属性。   
+
+另外，虽然`for...in`循环也用到了`in`运算符，但是`has`拦截对`for...in`循环不生效。  
+
+
+### 5. construct(target, args)  
+
+`construct`方法用于拦截`new`命令，下面是拦截对象的写法。  
+
+```javascript
+var handler = {
+  construct (target, args, newTarget) {
+    return new target(...args);
+  }
+};
+```   
+
+`construct`方法返回的必须是一个对象，否则会报错。  
+
+### 6. deleteProperty(target, propKey)
+
+`deleteProperty`方法用于拦截`delete`操作，如果这个方法抛出错误或者返回`false`，当前属性就无法被`delete`命令删除。   
+
+```javascript
+var handler = {
+  deleteProperty (target, key) {
+    invariant(key, 'delete');
+    return true;
+  }
+};
+function invariant (key, action) {
+  if (key[0] === '_') {
+    throw new Error(`Invalid attempt to ${action} private "${key}" property`);
+  }
+}
+
+var target = { _prop: 'foo' };
+var proxy = new Proxy(target, handler);
+delete proxy._prop
+// Error: Invalid attempt to delete private "_prop" property
+```  
+
+注意，目标对象自身的不可配置（configurable）的属性，不能被deleteProperty方法删除，否则报错。  
+
+### 7. defineProperty(target, propKey, propDesc)
+
+`defineProperty`方法拦截了`Object.defineProperty`操作。  
+
+```javascript
+var handler = {
+  defineProperty (target, key, descriptor) {
+    return false;
+  }
+};
+var target = {};
+var proxy = new Proxy(target, handler);
+proxy.foo = 'bar'
+// TypeError: proxy defineProperty handler returned false for property '"foo"'
+```    
+
+上面代码中，`defineProperty`方法返回`false`，导致添加新属性会抛出错误。
+
+注意，如果目标对象不可扩展（extensible），则`defineProperty`不能增加目标对象上不存在的属性，否则会报错。另外，如果目标对象的某个属性不可写（writable）或不可配置（configurable），则defineProperty方法不得改变这两个设置。   
+
+### 8. getOwnPropertyDescriptor(target, propKey)  
+
+`getOwnPropertyDescriptor`方法拦截`Object.getOwnPropertyDescriptor()`，返回一个属性描述对象或者undefined。  
+
+```javascript
+var handler = {
+  getOwnPropertyDescriptor (target, key) {
+    if (key[0] === '_') {
+      return;
+    }
+    return Object.getOwnPropertyDescriptor(target, key);
+  }
+};
+var target = { _foo: 'bar', baz: 'tar' };
+var proxy = new Proxy(target, handler);
+Object.getOwnPropertyDescriptor(proxy, 'wat')
+// undefined
+Object.getOwnPropertyDescriptor(proxy, '_foo')
+// undefined
+Object.getOwnPropertyDescriptor(proxy, 'baz')
+// { value: 'tar', writable: true, enumerable: true, configurable: true }
+```    
+
+### 9. getPrototypeOf(target)  
+
+`getPrototypeOf`方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作。  
+
++ `Object.prototype.__proto__`
++ `Object.prototype.isPrototypeOf()`
++ `Object.getPrototypeOf()`
++ `Reflect.getPrototypeOf()`
++ `instanceof`
+
+注意，`getPrototypeOf`方法的返回值必须是对象或者null，否则报错。另外，如果目标对象不可扩展（extensible）， `getPrototypeOf`方法必须返回目标对象的原型对象。   
+
+### 10. isExtensible(target)  
+
+`isExtensible`方法拦截`Object.isExtensible`操作。  
+
+```javascript
+var p = new Proxy({}, {
+  isExtensible: function(target) {
+    console.log("called");
+    return true;
+  }
+});
+
+Object.isExtensible(p)
+// "called"
+// true
+```  
+
+注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。
+
+这个方法有一个强限制，它的返回值必须与目标对象的isExtensible属性保持一致，否则就会抛出错误。  
+
+### 11. ownKeys(target)
+
+`ownKeys`方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作。  
+
++ `Object.getOwnPropertyNames()`
++ `Object.getOwnPropertySymbols()`
++ `Object.keys()`  
+
+### 12. preventExtensions(target)  
+
+`preventExtensions`方法拦截`Object.preventExtensions()`。该方法必须返回一个布尔值，否则会被自动转为布尔值。
+
+这个方法有一个限制，只有目标对象不可扩展时（即`Object.isExtensible(proxy)`为false），`proxy.preventExtensions`才能返回true，否则会报错。  
+
+### 13. setPrototypeOf(target, proto)  
+
+setPrototypeOf方法主要用来拦截Object.setPrototypeOf方法。  
+
+注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（extensible），setPrototypeOf方法不得改变目标对象的原型。   
+
+## 3. Proxy.revocable  
+
+Proxy.revocable方法返回一个可取消的 Proxy 实例。  
+
+```javascript
+let target = {};
+let handler = {};
+
+let {proxy, revoke} = Proxy.revocable(target, handler);
+
+proxy.foo = 123;
+proxy.foo // 123
+
+revoke();
+proxy.foo // TypeError: Revoked
+```   
+
+Proxy.revocable方法返回一个对象，该对象的proxy属性是Proxy实例，revoke属性是一个函数，可以取消Proxy实例。上面代码中，当执行revoke函数之后，再访问Proxy实例，就会抛出一个错误。  
