@@ -222,3 +222,34 @@ for...of循环、扩展运算符（...）、解构赋值和Array.from方法内�
 
   //都是执行到2就没了，  应该是遇到返回对象done:true;就提前跳出循环
 ```
+
+
+## 7. Generator 函数的 this   
+
+Generator 函数总是返回一个遍历器，ES6 规定这个遍历器是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法。      
+
+```javascript
+function* g() {}
+
+g.prototype.hello = function () {
+  return 'hi!';
+};
+
+let obj = g();
+
+obj instanceof g // true
+obj.hello() // 'hi!'
+```    
+
+上面代码表明，Generator 函数`g`返回的遍历器`obj`，是`g`的实例，而且继承了`g.prototype`。但是，如果把`g`当作普通的构造函数，并不会生效，因为`g`返回的总是遍历器对象，而不是`this`对象。    
+
+```javascript
+function* g() {
+  this.a = 11;
+}
+
+let obj = g();
+obj.a // undefined
+```     
+
+Generator函数也不能跟`new`命令一起用，会报错。

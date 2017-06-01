@@ -10,7 +10,7 @@
 ## 1.基本用法
 
 ```javascript
-    Class Point {
+    class Point {
         constructor(x, y){
             this.x = x;
             this.y = y;
@@ -31,7 +31,24 @@
 类的内部所有定义的方法，都是不可枚举的.这一点与ES5的行为不一致。  
 
 
-一个类必须有constructor方法，如果没有显式定义，一个空的constructor方法会被默认添加。  
+一个类必须有constructor方法，如果没有显式定义，一个空的constructor方法会被默认添加。   
+
+constructor仍然指向类。    
+
+```javascript
+class Point {
+    constructor(x, y){
+        this.x = x;
+        this.y = y;
+    }
+
+    toString(){
+        return '(' + this.x + ',' + this.y + ')';
+    }
+}
+
+console.log(Point.prototype.constructor === Point);  // true
+```
 
 constructor方法默认返回实例对象（即this），完全可以指定返回另外一个对象。  
 

@@ -31,7 +31,37 @@ then方法可以接受两个回调函数作为参数。第一个回调函数是P
 
 如果调用resolve函数和reject函数时带有参数，那么它们的参数会被传递给回调函数。
 
-then和catch中接受的回调函数return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为return的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。  
+then和catch中接受的回调函数return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为return的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。即使没有 return 语句也是，这是就是一个立即 resolved 的 Promise,后面的`then` 中的函数可能会立即执行。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。    
+
+
+关于顺序方面，在 node 环境中测验时，`process.nextTick()` 是先于 `resolved` 的 Promise的，
+所以可能 `process.nextTick` 与 resolved 的 Promise 都是在当前的 event loop 的阶段中的末尾执行，在进入下个阶段前执行。    
+
+```javascript
+var promise = new Promise(function(resolve, reject) {
+  resolve('hahahha');
+});
+
+process.nextTick(function() {
+  console.log('xixixi');
+});
+
+promise.then(function(str) {
+  console.log(str);
+}).then(function() {
+  console.log('lulo')
+});
+
+setImmediate(function() {
+  console.log('hehehhe');
+});
+
+/**  xixixi
+*    hahahha
+*    lulo
+*    hehehhe 
+*/
+```     
 
 
 ## 2.Promise.all

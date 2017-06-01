@@ -31,7 +31,7 @@ var sum = (function() {
 下面的是一个通用的 function currying() {}, 接受一个参数，即将要被 currying 的函数。  
 
 ```JavaScript
-var currying = (function( fn ){
+function currying( fn ){
   var args = [];
 
   return function() {
@@ -42,7 +42,7 @@ var currying = (function( fn ){
       return arguments.callee;
     }
   }
-})();
+};
 ```  
 
 改装一下 sum 函数：  

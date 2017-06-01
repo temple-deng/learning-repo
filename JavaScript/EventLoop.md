@@ -40,7 +40,8 @@
 + **check**: 调用 `setImmediate()` 设置的回调
 + **close callbacks**: 例如 `socket.on('close', ...)`  
 
-在每次 event loop 运行过程之间，Node.js 都会检查是否有异步 I/O或者定时器在等待，如果没有就关闭。   
+在每次 event loop 运行过程之间，Node.js 都会检查是否有异步 I/O或者定时器在等待，如果没有就关闭。这里应该指的就是当前的 Node
+进程，毕竟如果没有定时器，也没有异步任务，程序就该退出了。       
 
 ## 阶段细节
 

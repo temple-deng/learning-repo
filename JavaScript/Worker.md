@@ -21,7 +21,8 @@ Web Worker有以下几个特点：
 
 `var worker = new Worker('work.js');`  
 
-子线程新建之后，并没有启动，必需等待主线程调用`postMessage`方法，即发出信号之后才会启动。`postMessage`方法的参数，就是主线程传给子线程的信号。它可以是一个字符串，也可以是一个对象。  
+子线程新建之后，并没有启动，必需等待主线程调用`postMessage`方法，即发出信号之后才会启动。然而测试的时候好像有问题啊
+，不管调不调用 `postMessage`, worker都会开始执行了啊。`postMessage`方法的参数，就是主线程传给子线程的信号。它可以是一个字符串，也可以是一个对象。  
 
 `worker.postMessage("Hello World");`  
 
