@@ -46,7 +46,7 @@ Content-Range: <unit> <range-start>-<range-end>/*
 Content-Range: <unit> */<size>
 ```   
 
-* 表示不知道。但是用在 size 前面是什么鬼。   
+\* 表示不知道。但是用在 size 前面是什么鬼。   
 
 ## MIME multipart
 
@@ -91,7 +91,7 @@ Simple file.
 ```  
 HTTP/1.1 206 Partial Content
 Accept-Ranges: bytes
-Content-Type: multipart/byteranges; boundary=3d6b6a416f9b5
+Content-Type: multipart/byteranges; boundary=--3d6b6a416f9b5
 Content-Length: 385
 
 --3d6b6a416f9b5
