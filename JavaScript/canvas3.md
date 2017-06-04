@@ -22,6 +22,8 @@
 
 4. 恢复画布状态
 
+<a name="part2"></a>  
+
 ## Pixel manipulation with Canvas
 
 `ImageData` 对象代表了canvas对象底层的像素的数组。包括下面3个只读属性：  
