@@ -1,8 +1,6 @@
-﻿# React-redux源码解析
+# React-redux 源码
 
-标签（空格分隔）： 未分类
 
----
 ### 1. Provider组件
 Provider是作为整个APP的容器组件， 接受redux的store作为prop， 然后通过react的 context 特性， 可以让子组件啊访问到store。 要想让子组件访问到store， 首先要在Provider中声明getChildContext方法， 其次子组件要设置ContextTypes属性。
 
@@ -98,7 +96,7 @@ export default function connect(mapStateToProps, mapDispatchToProps, mergeProps,
   const finalMergeProps = mergeProps || defaultMergeProps
   const { pure = true, withRef = false } = options
   const checkMergedEquals = pure && finalMergeProps !== defaultMergeProps
-  
+
   // ....
  }
 ```
@@ -124,7 +122,7 @@ return function wrapWithConnect(WrappedComponent) {
       }
       return mergedProps
     }
-    
+
     // component define
 }
 ```
@@ -132,7 +130,7 @@ return function wrapWithConnect(WrappedComponent) {
 真正的组件
 ```javascript
     class Connect extends Component {
-      
+
       // 组件是否需要重新渲染更新， 如果pure选项传入了false， 则每次变更都需要渲染
       // 否则还要根据检查props和state的变化。
       shouldComponentUpdate() {

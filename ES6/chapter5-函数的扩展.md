@@ -107,7 +107,7 @@ var array = [...nodeList];
 
   2. 不可以当作构造函数，也就是说，不可以使用new命令，否则会抛出一个错误。
 
-  3. 不可以使用arguments对象，该对象在函数体内不存在。如果要用，可以用Rest参数代替。
+  3. 类似于 this 关键字，arguments 对象也是最近的函数的 arguments 对象，不会生成自己的 arguments 对象。   
 
   4. 不可以使用yield命令，因此箭头函数不能用作Generator函数。  
 

@@ -16,7 +16,9 @@
 
 + 修改传入参数
 + 执行有副作用的操作，如 API 请求和路由跳转；
-+ 调用非纯函数，如 `Date.now()` 或 `Math.random()`。
++ 调用非纯函数，如 `Date.now()` 或 `Math.random()`。    
+
+开发复杂的应用时，不可避免会有一些数据相互引用。建议你尽可能地把 state 范式化，不存在嵌套。把所有数据放到一个对象里，每个数据以 ID 为主键，不同实体或列表间通过 ID 相互引用数据。把应用的 state 想像成数据库。   
 
 ### combineReducers
 
@@ -102,6 +104,10 @@ Redux 应用中数据的生命周期遵循下面 4 个步骤：
 + 通常是使用高阶组件生成的。
 + 例如 *UserPage, FollowerSidebar, StoryContainer, FollowedUserList*。
 
+技术上讲，容器组件就是使用 `store.subscribe()` 从 Redux `state` 树中读取部分数据，并通过 props 来把这些数据提供给要渲染的组件。
+我觉得吧，这个可能是在容器组件的 `componentDidMount` 中可能注册调用 `store.subscribe()` 方法，然后
+在具体的监听函数中呢通过 `getState()` 获取到当前数据，之后将当前的 state 传递给 mapStateToProps 做参数得出最终需要注入的 props。目前还不确定setState 方法是在哪个阶段调用的   
+
 
 ## 6. Middleware
 
@@ -114,7 +120,110 @@ Action 发出以后，Reducer 立即算出 State，这叫做同步；Action 发�
 
 + 操作发起时的 Action
 + 操作成功时的 Action
-+ 操作失败时的 Action
++ 操作失败时的 Action   
+
+说白了，middleware 会包装 `dispatch()` 方法，为其添加功能，这样就可以在真正的 `dispatch()`
+触发前后做一些其他的事件，例如下面自定义的 thunk 中间件：   
+
+```javascript
+function thunk(store) {
+  let next = store.dispatch;
+
+  return function(action) {
+    if(typeof action === 'function') {
+      return action(store)
+    }
+
+    return next(action);
+  }
+}
+
+store.dispatch = thunk(store);
+```   
+
+当使用这个 thunk 替换掉原生的 `dispatch` 方法后， 我们就可以 dispatch 一些函数类型的 action。而这些函数的 action 是否会调用最终的 `dispatch` 方法不得而知。    
+
+其次，可以定义一个这样的函数：   
+
+```javascript
+function applyMiddlewareByMonkeypatching(store, middlewares) {
+  middlewares = middlewares.slice()
+  middlewares.reverse()
+
+  // 在每一个 middleware 中变换 dispatch 方法。
+  middlewares.forEach(middleware =>
+    store.dispatch = middleware(store)
+  )
+}
+```   
+
+使用这个函数就可以用多个中间件包装 `dispatch` 方法，而且每一个 middleware 都可以操作（或者直接调用）前一个 middleware 包装过的 `store.dispatch`。   
+
+但是，还有另一种方式来实现这种链式调用的效果。可以让 middleware 以方法参数的形式接收一个 `next()` 方法，而不是通过 `store` 的实例去获取。   
+
+```javascript
+function logger(store) {
+  return function wrapDispatchToAddLogging(next) {
+    return function dispatchAndLog(action) {
+      console.log('dispatching', action)
+      let result = next(action)
+      console.log('next state', store.getState())
+      return result
+    }
+  }
+}
+```    
+
+使用箭头函数的话可以更简洁一点：   
+
+```javascript
+const logger = store => next => action => {
+  console.log('dispatching', action)
+  let result = next(action)
+  console.log('next state', store.getState())
+  return result
+}
+
+const crashReporter = store => next => action => {
+  try {
+    return next(action)
+  } catch (err) {
+    console.error('Caught an exception!', err)
+    Raven.captureException(err, {
+      extra: {
+        action,
+        state: store.getState()
+      }
+    })
+    throw err
+  }
+}
+```   
+
+我觉得之所以又包了一层，是希望用闭包保存 store 对象，从而能在中间件中使用 store 上的其他 API。    
+
+我们可以写一个 `applyMiddleware()` 方法替换掉原来的 `applyMiddlewareByMonkeypatching()`。在新的 `applyMiddleware()` 中，我们取得最终完整的被包装过的 `dispatch()` 函数，并返回一个 `store` 的副本：   
+
+```javascript
+// 警告：这只是一种“单纯”的实现方式！
+// 这 *并不是* Redux 的 API.
+
+function applyMiddleware(store, middlewares) {
+  middlewares = middlewares.slice()
+  middlewares.reverse()
+
+  let dispatch = store.dispatch
+  middlewares.forEach(middleware =>
+    dispatch = middleware(store)(dispatch)
+  )
+
+  return Object.assign({}, store, { dispatch })
+}
+```   
+
+
+
+
 
 
 ## 7. API
