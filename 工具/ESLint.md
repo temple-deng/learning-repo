@@ -20,7 +20,7 @@ ESLint 允许你指定你想要支持的 JavaScript 语言选项。默认情况�
   + experimentalObjectRestSpread - 启用对实验性的 object rest/spread properties 的支持。  
 
 
-#### 配置环境 Specifying Environments 
+#### 配置环境 Specifying Environments
 环境定义了预定义的全局变量。可用的环境有：  
 - browser - browser 全局变量。  
 - node - Node.js 全局变量和 Node.js 作用域  
@@ -53,7 +53,7 @@ ESLint 允许你指定你想要支持的 JavaScript 语言选项。默认情况�
 }
 ```
 
-#### 配置插件 
+#### 配置插件
 在配置文件里配置插件，要使用plugins键，其中包含插件名字的列表。插件名称可以省略eslint-plugin-前缀。  
 ```javascript
 {
@@ -81,10 +81,12 @@ ESLint 附带有大量的规则。你可以使用注释或配置文件修改你�
 ```
 配置定义在插件中的一个规则的时候，你必须使用插件名/规则ID的形式.当指定从插件来的规则时，确保删除eslint-plugin-前缀。ESLint 在内部只使用没有前缀的名称去定位规则。
 
-<br/>
-<br/>
-### 2. Rules
-#### Possible Errors 可能的错误
+
+
+### 2. Rules  
+
+#### Possible Errors 可能的错误  
+
 + comma-dangle: 禁止或强化对象字面量中的拖尾逗号.(应该关闭)  
 + no-cond-assign：禁止在条件语句中赋值。  
 + no-console: 禁用 console。  
@@ -97,4 +99,3 @@ ESLint 附带有大量的规则。你可以使用注释或配置文件修改你�
 + no-extra-parens: 禁止不必要的括号  
 + no-extra-semi: 禁止不必要的分号  
 + no-func-assign: 禁止重写函数声明  
-

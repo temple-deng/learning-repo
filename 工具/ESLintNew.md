@@ -360,10 +360,28 @@ ESLint 递归地进行扩展配置，所以一个基础的配置也可以有一�
   - 派生配置： `"quotes": ["error", "single"]`
   - 最终的配置： `"quotes": ["error", "single"]`  
 
+#### Using a shareable configuration package
 
-除了可以从一些 npm 的配置包中继承配置，也可以从一些插件中继承：  
+这些共享的配置包也是普通的 npm 包，不过名字通常是 `eslint-config-myconfig` 的形式。   
 
-```javascript
+安装了这些包后，就可以在配置中使用 `extends` 属性继承了，在继承时可以省略 `eslint-config-` 前缀。   
+
+除了可以从一些 npm 的配置包中继承配置，也可以从一些插件中继承：   
+
+#### Using the configuration from a plugin
+
+一般来说插件都是定义了一些新的规则，不过也可能暴露出一些配置。   
+
+首先可能要在 `plugins` 中声明插件。   
+
+之后 `extends` 属性会写成下面的形式（指的是针对这个插件的继承配置）：   
+
++ `plugin:`
++ 包名，省略前缀后的
++ `/`
++ 配置名（例如 `recommended`）   
+
+```json
 {
     "plugins": [
         "react"
@@ -376,7 +394,7 @@ ESLint 递归地进行扩展配置，所以一个基础的配置也可以有一�
        "no-set-state": "off"
     }
 }
-```
+```   
 
 `extends` 属性甚至还可以是一个基础的配置文件的绝对或者相对路径。  
 

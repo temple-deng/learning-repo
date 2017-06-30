@@ -104,7 +104,16 @@ Git 自带一个 git config 的工具来帮助设置控制 Git 外观和行为�
 
 如果想要检查你的配置，可以使用 git config --list 命令来列出所有 Git 当时能找到的配置。
 
-你可以通过输入 git config &lt;key&gt;： 来检查 Git 的某一项配置  
+你可以通过输入 git config &lt;key&gt;： 来检查 Git 的某一项配置。    
+
+### 配置用户信息
+
+```shell
+git config --global user.name "dengbo"
+git config --global user.email "630435132@qq.com"
+```   
+
+使用`--global` 选项，命令只要运行一次，Git 之后就都会使用这些信息。     
 
 
 
