@@ -78,7 +78,7 @@ HTMLCanvasElement提供了 `toDataURL()` 方法允许我们将其保存为图片
 
 也可以创建一个 Blob:  
 
-`canvas.toBlob(callback, type, encodeOptions)`  
+`canvas.toBlob(callback, mimeType, qualityArgument)`  
 
 ### Data URIs
 

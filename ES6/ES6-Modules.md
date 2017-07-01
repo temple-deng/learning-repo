@@ -140,7 +140,7 @@ import {default as baz} from './a';
 
 如果采用整体输入的写法（`import * as xxx from someModule`），`default`会取代`module.exports`，作为输入的接口。  
 
-```javascript 
+```javascript
 import * as baz from './a';
 // baz = {
 //   get default() {return module.exports;},
@@ -157,7 +157,10 @@ CommonJS 模块的输出缓存机制，在 ES6 加载方式下依然有效。
 
 `import {readfile} from 'fs';`  
 
-上面的写法不正确，因为fs是 CommonJS 格式，只有在运行时才能确定readfile接口，而import命令要求编译时就确定这个接口。解决方法就是改为整体输入。  
+上面的写法不正确，因为fs是 CommonJS 格式，只有在运行时才能确定readfile接口，而import命令要求编译时就确定这个接口。解决方法就是改为整体输入。     
+
+那么其实也就是说用 `import` 加载 CommonJS 还是遵循 CommonJS 规范，而且加载接口也限制
+成了只能加载 `default` 值或者整体输入。   
 
 ```javascript
 import * as express from 'express';
@@ -166,4 +169,3 @@ const app = express.default();
 import express from 'express';
 const app = express();
 ```   
-n

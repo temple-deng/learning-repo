@@ -27,11 +27,11 @@ Promise实例生成以后，可以用then方法分别指定Resolved状态和Reje
 
 promise.then(function(value){}, function(value){});
 ```  
-then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved时调用，第二个回调函数是Promise对象的状态变为Reject时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数(明明reject传出的是error，为什么这里使用了传出的值？)。  
+then方法可以接受两个回调函数作为参数。第一个回调函数是Promise对象的状态变为Resolved时调用，第二个回调函数是Promise对象的状态变为Reject时调用。其中，第二个函数是可选的，不一定要提供。这两个函数都接受Promise对象传出的值作为参数。  
 
-如果调用resolve函数和reject函数时带有参数，那么它们的参数会被传递给回调函数。
+如果调用 resolve 函数和 reject 函数时带有参数，那么它们的参数会被传递给回调函数。
 
-then和catch中接受的回调函数return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为return的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。即使没有 return 语句也是，这是就是一个立即 resolved 的 Promise,后面的`then` 中的函数可能会立即执行。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。    
+then 和 catch 中接受的回调函数 return 的值不仅只局限于字符串或者数值类型，也可以是对象或者promise对象等复杂类型。因为 return 的值会由 Promise.resolve(return的返回值); 进行相应的包装处理，因此不管回调函数中会返回一个什么样的值，最终 then 的结果都是返回一个新创建的promise对象。所以只要不出错就可以链式调用下去。即使没有 return 语句也是，这是就是一个立即 resolved 的 Promise,后面的`then` 中的函数可能会立即执行。也就是说， Promise#then 不仅仅是注册一个回调函数那么简单，它还会将回调函数的返回值进行变换，创建并返回一个promise对象。    
 
 
 关于顺序方面，在 node 环境中测验时，`process.nextTick()` 是先于 `resolved` 的 Promise的，
@@ -59,7 +59,7 @@ setImmediate(function() {
 /**  xixixi
 *    hahahha
 *    lulo
-*    hehehhe 
+*    hehehhe
 */
 ```     
 
