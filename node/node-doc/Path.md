@@ -145,7 +145,7 @@ path.extname('.index');
 当提供这些属性时需要注意的到，这些属性结合时最终可能会出现一个属性被一个优先级更高的属性覆盖：   
 
 + 如果提供了 `dir` 的话会忽略 `root`
-+ 如果提供了 `base` 的话会忽略 `ex` 和 `name`   
++ 如果提供了 `base` 的话会忽略 `ext` 和 `name`   
 
 ```javascript
 // If `dir`, `root` and `base` are provided,

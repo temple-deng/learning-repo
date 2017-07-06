@@ -353,7 +353,7 @@ pipe 目的地。
 造成可读流开始生成数据并触发事件。    
 
 调用 `readable.pause()`,`readable.unpipe()`，或者收到 "back pressure" 会造成 `flowing` 变为
-`false`，暂时挂起事件的流动，但是不会挂起数据的生成。当处在这个状态时，为 'data' 事件绑定监听
+`false`，暂时挂起数据的流动，但是不会挂起数据的生成。当处在这个状态时，为 'data' 事件绑定监听
 函数不会操作 `flowing` 变为 `true`。     
 
 

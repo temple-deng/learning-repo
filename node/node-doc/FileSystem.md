@@ -113,7 +113,7 @@
 异步形式版本总是接收一个完成回调作为最后一个参数，具体传递给回调的参数取决于方法，不过第一个
 参数总是 `error` 参数。如果操作没有出现问题，第一个参数就是 `null` or `undefined`。    
 
-**文件系统可以使用相对路径，但是需要注意的是，这个路径是相对于 `process.cws()`解析的。**    
+**文件系统可以使用相对路径，但是需要注意的是，这个路径是相对于 `process.cwd()`解析的。**    
 
 ## WHATWG URL object support
 
@@ -382,7 +382,7 @@ fs.access('/etc/passwd', fs.constants.R_OK | fs.constants.W_OK, (err) => {
 
 如果是文件描述符的话必须是一个打开的才能进行操作。   
 
-*Note*: 如果文件描述符是声明为 `file`，那么它不会自动关闭。   
+*Note*: 如果 `file` 声明为文件描述符，那么它不会自动关闭。   
 
 ## fs.appednFileSync(file,data[,options])
 

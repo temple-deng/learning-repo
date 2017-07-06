@@ -103,7 +103,7 @@ logger.log('count: %d', count);
 + `...args` &lt;any&gt;   
 
 一个简单的断言测试，验证 `value` 是否为“真”。如果不是，会抛出 `AssertionError` 错误。如果提供了 `message`
-参数，那么这个参数会用 `util.format()` 格式化并作为错误信息。   
+参数，那么这个参数会用 `util.format()` 格式化并作为错误信息。如果为“真”的话就什么也不输出。     
 
 ```javascript
 console.assert('hello', 'does nothing');

@@ -336,7 +336,7 @@ const buf = Buffer.from([0x62, 0x75, 0x66, 0x66, 0x65, 0x72]);
 ### buf[index]
 
 这些索引值指定是单个字节，所以合法的范围是 `0x00` and `0xFF`(hex) 或者 `0` and `255`(decimal)。
-不是很理解。。。。     
+        
 
 这个操作符是从 `Uint8Array` 中继承的，所以其越界的行为一样 —— 返回 `undefined'`。       
 

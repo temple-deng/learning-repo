@@ -51,4 +51,4 @@
 
 三个元素收缩的总和并不是150px，而是150 * (0.1+0.2+0.3)/1 即90px。  
 
-类似 `flex-grow`，`flex-shrink`也会受到 `min-width` 影响。  
+类似 `flex-grow`，`flex-shrink`也会受到 `min-width` 影响。    

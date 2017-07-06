@@ -14,7 +14,8 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
 
 ##### HTMLMediaElement.audioTracks   
 
-一个 AudioTrackList 对象，包含元素包含的 AudioTrack 对象。（具体内容以后再加）    
+一个 AudioTrackList 对象，包含元素包含的 AudioTrack 对象。（具体内容以后再加）但是看说明 `<audio>` 元素虽然可以包含 `<track>` 元素，但是会
+被忽视，不清楚这个字幕是怎么作用的。        
 
 ##### HTMLMediaElement.autoplay   
 
@@ -50,7 +51,7 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
 对应于 muted 属性，表明默认情况下是否静音。不过这个属性没有动态效果，也就是说只代表默认的效果，
 但是修改它并没什么效果吧，貌似可能只有在视频播放前的阶段修改有效果，如果想要修改还是使用 `muted` 属性。    
 
-##### HTMLMediaElement.defaultPlayBackRate
+##### HTMLMediaElement.defaultPlaybackRate
 
 默认的播放速率吧，1就是正常速度，小于1就慢了呗，MDN上说0.0是无效值会抛出异常，但测验时没什么问题，不过
 修改这个速率也没什么效果。想要修改速率应该是使用下面的 `playbackRate`。    
@@ -111,7 +112,7 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
 
 ##### HTMLMediaElement.preload
 
-对应于 preload HTML 属性，枚举属性吧，'auto', 'metadata', 'none'。
+对应于 preload HTML 属性，枚举属性吧，'auto', 'metadata', 'none', ''。none 表示元素不应该预加载，auto 表示整个元素文件应该被下载，空字符串等同于 auto。
 
 ##### HTMLMediaElement.readyState
 

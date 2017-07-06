@@ -265,7 +265,9 @@ Content-Type: text/plain
 
 
 [text/plain payload]
-```   
+```     
+
+注意只要服务器的响应设置了 `Access-Control-Allow-Credentials: true` 首部，浏览器才会提供响应给应用。   
 
 在响应带有证书的请求时，服务器必须在 `Access-Control-Allow-Origin` 中指定一个源，而不是使用
 通配符 "\*"。    
@@ -306,3 +308,23 @@ origin 参数指定可以访问这份资源的 URI。
 这个也是用来响应预检请求的。     
 
 `Access-Control-Allow-Headers: <field-name>[, <field-name>]*`    
+
+## HTTP 请求首部
+
+### Origin
+
+`Origin: <origin>`    
+
+表明发出跨域请求或者预检请求的源。不包含任何的路径信息，只包括服务器名。   
+
+### Access-Control-Request-Method  
+
+在发出预检请求时使用，来告诉服务器实际的请求会使用哪种请求方式。    
+
+`Access-Control-Request-Method: <method>`   
+
+### Access-Control-Request-Headers   
+
+还是发出预检请求时使用，告诉服务器实际请求会包含哪些首部。   
+
+`Access-Control-Request-Headers: <field-name>[, <field-name>]*`

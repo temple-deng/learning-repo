@@ -81,7 +81,7 @@ exports.puts = util.deprecate(function() {
 第一个参数可以包含0或多个 placeholder 标记。每个标记会被对应的参数替代。支持的 placeholder 如下：  
 
 + `%s` - 字符串
-+ `%d` - 数组（整数或浮点值）
++ `%d` - 数字（整数或浮点值）
 + `%i` - 整数
 + `%f` - 浮点值
 + `%j` - JSON. 如果参数包含循环引用，用字符串 `[Circular]` 代替。

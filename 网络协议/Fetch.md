@@ -138,7 +138,7 @@ Response() 构造函数接受两个可选的参数——响应的主体，以及
 + blob()
 + json()
 + text()
-+ formdata()
++ formData()
 
 
 ## 2. Body 接口
