@@ -239,6 +239,8 @@ CSS 网格布局是设计为与CSS部分协同工作的，网格布局会作为�
 }
 ```   
 
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/gridAndAbsolute.md.png)
+
 ### 网格容器作为父元素
 
 如果网格容器中有一个绝对定位的子节点，但是容器没有创建新的定位上下文，那么与之前的例子相同。
@@ -363,7 +365,7 @@ CSS 网格布局是设计为与CSS部分协同工作的，网格布局会作为�
 }
 ```   
 
-img-placeholder(grid-area)   
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/grid-area.md.png)   
 
 这个属性值的顺序可能有些奇怪。但是可以帮助我们意识到网格使用了在 CSS Writing Modes 规范中
 定义的 flow-relative 方向。这里我们需要对4个 flow-relative 方向有所了解：    
@@ -455,7 +457,7 @@ CSS Grid 规范包含了使用 `grid-column-gap` 和 `grid-row-gap` 属性为轨
 与此同时我们还可以使用 `grid-template-areas` 属性来定义一个命名的网格区域。例如，我们想创建一个
 如下布局的内容，那么可以分为4个主要区域：   
 
-img-placeholder(4_Layout)   
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/4_Layout.png)
 
 ```css
 .wrapper {
@@ -639,7 +641,8 @@ img-placeholder(4_Layout)
   <div class="thing">I am placed in an area named content.</div>
 </div>
 ```   
-img-placeholder()   
+
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/grid-named-line.md.png)
 
 ## Implicit Grid lines from named areas   
 
@@ -778,7 +781,7 @@ items 放置到网格中时如何控制这些 items 摆放的规则。
 }
 ```   
 
-img-placeholder()
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/auto-place1.md.png)
 
 ### Deal with items that span tracks
 
@@ -810,7 +813,7 @@ img-placeholder()
 }
 ```   
 
-img-placeholder()   
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/auto-place2.png)   
 
 ### Filling in the gaps
 
@@ -831,7 +834,11 @@ img-placeholder()
 网格布局中我们有两条轴可以用来对齐，block或者叫 column 轴，及inline及row 轴。
 block 轴是块级布局中块的布局轴。    
 
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/7_Block_Axis.png)
+
 inline 轴是与 block 轴垂直的值，通常是内联流中文本的方向。   
+
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/7_Inline_Axis.png)
 
 ## Aligning items on the block, or column, Axis
 
@@ -884,7 +891,7 @@ inline 轴是与 block 轴垂直的值，通常是内联流中文本的方向。
 </div>
 ```    
 
-img-placeholder    
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/align-items.png)      
 
 
 `align-items` 属性为所有的 items 设置了 `align-self` 属性。这意味着我们可以在 item 上

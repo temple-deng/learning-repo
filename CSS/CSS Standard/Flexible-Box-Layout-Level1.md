@@ -28,7 +28,7 @@ directions。这一部分定义了一系列 flex 与流相关的术语。`flex-f
 是如何与物理方向(top/right/bottom/left)，轴的方向(vertical/horizontal)和尺寸(width/height)
 对应的。   
 
-![](https://www.w3.org/TR/css-flexbox-1/images/flex-direction-terms.svg)    
+![](https://github.com/temple-deng/learning-repo/blob/master/pics/flex-direction-terms.svg)    
 
 **main axis, main dimension**   
 主轴是 flex 容器布局 items 主要的轴。它会在主方向上延伸。    
