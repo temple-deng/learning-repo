@@ -108,6 +108,22 @@ gulp.task('default', () =>
 
 注意也可以通过 gulp-postcss 使用，这样就不详细说了。  
 
+### Options  
+
+`autoprefixer(options)` 函数返回一个新的 PostCSS 插件。但是原本也是一个插件了，应该是
+返回一个使用选项定制过的了。包含以下8个选项：   
+
++ `browsers` (array): 浏览器查询列表
++ `env` (string): Browserslist 的环境
++ `cascade` (boolean): 如果 CSS 是未压缩的，是否使用 Visual Cascace。默认 `true`
++ `add` (boolean): 是否添加前缀。默认 `true`
++ `remove` (boolean): 是否应该移除过期的前缀。默认 `true`
++ `supports` (boolean) 是否为 `@supports` 参数添加前缀。默认 `true`
++ `flexbox` (boolean|string) 是否为弹性盒属性添加前缀。如果值为 `"no-2009"`，则只会为最后的
+规范及IE版本的规范添加前缀。默认 `true`
++ `grid` (boolean): 是否为网格布局添加 IE 前缀。默认 `false`
++ `stats` (object): 为 `> 10% in my stats` 浏览器查询定制使用的数据   
+
 <a name="gulp-clean-css"></a>
 
 ## gulp-clean-css(3.4.2)

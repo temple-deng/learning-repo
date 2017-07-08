@@ -43,7 +43,7 @@
 首先肯定是当前目录下的 `.babelrc`。之后沿着目录树向上寻找这个文件或者是定义 `"babel:{}"` 字段的 `package.json` 文件。    
 
 
-## Browserlist
+## Browserlist(2.18.12)
 
 注意这个工具其实 babel-preset-env 及其他的一些库也用。   
 
@@ -77,7 +77,7 @@ IE 10 # sorry
 5. 当前目录或父级目录 package.json 文件的 `browserslist` 字段
 6. 如果上面的没提供一个有效的列表，就使用默认的 `> 1%, last 2 versions, Firefox ESR`
 
-## ESLint   
+## ESLint(4.0.0)   
 
 配置文件为 `.eslintrc.*` 或者 `package.json` 的 `eslintConfig` 字段。ESLint 会从待检测的代码的目录
 开始查找这些文件，直到文件系统的根目录。   

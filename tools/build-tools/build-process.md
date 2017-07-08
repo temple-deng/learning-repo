@@ -24,7 +24,7 @@ babel 是一个编译器。完成解析->转换->生成代码的工作。看样�
 平时使用 preset 也是插件的一种。
 
 
-## Browser-sync
+## Browser-sync(2.18.12)
 
 ### API  
 
