@@ -16,41 +16,63 @@ API 是无法使用的。
 
 service worker 出于安全原因，只能通过 HTTPS 运行。    
 
-### 注册
+### 关于 Service Worker 需要知道的事
 
-service worker 首先要使用 `ServiceWorkerContainer.register()` 注册。如果注册成功的话，
-那么 service worker 就会下载到客户端并且为整个源内或者一部分子集内的用户对 URLs 的访问尝试安装/激活。       
++ Service Worker 是一个 JS Worker，所以可以通过 `postMessage` 接口向其控制的页面发送信息，
+完成交互。
++ Service Workers 是一个可编程的网络代理，允许我们控制我们受控的页面中网络请求应该怎么处理。
++ 当不在使用它的时候它是关闭的（terminated），当下一次需要它的时候又会重启，所以我们不能依赖
+Service Workers 中 `onfetch` 和 `onmessage` 处理函数中设置的全局的状态。如果我们需要一些在
+多个重启之间持久的信息，Service Workers 可以访问 IndexedDB API。  
 
-### 下载，按照和激活
+### Service Workers 的生命周期
 
-这时，service worker 会观察以下的生命周期：   
+Service Workers 有一个与 web 页面完全分离的生命周期。   
 
-1. 下载
-2. 安装
-3. 激活   
+为了在我们的站点上安装一个 Service Worker，首先需要注册它，这一步是在页面中的 JS 中完成的。
+注册一个 Service Worker 会使浏览器在后台开始 Service Workers 的安装步骤。    
 
-当用户第一次访问 service worker 时会立刻下载 service worker。    
+通常在安装步骤中，我们会想要去缓存一些静态资源。如果所有的文件都被成功地缓存，那么 Service Workers
+就变为已安装的（installed）。如果任一文件下载或者缓存失败，那么安装步骤就会失败，并且
+Service Workers 也不会激活。    
 
-当下载完成后，会每24小时再下载一次。当然，是可能更频繁的下载的，但是其必须每24 小时下载一次，
-以免出了问题的脚本占据太长时间。   
+当安装过后，紧接着就是激活步骤，这是一个处理旧的缓存内容的好机会。    
 
-当发现下载的文件是新的文件的话会尝试去安装。所谓的新文件可以是与已存在的 worker 文件不同的文件，
-或者是 service worker 第一次使用时。    
+在激活步骤结束后，Service Workers 会控制在其范围中的所有页面，不过第一次注册了这个 service worker
+的页面在重新加载前是不受控制的。一旦 service worker 处于控制状态，它会是两种状态之一：
+要么 service worker 为了节省内存是被关闭了，要么就会对当页面中发出的网络请求触发的 fetch
+事件，及发送信息触发的 message 事件进行处理。    
 
-如果 service worker 是第一次使用，在尝试安装后，还会在成功安装后激活。    
+下图是 service worker 在第一次安装时生命周期的简化版本：   
 
-如果是已有 service worker，那么新版本会在后台安装，但不会被激活。这时的这个文件叫做等待
-中的 worker(worker in waiting)。它只会在没有任何已加载的页面仍在使用旧的 service worker 时
-激活。可以使用 `ServiceWorkerGlobalScope.skipWaiting()`加速激活操作，已经激活的 worker 可以
-使用 `Client.claim()` 声明已存在的页面。     
+![lifecycle](https://developers.google.com/web/fundamentals/getting-started/primers/imgs/sw-lifecycle.png)
 
-我们可以监听 `InstallEvent`；一个标准的行为是为了 service worker 触发使用时做准备。   
+### 更新 service worker
 
-还有一个 `activate` 事件。通常这个事件触发的时间点上，应该清理旧的缓存以及其他与之前版本
-service worker 相关的内容。    
+在一个时间点上我们需要更新 service worker。当到达这个时间点时，我们需要做下面的几步操作：   
 
-service worker 还可以使用 `FetchEvent` 事件对请求做出响应。使用 `FetchEvent.respondWith`
-可以以任意的方式来修改这些请求的响应。   
+1. 更新我们的 service worker JS 文件。当用户导航到我们的站点时，浏览器会试着重新下载 service worker
+的脚本文件。即便这两个文件有一个字节的不同，那么新下载的就被认为是新的。
+2. 我们新的 service worker 会启动并触发 `install` 事件。
+3. 这时旧的 service worker 仍然控制着当前的页面，所以新的 service worker 会进入 `waiting` 状态。
+4. 当当前打开的网页关闭后，旧的 service worker 会被杀死，新的 service worker 开始控制。
+5. 一旦新的 service worker 接手控制权，`activate` 事件触发。    
+
+
+
+### 基础的架构
+
+在使用 service worker 时，通常包含下面基本的步骤：   
+
+1. 获取 service worker URL 并通过 `ServiceWorkerContainer.register()` 注册。   
+2. 如果成功的话，worker 会在 `ServiceWorkerGlobalScope` 作用域内执行。
+3. 此时的 service worker 已经准备好处理事件了。
+4. 当随后访问 service worker 控制的页面时尝试安装 worker。
+5. 当 `oninstall` 事件处理函数完成，service worker 就被认为是安装了。
+6. 之后就是激活操作。当 service worker 安装完成后，就会收到一个 activate 事件。`onactivate`
+事件处理函数主要的工作清理之前版本 worker 使用的资源。
+7. 此时的 worker 就可以控制页面了，但仅限那些在 `register()` 成功调用之后打开的页面。     
+
 
 ### 其他的想法
 
@@ -64,18 +86,6 @@ service worker 同时还可以用在这些事情上：
 + 基于 URL 模式定制模板
 + 性能优化，例如，预获取用户将来可能用到的资源    
 
-### 基础的架构
-
-在使用 service worker 时，通常包含下面基本的步骤：   
-
-1. 获取 service worker URL 并通过 `ServiceWorkerContainer.register()` 注册。   
-2. 如果成功的话，worker 会在 `ServiceWorkerGlobalScope` 作用域内执行。
-3. 此时的 service worker 已经准备好处理事件了。
-4. 当随后访问 service worker 控制的页面时尝试安装 worker。
-5. 当 `oninstall` 事件处理函数完成，service worker 就被认为是安装了。
-6. 之后就是激活操作。当 service worker 安装完成后，就会收到一个 activate 事件。`onactivate`
-事件处理函数主要的工作清理之前版本 worker 使用的资源。
-7. 此时的 worker 就可以控制页面了，但仅限那些在 `register()` 成功调用之后打开的页面。   
 
 ## 一个简单的例子
 
