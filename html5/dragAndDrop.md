@@ -138,7 +138,13 @@ dt.setData("text/plain", "http://www.mozilla.org");
 默认情况和 'all' 的效果是一样的。  
 
 在拖拽过程中， `dragenter` or `dragover` 的监听器可以检查 `effectAllowed` 属性
-看看允许哪些效果。一个相关的属性 `dropEffect`,应该设置为最终到底要执行哪种效果。该属性只能设置为单一的效果（none, copy, move, link）。也就是`effectAllowed` 显示允许哪些效果，`dropEffect` 决定最终采取的效果。  
+看看允许哪些效果。一个相关的属性 `dropEffect`,应该设置为最终到底要执行哪种效果。该属性只能设置为单一的效果（none, copy, move, link）。
+也就是`effectAllowed` 显示允许哪些效果，`dropEffect` 决定最终采取的效果。     
+
+简单的来说，在 `dragstart` 中设置我们允许的拖拽的操作，在想要放置 drop 的元素的 `dragover` 中
+设置 `dropEffect` 来表示这次拖拽执行的是哪种操作。并且设置这个属性会影响拖动过程中鼠标的形状。
+不过需要注意的是，如果 `dropEffect` 的效果不在 `effectAllowed` 中，那么其实这次拖拽是没有
+效果的，不管我们怎么处理。而且鼠标的形状也会设置为禁止的样子。    
 
 ### 2.6 指定可放置(drop)的对象
 
