@@ -49,8 +49,8 @@ API 来构建，其次，流默认都是工作在字符串及 Buffer 类型上�
 
 <a name="part1"></a>   
 
-这份文档被划分成两个主要的章节，及一个包含额外注意点的第三章节。第一部分解释在应用程序中
-使用流所需的流 API 元素。第二部分介绍了实现新类型的流所需的 API 元素。    
+这份文档被划分成两个主要的章节，及一个包含额外注意点的第三章节。第一部分解释了在应用程序中
+使用流时需要了解的流 API 元素。第二部分介绍了实现新类型的流所需的 API 元素。    
 
 ## Types of Streams
 
@@ -66,7 +66,7 @@ Node.js 中有四种基本的流的类型：
 ### Object Mode   
 
 所有由 Node.js APIs 创建的流都是专门操作字符串和 `Buffer`(or `Uint8Array`)对象的。不过
-对于流的具体实现来说，它可能和其他 javascript 类型的值工作的（除了 `null`，这个类型在流中
+对于流的具体实现来说，它可能和其他 javascript 类型的值工作（除了 `null`，这个类型在流中
 有特殊目的）。这样的流通常被认为是在 "object mode" 工作。    
 
 当新建流时使用 `objectMode` 选项可以将流的实例转换到对象模式。不过尝试将已存在流转换为对象
@@ -84,12 +84,18 @@ Node.js 中有四种基本的流的类型：
 `stream.read()`，那么数据就会一直待在内部队列中，直到其被消费。   
 
 一旦内部读取缓冲区的总量达到了 `highWaterMark` 规定的阈值，流就会暂时停止从底层资源中读取数据，
-直到当前缓冲的数据被消费掉（换句话说，流会停止调用用来填充其读取缓冲区的内部的 `readable._read()` 方法）。     
+直到当前缓冲的数据被消费掉（换句话说，流会停止调用用来填充其读取缓冲区的内部的 `readable._read()` 方法）。    
+
+补充：具体说来，就是流会自动调用 `readable._read()` 来从底层资源读取数据到缓存中，可能是只要底层
+资源还有可以读取的数据，就会调用 `_.read()` 方法，不过具体是怎么读进缓存是依据 `_read()` 方法的具体实现来定
+的，我们可能在实现中通过 `_push(chunk)` 方法读取数据。        
 
 当重复调用可写流的 `writable.write(chunk)` 方法时数据会缓冲在可写流中。当内部的写入缓冲区的
 数据流低于 `highWaterMark` 规定的阈值时，调用 `writable.write()` 会返回 `true`。一旦内部
-缓冲区到达或者超出了阈值，就会返回 `false`。（根据下面的内容判断，`write()` 方法可能同时也会
-将数据写入到目的地中，但是会在缓冲区中保持备份，一旦目的地的速度跟不上流的话，数据可能只缓冲在缓冲区中）    
+缓冲区到达或者超出了阈值，就会返回 `false`。     
+
+可能是这个样子：我们手动调用 `write()` 方法将数据写入缓存，但缓存中的数据怎样写入到底层资源，可能
+是根据 `_write()` 方法了。    
 
 流 API，特别是 `stream.pipe()` 方法的一个关键目标就是将数据缓冲限制在一个可接受的水平，
 以便让不同速度的源与目的地不会压垮可用内存。    
@@ -265,10 +271,13 @@ process.nextTick(() => {
 `write()` 方法将数据写入流中，并在数据完成处理后调用 `callback`。当出错时，`callback` 可能会
 也可能不会将错误作为第一个参数。如果想可靠的监听的错误的话，还是为 `'error'` 事件添加监听器。   
 
-注意这里返回值的意思，如果在将这里新写入的数据添加到缓冲区中，内部缓冲区仍然低于阈值的话，就返回 `true`。这里如果返回 `false` 的话，之后的写入数据的尝试都应该停止，之后 `'drain'` 事件触发。    
+注意这里返回值的意思，如果在将这里新写入的数据添加到缓冲区中，内部缓冲区仍然低于阈值的话，就返回 `true`。
+这里如果返回 `false` 的话，之后的写入数据的尝试都应该停止，之后 `'drain'` 事件触发。也就是说在
+调用 `write()` 方法后，流可能先计算写入数据的数量加上现在缓存的数据量，如果这个和是大于 `highWaterMark`，
+那估计这个 `write()` 返回 `false`，而且应该这次的数据不会缓存。        
 
 当流没有在 draining 时，调用 `write()` 会缓冲数据，然后返回 `false`。（这里指的应该是我们
-调用了 `cork()` 方法强制让数据都缓冲到内存中）。一旦当前所有缓冲的数据被排空，就触发 `'drain'` 事件。
+调用了 `cork()` 方法强制让数据都缓冲到内存中）。推荐在 `write()` 返回 `false`后，就不要再写入数据了，直到 `drain` 事件触发。
 当在一个没有 draining 的流上调用 `write()` 方法是允许的，Node.js 会将所有写入的数据缓冲，
 直到最大的内存使用量，这时再写入数据会被无条件地丢弃。     
 
@@ -283,7 +292,8 @@ process.nextTick(() => {
 
 <a name="destroy"></a>    
 
-摧毁流，并发出传递的错误。在调用这个函数后，可写流就结束了。    
+摧毁流，并发出传递的错误。在调用这个函数后，可写流就结束了。流的实现不应该覆盖这个
+方法，而应该去实现 `writable._destroy()` 方法。        
 
 ### Readable  Streams
 
@@ -314,7 +324,8 @@ process.nextTick(() => {
 
 在暂停模式下，必须显式地调用 `stream.read()` 方法来从流中读取数据。   
 
-所有可读流开始时都处于暂停模式，不过可以通过下面之一的方法来转换到流动模式：    
+所有可读流开始时都处于暂停模式，不过可以通过下面之一的方法来转换到流动模式（注意这里应该是专指
+开始时处于暂停模式的流，已经转换为流动模式再转换为暂停模式的流，如果想转为流动模式，后面会再讨论）：    
 
 + 为 `'data'` 事件添加监听函数
 + 调用 `stream.resume()` 方法
@@ -334,7 +345,7 @@ pipe 目的地。
 
 *注意*：如果可读流转换到了流动模式，但是却没有任何的消费者来处理数据，那么数据就会丢失。这会在
 当调用 `readable.resume()` 方法时，'data' 事件却没有监听函数，或者当移除一个 'data' 事件监听函数
-时发生。    
+时发生。我觉得这里丢失的数据，应该是指转换为暂停态后，缓存在内部缓存区的数据。        
 
 #### Three States
 
@@ -352,9 +363,14 @@ pipe 目的地。
 `readable.resume()` 都会将 `readable._readableState.flowing` 转换为 `true`，这会
 造成可读流开始生成数据并触发事件。    
 
-调用 `readable.pause()`,`readable.unpipe()`，或者收到 "back pressure" 会造成 `flowing` 变为
+这里 `null` 的意思可能是流不会自动调用 `_read()` 方法来从底层资源读取数据，`true` 表示
+会从底层资源读取数据到缓冲中，流会自动将缓冲的数据交给消费者。`false` 的话，可能还是会 `_read()`
+从底层资源读取数据，但是数据都会缓冲到内部缓冲区中，数据不会交给消费者。    
+
+调用 `readable.pause()`,`readable.unpipe()`，或者收到 "back pressure" （应该是可写流的
+写入速度跟不上读取速度，造成数据大量堆积在缓冲中）会造成 `flowing` 变为
 `false`，暂时挂起数据的流动，但是不会挂起数据的生成。当处在这个状态时，为 'data' 事件绑定监听
-函数不会操作 `flowing` 变为 `true`。     
+函数不会造成 `flowing` 变为 `true`。     
 
 
 当 `flowing` 为 `false` 时，数据可能会在流的内部缓冲区中叠加。    
@@ -387,7 +403,8 @@ pipe 目的地。
 `readable.pipe()`, `readable.resume()` 或者给 `'data'` 事件绑定回调将流转换为流动模式时
 触发。`'data'` 事件也会在调用 `readable.read()` 方法并且返回可用的数据时触发。    
 
-为一个没有明确暂停了的流绑定（这里的明确暂停应该是指上面通过各种方法让 `flowing` 为 `false`）
+为一个没有明确暂停了的流绑定（这里的明确暂停应该是指上面通过各种方法让 `flowing` 为 `false`，也就说
+应该是指一个刚刚创建还没有指定消费者的可读流，`flowing` 为 `null` 的情况）
 `'data'` 事件监听器会将流转换为流动模式。数据会在可用后尽快地传送。   
 
 如果流使用 `readable.setEncoding()` 方法规定了默认的编码方式，则监听函数会将传入的数据当做
@@ -412,8 +429,8 @@ pipe 目的地。
 
 <a name="readread"></a>    
 
-当流中还有数据可以读取时会触发 `'readable'` 事件。一些情况下，为 `'readable'` 事件绑定
-监听器会造成一些数据读取到内部缓冲区中。   
+当流中还有数据可以读取时会触发 `'readable'` 事件（这里的还有数据应该指的是底层资源还有可读取
+的数据）。一些情况下，为 `'readable'` 事件绑定监听器会造成一些数据读取到内部缓冲区中。   
 
 `'readable'` 事件也会在流到达结尾但 `'end'` 事件触发前触发。    
 
@@ -422,6 +439,9 @@ pipe 目的地。
 
 *注意*: 通常来说，`readable.pipe()` 或者 `'data'` 事件机制相比 `'readable'` 事件更容易
 理解。     
+
+应该是这样的，`readable` 事件应该是搭配 `pause()` 和 `resume()` 方法来使用 `read()`
+方法从暂停流中读取数据。   
 
 ##### readable.isPaused()
 
@@ -447,6 +467,14 @@ readable.isPaused(); // === false
 
 这个方法会让动模式的流停止触发 `'data'` 事件，跳出流动模式。任何可用的数据会仍然在
 内部缓冲区中。    
+
+**个人理解：** 所谓的暂停模式应该是有两种，一种是 `flowing == null`，一种是 `flowing == false`。
+前者是指流刚创建还没指定任何的消费机制，流既不会从底层资源读取数据到内部缓冲区，也不会从
+缓冲区读取数据交给消费者，这时如果调用开始说的 `data` handler，`steam.pipe()`，`stream.resume()`
+表明我们提供了消费机制，流转换为流动模式。当在流动模式下，如果我们再转换为暂停模式，此时应该就是
+进入到第二种暂停模式，这个时候，流还会继续从底层资源读取数据到内部缓冲区中，但是不会自动将
+数据交给消费者，数据会一直在缓冲区中堆积。但是在这种模式下，我们应该是可以使用 `read()` 方法
+从缓冲区中读取数据的。      
 
 ##### readable.pipe(destination[,options])   
 
@@ -489,7 +517,7 @@ r.pipe(z).pipe(w);
 
 如果没有指定 `size` 参数也是将缓冲区中所有的数据返回。     
 
-`read()` 返回只应该在处于暂停模式下的可读流调用。在流动模式下，`read()` 会内部缓冲区完全
+`read()` 方法只应该在处于暂停模式下的可读流调用。在流动模式下，`read()` 会内部缓冲区完全
 drained 前会自动调用。    
 
 通常来说，建议开发者使用 `readable.pipe()` 或者 `'data'` 事件而避免使用 `'readable'` 事件
@@ -506,6 +534,16 @@ drained 前会自动调用。
 + Returns: `this`    
 
 这个方法会让明确处于暂停模式的可读流恢复触发 `'data'` 事件，并将流转换为流动模式。   
+
+`resume()` 方法可以用来对数据完全不进行处理的情况下消费数据：    
+
+```js
+getReadableStreamSomehow()
+  .resume()
+  .on('end', () => {
+    console.log('Reached the end, but did not read anything.');
+  });
+```    
 
 ##### readable.setEncoding(encoding)
 
@@ -749,4 +787,137 @@ const myWritable = new Writable({
   为 `true` 的时候会没有任何效果     
 
 
-剩下的都略了。心情好再看。   
+#### An Example Duplex Stream
+
+```js
+const { Duplex } = require('stream');
+const kSource = Symbol('source');
+
+class MyDuplex extends Duplex {
+  constructor(source, options) {
+    super(options);
+    this[kSource] = source;
+  }
+
+  _write(chunk, encoding, callback) {
+    // The underlying source only deals with strings
+    if (Buffer.isBuffer(chunk))
+      chunk = chunk.toString();
+    this[kSource].writeSomeData(chunk);
+    callback();
+  }
+
+  _read(size) {
+    this[kSource].fetchSomeData(size, (data, encoding) => {
+      this.push(Buffer.from(data, encoding));
+    });
+  }
+}
+```   
+
+#### Object Mode Duplex Streams
+
+对于双向流来说，可以分别对可读与可写一侧设置 `objectMode`，分别使用 `readableObjectMode` 和 `writableObjectMode` 选项。   
+
+在下面的例子中，一个可写一侧为对象模式的转换流被创建，可写一侧接受数字并将其转换为十六进制字符串交给
+可读一侧。    
+
+```js
+const { Transform } = require('stream');
+
+// All Transform streams are also Duplex Streams
+const myTransform = new Transform({
+  writableObjectMode: true,
+
+  transform(chunk, encoding, callback) {
+    // Coerce the chunk to a number if necessary
+    chunk |= 0;
+
+    // Transform the chunk into something else.
+    const data = chunk.toString(16);
+
+    // Push the data onto the readable queue.
+    callback(null, '0'.repeat(data.length % 2) + data);
+  }
+});
+
+myTransform.setEncoding('ascii');
+myTransform.on('data', (chunk) => console.log(chunk));
+
+myTransform.write(1);
+// Prints: 01
+myTransform.write(10);
+// Prints: 0a
+myTransform.write(100);
+// Prints: 64
+```   
+
+### Implementing a Transform Stream
+
+转换流也是双向流，其输出是通过对输入进行一系列计算得出的。    
+
+`stream.Transform` 类是从 `stream.Duplex` 原型继承的，并实现了自己版本的 `writable._write()`
+和 `readable._read()` 方法。自定义的转换流实现必须实现 `transform._transform()` 方法，可以
+选择性的实现 `transform._flush()` 方法。    
+
+*Note*：需要注意的是在转换流中，如果可读一侧的输出迟迟没能被消费掉，会造成可写一侧暂停。（话说
+可写一侧暂停了怎么处理）     
+
+#### new stream.Transform([options])
+
++ `options` &lt;Object&gt; 传递给可读与可写的构造函数。还加了以下的选项：   
+  - `transform` &lt;Function&gt; 对 `stream._transform()` 方法的实现。
+  - `flush` &lt;Function&gt; 对象 `stream._flush()` 方法的实现。   
+
+例如:   
+
+```js
+const { Transform } = require('stream');
+
+class MyTransform extends Transform {
+  constructor(options) {
+    super(options);
+    // ...
+  }
+}
+```   
+
+### Events: 'finish' and 'end'
+
+`finish` 和 `end` 事件分别从 `stream.Writable` 和 `stream.Readable` 得到。`finish`
+事件会在 `stream.end()` 被调用，并且所有的数据块被 `stream._transform()` 处理后触发。
+`end` 事件会在 `transform._flush()` 调用后，所有的数据已经输出时触发。    
+
+### transform.\_flush(callback)
+
++ `callback` 当剩余的数据都已经刷新时调用，参数为错误参数及数据。    
+
+这个方法会在已经没有任何写入的数据需要被消费，在 `end` 事件触发前触发，标志着可读流的结束。    
+
+在 `transform._flush()` 的视线中，`readable.push()` 可能会被调用一次或多次。    
+
+这个函数的话貌似主要是在所有写入内容被读取一端消费完后，可以选择性的在尾部添加一些内容。    
+
+### transform.\_transform(chunk, encoding, callback)
+
++ `chunk` &lt;Buffer&gt; | &lt;string&gt; | &lt;any&gt; 需要被转换的数据块。除非设置 `decodeStrings` 选项
+为 `false` 或者操作在对象模式，数据块总是一个 buffer。
++ `encoding` 如果数据块是一个字符串，这个就是其编码，如果是 buffer，这个值被忽略。
++ `callback` 在所有提供的 `chunk` 被处理后调用，参数为错误和数据。    
+
+所有转换流的实现必须提供 `_transform()` 方法来接受输入并生成输出。这个方法应用处理写入的
+字节，然后计算出一个输入，然后使用 `readable.push()` 方法将输出传递给可读一侧。    
+
+`callback` 函数必须只能在当前的数据块被完全消费掉时调用。如果提供了第二个参数，它会被
+转发给 `readable.push()` 方法。换句话说，下面的代码是等价的：    
+
+```js
+transform.prototype._transform = function(data, encoding, callback) {
+  this.push(data);
+  callback();
+};
+
+transform.prototype._transform = function(data, encoding, callback) {
+  callback(null, data);
+};
+```    

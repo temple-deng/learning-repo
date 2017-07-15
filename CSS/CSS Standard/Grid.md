@@ -526,7 +526,7 @@ CSS Grid 规范包含了使用 `grid-column-gap` 和 `grid-row-gap` 属性为轨
 
 在使用缩写时需要注意的时我们可能会重置其他属性设置的值。   
 
-### grid-template-areas
+### grid-template
 
 `grid-template` 属性设置了如下的属性：   
 
