@@ -2,25 +2,96 @@
 
 目录：   
 
-+ [Class:http.Agent](#classAgent)
-  - [new Agent([options])](#newAgent)
-  - [agent.createConnection(options[,callback])](#createConnection)
-  - [agent.keepSocketAlive(socket)](#keepSocketAlive)
-  - [agent.reuseSocket(socket,request)](#reuseSocket)
-  - [agent.destroy()](#destroy)
-  - [agent.freeSockets](#freeSockets)
-  - [agent.getName(options)](#getName)
-  - [agent.maxFreeSockets](#maxFreeSockets)
-  - [agent.requests](#requests)
-  - [agent.sockets](#sockets)
-+ [Class: http.ClientRequest](#clientRequest)
-  - [Event:'abort'](#reabort)
-  - [Event:'aborted'](#reaborted)
-  - [Event:'connect'](#reconnect)
-  - [Event:'continue'](#recontinue)
-  - [Event:'response'](#reresponse)
-  - [Event:'socket'](#resocket)
-  - [Event:'upgrade'](#reupgrade)
+- [HTTP](#http-1)
+  - [Class: http.Agent](#class-httpagent)
+    - [new Agent([options])](#new-agentoptions)
+    - [agent.createConnection(options[, callback])](#agentcreateconnectionoptions-callback)
+    - [agent.keepSocketAlive(socket)](#agentkeepsocketalivesocket)
+    - [agent.reuseSocket(socket,request)](#agentreusesocketsocketrequest)
+    - [agent.destroy()](#agentdestroy)
+    - [agent.freeSockets](#agentfreesockets)
+    - [agent.getName(options)](#agentgetnameoptions)
+    - [agent.maxFreeSockets](#agentmaxfreesockets)
+    - [agent.maxSockets](#agentmaxsockets)
+    - [agent.requests](#agentrequests)
+    - [agent.sockets](#agentsockets)
+  - [Class: http.ClientRequest](#class-httpclientrequest)
+    - [Event: 'abort'](#event-abort)
+    - [Event: 'aborted'](#event-aborted)
+    - [Event: 'connect'](#event-connect)
+    - [Event: 'continue'](#event-continue)
+    - [Event: 'response'](#event-response)
+    - [Event: 'socket'](#event-socket)
+    - [Event: 'upgrade'](#event-upgrade)
+    - [request.abort()](#requestabort)
+    - [request.aborted](#requestaborted)
+    - [request.end([data][,encoding][,callback])](#requestenddataencodingcallback)
+    - [request.flushHeaders()](#requestflushheaders)
+    - [request.setNoDelay([noDelay])](#requestsetnodelaynodelay)
+    - [request.setSocketKeepAlive([enable][,initialDelay])](#requestsetsocketkeepaliveenableinitialdelay)
+    - [request.setTimeout(timeout[,callback])](#requestsettimeouttimeoutcallback)
+    - [request.write(chunk[,encoding][,callback])](#requestwritechunkencodingcallback)
+  - [Class: http.Server](#class-httpserver)
+    - [Event: 'checkContinue'](#event-checkcontinue)
+    - [Event:'checkExpection'](#eventcheckexpection)
+    - [Event: 'clientError'](#event-clienterror)
+    - [Event: 'close'](#event-close)
+    - [Event:'connect'](#eventconnect)
+    - [Event:'connection'](#eventconnection)
+    - [Event:'request'](#eventrequest)
+    - [Event: 'upgrade'](#event-upgrade-1)
+    - [server.close([callback])](#serverclosecallback)
+    - [server.listen(handle[,callback])](#serverlistenhandlecallback)
+    - [server.listen(path[, callback])](#serverlistenpath-callback)
+    - [server.listen([port][, hostname][, backlog][, callback])](#serverlistenport-hostname-backlog-callback)
+    - [server.listening](#serverlistening)
+    - [server.maxHeadersCount](#servermaxheaderscount)
+    - [server.setTimeout([msecs][,callback])](#serversettimeoutmsecscallback)
+    - [server.timeout](#servertimeout)
+    - [server.keepAliveTimeout](#serverkeepalivetimeout)
+  - [Class: http.ServerResponse](#class-httpserverresponse)
+    - [Event: 'close'](#event-close-1)
+    - [Event: 'finish'](#event-finish)
+    - [response.addTrailers(header)](#responseaddtrailersheader)
+    - [response.end([data][,encoding][,callback])](#responseenddataencodingcallback)
+    - [response.finished](#responsefinished)
+    - [response.getHeader(name)](#responsegetheadername)
+    - [response.getHeaderNames()](#responsegetheadernames)
+    - [response.getHeaders()](#responsegetheaders)
+    - [response.hasHeader(name)](#responsehasheadername)
+    - [response.headersSent](#responseheaderssent)
+    - [response.removeHeader(name)](#responseremoveheadername)
+    - [response.sendDate](#responsesenddate)
+    - [response.setHeader(name, value)](#responsesetheadername-value)
+    - [response.setTimeout(msecs[,callback])](#responsesettimeoutmsecscallback)
+    - [response.statusCode](#responsestatuscode)
+    - [response.statusMessage](#responsestatusmessage)
+    - [response.write(chunk[, encoding][, callback])](#responsewritechunk-encoding-callback)
+    - [response.writeContinue()](#responsewritecontinue)
+    - [response.writeHead(statusCode[,statusMessage][,header])](#responsewriteheadstatuscodestatusmessageheader)
+  - [Class: http.IncomingMessage](#class-httpincomingmessage)
+    - [Event: 'aborted'](#event-aborted-1)
+    - [Event: 'close'](#event-close-2)
+    - [message.destroy([error])](#messagedestroyerror)
+    - [message.headers](#messageheaders)
+    - [message.httpVersion](#messagehttpversion)
+    - [message.method](#messagemethod)
+    - [message.rawHeaders](#messagerawheaders)
+    - [message.rawTrailers](#messagerawtrailers)
+    - [message.setTimeout(msecs,callback)](#messagesettimeoutmsecscallback)
+    - [message.socket](#messagesocket)
+    - [message.statusCode](#messagestatuscode)
+    - [message.statusMessage](#messagestatusmessage)
+    - [message.trailers](#messagetrailers)
+    - [message.url](#messageurl)
+  - [http.METHODS](#httpmethods)
+  - [http.STATUS_CODES](#httpstatus_codes)
+  - [http.createServer([requestListener])](#httpcreateserverrequestlistener)
+  - [http.get(options[,callback])](#httpgetoptionscallback)
+  - [http.globalAgent](#httpglobalagent)
+  - [http.request(options[,callback])](#httprequestoptionscallback)
+
+<!-- /TOC -->
 
 # HTTP
 
@@ -53,8 +124,6 @@ HTTP API 是非常低层的。它仅实现了流处理和消息解析。它会�
 ```    
 
 ## Class: http.Agent
-
-<a name="classAgent"></a>    
 
 代理 Agent 负责管理HTTP客户端的连接持久性和重用。它为每个给定的主机及端口维护了一个待处理请求的
 队列，应该是为每个队列重用一个套接字 socket（应该是一个队列中的请求都在一个套接字上，其他队列有其他
@@ -98,8 +167,6 @@ http.get({
 
 ### new Agent([options])
 
-<a name="newAgent"></a>     
-
 + `options` &lt;Object&gt; 可以包含下面的字段：
   - `keepAlive` &lt;boolean&gt; 即便当前没有其他请求时也保持 socket 连接，以便将来有请求
   时不用再去建立 TCP 连接。默认 `false`
@@ -122,8 +189,6 @@ http.request(options, onResponseCallback);
 
 ### agent.createConnection(options[, callback])
 
-<a name="createConnection"></a>     
-
 + `options` &lt;Object&gt; 具体参数查看 `net.createConnection()`
 + `callback` &lt;Function&gt; 当 socket 创建完成时调用   
 + Returns: &lt;net.Socket&gt;    
@@ -138,9 +203,7 @@ socket/stream 可以通过这两种方法之一提供：由这个函数返回，
 `callback` 的签名为 `(err, stream)`。  
 
 
-### agent.keepSocketAlive(socket)
-
-<a  name="keepSocketAlive"></a>       
+### agent.keepSocketAlive(socket)  
 
 + `socket` `<net.Socket>`     
 
@@ -156,8 +219,6 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 
 ### agent.reuseSocket(socket,request)
 
-<a name="reuseSocket"></a>     
-
 + `socket` &lt;net.Socket&gt;
 + `request` &lt;http.ClientRequest&gt;    
 
@@ -169,15 +230,11 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 
 ### agent.destroy()
 
-<a  name="destroy"></a>   
-
 摧毁当前 agent 使用的所有 sockets。    
 
 通常没必要这么做，不过如果启用了 `keepAlive` 选项，最好还是在不使用时手动关闭。     
 
 ### agent.freeSockets   
-
-<a  name="freeSockets"></a>    
 
 + &lt;Object&gt;    
 
@@ -185,8 +242,6 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 不直接返回数组，而且也没说这个数组在哪个属性上，还是说指类数组对象）    
 
 ### agent.getName(options)    
-
-<a name="getName"></a>
 
 + `options` &lt;Object&gt;
   - `host` &lt;string&gt; 请求发送给的服务器的域名或者 IP 地址
@@ -200,15 +255,11 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 
 ### agent.maxFreeSockets
 
-<a  name="maxFreeSockets"></a>    
-
 + &lt;number&gt;    
 
 默认是 256。    
 
 ### agent.maxSockets
-
-<a  name="maxSockets"></a>    
 
 + &lt;number&gt;    
 
@@ -216,23 +267,17 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 
 ### agent.requests
 
-<a name="requests"></a>    
-
 + &lt;Object&gt;     
 
 一个包含还没有安排到 sockets 中的请求的队列的对象。   
 
-### agent.sockets   
-
-<a  name="sockets"></a>   
+### agent.sockets
 
 + &lt;Object&gt;    
 
 包含 agent 当前使用的 sockets 的数组的对象。     
 
 ## Class: http.ClientRequest
-
-<a  name="clientRequest"></a>    
 
 这个对象由内部创建并由 `http.request()` 返回。它代表了一个首部已经进入队列中的 *处理中* 的
 请求。但是首部仍然可以使用 `setHeader(name, value)`, `getHeader(name)`, `removeHeader(name)`
@@ -252,19 +297,13 @@ request 实现了可写流接口，同时也是一个包含下列事件的 Event
 
 ### Event: 'abort'
 
-<a name="reabort"></a>    
-
 当请求被客户端废弃时触发。    
 
 ### Event: 'aborted'
 
-<a  name="reaborted"></a>    
-
 当请求被服务器废弃，并且 socket 关闭后触发。   
 
 ### Event: 'connect'
-
-<a  name="reconnect"></a>
 
 + `response` &lt;http.IncomingMessage&gt;
 + `socket` &lt;net.Socket&gt;
@@ -272,15 +311,11 @@ request 实现了可写流接口，同时也是一个包含下列事件的 Event
 
 使用 `CONNECT`（指定是 HTTP 的 CONNECT 方法吧） 方法在每次服务器响应一个请求时触发。如果没有监听这个事件，客户端在接收到 `CONNECT` 方法时会关闭连接。     
 
-### Event: 'continue'
-
-<a  name="recontinue"></a>     
+### Event: 'continue'   
 
 当服务器发送 '100 Continue' 响应时触发。    
 
-### Event: 'response'
-
-<a  name="reresponse"></a>    
+### Event: 'response' 
 
 + `response` &lt;http.IncomingMessage&gt;   
 
@@ -288,15 +323,11 @@ request 实现了可写流接口，同时也是一个包含下列事件的 Event
 
 ### Event: 'socket'
 
-<a name="resocket"></a>    
-
 + `socket` &lt;net.Socket&gt;    
 
 当一个 socket 安排给请求时触发。   
 
-### Event: 'upgrade'
-
-<a  name="reupgrade"></a>     
+### Event: 'upgrade' 
 
 + `response` &lt;http.IncomingMessage&gt;
 + `socket` &lt;net.Socket&gt;
@@ -349,19 +380,13 @@ srv.listen(1337, '127.0.0.1', () => {
 
 ### request.abort()
 
-<a name="reqabort"></a>    
-
 废除请求。调用这个函数会造成仍在响应中的数据被丢掉，sokcet 被摧毁。   
 
 ### request.aborted  
 
-<a name="reqaborted"></a>
-
 如果请求已经被废弃的话，这个值是请求废弃的事件，毫秒为单位，自 1970 00:00:00 起。     
 
 ### request.end([data][,encoding][,callback])
-
-<a name="reqend"></a>  
 
 + `data` &lt;string&gt; | &lt;Buffer&gt;
 + `encoding`
@@ -373,22 +398,16 @@ srv.listen(1337, '127.0.0.1', () => {
 
 ### request.flushHeaders()
 
-<a name="reqflush"></a>     
-
 刷新请求首部，处于效率的原因，Node.js 一般会缓冲请求首部，直到调用 `request.end()` 或者
 写入的第一个请求数据块。之后这个方法会尝试将请求首部及数据打包到一个 TCP 包中。    
 
 ### request.setNoDelay([noDelay])
-
-<a  name="reqsetnodelay"></a>    
 
 + `noDelay` &lt;boolean&gt;   
 
 一旦 socket 绑定到请求上并且将调用连接函数 `socket.setNoDelay()`。   
 
 ### request.setSocketKeepAlive([enable][,initialDelay])
-
-<a name="reqsetsocket"></a>   
 
 + `enable` &lt;boolean&gt;
 + `initialDelay` &lt;number&gt;    
@@ -406,8 +425,6 @@ srv.listen(1337, '127.0.0.1', () => {
 
 ### request.write(chunk[,encoding][,callback])
 
-<a name="reqwrite"></a>
-
 + `chunk` &lt;string&gt; | &lt;Buffer&gt;
 + `encoding` 默认 `utf8`
 + `callback`    
@@ -419,8 +436,6 @@ srv.listen(1337, '127.0.0.1', () => {
 返回 `request`。     
 
 ## Class: http.Server    
-
-<a href="" name="classerver"></a>
 
 这个类是从 `net.Server` 继承的，并且有下面额外的事件：    
 
