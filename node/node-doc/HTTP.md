@@ -106,7 +106,7 @@ HTTP 消息首部通常用类似这样的对象表示：
 }
 ```    
 
-键名是小写的。键值是不可修改的。     
+键名是小写的。键值是未修改过的。     
 
 HTTP API 是非常低层的。它仅实现了流处理和消息解析。它会将消息分别解析成首部和主体，但是不会
 真正的解析实际的首部及主体。    
@@ -126,15 +126,13 @@ HTTP API 是非常低层的。它仅实现了流处理和消息解析。它会�
 ## Class: http.Agent
 
 代理 Agent 负责管理HTTP客户端的连接持久性和重用。它为每个给定的主机及端口维护了一个待处理请求的
-队列，应该是为每个队列重用一个套接字 socket（应该是一个队列中的请求都在一个套接字上，其他队列有其他
-单独的套接字）直到队列清空了，这时 socket 可能直接被摧毁，也可能放置在 socket pool 中以便为
+队列，重用一个套接字 socket 直到队列清空了，这时 socket 可能直接被摧毁，也可能放置在 socket pool 中以便为
 之后相同主机端口的请求重用。具体是被摧毁还是放置在 pool 中取决于 `keepAlive` 选项。    
 
 pool 中的连接启用了 TCP Keep-Alive，但是服务器可能会关闭闲置的连接，这种情况下，连接会从 pool
 中移除，所以之后对相同的主机端口的 HTTP 请求只能新建连接。服务器也可能会拒绝在同一个连接上
 发送的多个请求，这样的话，每个请求不得不重新连接，连接也不能再放置到 pool 中。`Agent`
 此时只能每个请求新建一个新连接。     
-
 
 当一个连接被客户端或者服务器关闭时，就会从 pool 中移除。pool 中未使用的 sockets 会变成未引用的
 unrefed，以便防止出现进程中没有请求了但是还不能退出的情况。    
@@ -197,11 +195,10 @@ http.request(options, onResponseCallback);
 
 默认情况下，这个函数与 `net.createConnection()` 相同。不过，定制的 agent 可能为了更灵活而覆盖这个方法。    
 
-
-socket/stream 可以通过这两种方法之一提供：由这个函数返回，或者将 socket/stream 传递给 `callback`。     
+socket/stream 可以通过这两种方法之一提供：由这个函数返回，或者将 socket/stream 传递给 `callback`。也就是和 `net.createConnection()` 还有些
+细微差别的吧。        
 
 `callback` 的签名为 `(err, stream)`。  
-
 
 ### agent.keepSocketAlive(socket)  
 
@@ -291,7 +288,10 @@ socket.setKeepAlive(agent.keepAliveMsecs);
 如果没有添加 `response` 处理程序，那么响应会整个被丢弃。然而，一旦绑定了处理函数，响应对象的数据必须
 通过这几种方式消费：当有 `'readable'` 事件时调用 `response.read()`, or 添加 `'data'` 处理函数，
 or 调用 `.resume()` 方法。直到数据被消费前，`'end'` 事件不会触发。同时，在数据被读取前，它会保存
-早内存中。      
+在内存中。      
+
+我觉得吧，request 对象其实是负责应用层通话的管理的，下面的 TCP 连接等应该是由 Agent 对象处理，
+Agent 对象来建立 socket 连接服务器，并将数据交付。    
 
 request 实现了可写流接口，同时也是一个包含下列事件的 EventEmitter。    
 
@@ -325,7 +325,7 @@ request 实现了可写流接口，同时也是一个包含下列事件的 Event
 
 + `socket` &lt;net.Socket&gt;    
 
-当一个 socket 安排给请求时触发。   
+当将请求安排给一个 socket 发送时触发。这个的话应该是由 Agent 对象管理安排的，  
 
 ### Event: 'upgrade' 
 
@@ -384,7 +384,7 @@ srv.listen(1337, '127.0.0.1', () => {
 
 ### request.aborted  
 
-如果请求已经被废弃的话，这个值是请求废弃的事件，毫秒为单位，自 1970 00:00:00 起。     
+如果请求已经被废弃的话，这个值是请求废弃的时间，毫秒为单位，自 1970 00:00:00 起。     
 
 ### request.end([data][,encoding][,callback])
 
@@ -398,8 +398,9 @@ srv.listen(1337, '127.0.0.1', () => {
 
 ### request.flushHeaders()
 
-刷新请求首部，处于效率的原因，Node.js 一般会缓冲请求首部，直到调用 `request.end()` 或者
-写入的第一个请求数据块。之后这个方法会尝试将请求首部及数据打包到一个 TCP 包中。    
+刷新请求首部，出于效率的原因，Node.js 一般会缓冲请求首部，直到调用 `request.end()` 或者
+写入的第一个请求数据块。之后这个方法会尝试将请求首部及数据打包到一个 TCP 包中。看样子，这个可能是
+直接将首部交给 socket 处理，等待发送给网络。        
 
 ### request.setNoDelay([noDelay])
 
@@ -420,6 +421,8 @@ srv.listen(1337, '127.0.0.1', () => {
 + `callback` 当超时发生时的回调函数。与绑定 `timeout` 事件相同    
 
 一旦 socket 绑定到请求上并且将调用连接函数 `socket.setTimeout()`。    
+
+当时这个超时又是怎么理解呢，是发送了请求后，迟迟没有响应，但是这个又好像与 `socket.setTimeout()` 的意思相左。   
 
 返回 `request`。     
 
@@ -466,7 +469,20 @@ srv.listen(1337, '127.0.0.1', () => {
 + `exception` &lt;Error&gt;
 + `socket` &lt;net.Socket&gt;    
 
-如果客户端连接触发了 `'error'` 事件，它将在这里转发。监听这个事件负责关闭 / 破坏底层的 socket。    
+如果客户端连接触发了 `'error'` 事件，它将在这里转发。监听这个事件负责关闭 / 破坏底层的 socket。例如我们
+可以希望通过 socket 发送一个 400 Bad Request 后再关闭 sokcet:   
+
+```js
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.end();
+});
+server.on('clientError', (err, socket) => {
+  socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+});
+server.listen(8000);
+```        
 
 默认的行为是立刻破坏相连的 socket。     
 
@@ -483,7 +499,7 @@ HTTP 响应内容，包括首部和载荷，都必须直接写入到 `socket` �
 + `socket` &lt;net.Socket&gt;
 + `head` &lt;Buffer&gt; 隧道流中的第一个包     
 
-当请求使用 `CONNECT` 方法时触发。如果没有监听这个事件，那么这个客户端请求会关闭。     
+当请求使用 `CONNECT` 方法时触发。如果没有监听这个事件，那么这个连接会关闭。     
 
 发出此事件后，请求的套接字将不会有“data”事件侦听器，这意味着需要绑定才能处理发送到该套接字上的服务器的数据。     
 
@@ -506,9 +522,9 @@ HTTP 响应内容，包括首部和载荷，都必须直接写入到 `socket` �
 + `socket` &lt;net.Socket&gt;
 + `head` &lt;Buffer&gt;    
 
-当请求要求 HTTP upgrade 时触发，如果没有监听转让给事件，那么这个请求会被关闭。    
+当请求要求 HTTP upgrade 时触发，如果没有监听转让给事件，那么这个连接会被关闭。    
 
-发出此事件后，请求的套接字将不会有“data”事件侦听器，这意味着需要绑定才能处理发送到该套接字上的服务器的数据。（不太懂这个意思）     
+发出此事件后，请求的套接字将不会有“data”事件侦听器，这意味着需要绑定才能处理发送到该套接字上的服务器的数据。       
 
 
 ### server.close([callback])
@@ -523,7 +539,7 @@ HTTP 响应内容，包括首部和载荷，都必须直接写入到 `socket` �
 
 这将导致服务器接受指定 handle 的连接，但假定文件描述符或 handle 已经绑定到端口或域套接字。    
 
-这个函数是异步的。回调会作为 `'listening'` 事件的监听函数。     
+这个函数是异步的。回调会作为 `'listening'` 事件的监听函数。注意这个和下面的 `listening` 事件应该都是 `net.Server` 的。         
 
 返回 `server`。      
 
@@ -564,14 +580,15 @@ HTTP 响应内容，包括首部和载荷，都必须直接写入到 `socket` �
 
 + &lt;number&gt; 默认2000    
 
-首部的最大数量。    
+首部的最大数量。设置为0的话相当于不限制。       
 
 ### server.setTimeout([msecs][,callback])
 
 + `msecs` &lt;number&gt; 默认12000
 
-当超时发生时，会用 socket 作为参数。注意好像 `server` 对象上是没有超时这个事件的，所以
-其实可能 `callback` 就是 `timeout` 事件的回调。     
+当超时发生时，会用 socket 作为参数。注意好像 `server` 对象上是没有超时这个事件的，超时按理说是应该发生在
+socket 对象上。不过这个可以在 server 上监听这个事件，如果监听了的话，监听函数会在超时时使用触发超时的
+`socket` 作为参数   
 
 默认情况下，sockets 会在超时后自动破坏。不过如果提供了 `callback`，就必须手动处理。    
 
@@ -594,6 +611,10 @@ HTTP 响应内容，包括首部和载荷，都必须直接写入到 `socket` �
 服务器在这个规定之间到之前收到了新的数据，就会重置这个计时器。    
 
 0 会禁止新连接的 keep-alive 超时行为。      
+
+个人理解是这样的，timeout 事件指的是 socket 闲置的时间，而 keepAliveTimeout 等同于 socket.setKeepAlive 吧，
+相当于设定一个闲置的时间，到这个事件后会发出一个探针来看看连接是否正常。但是这里并没有说如果探针没有
+响应应该怎么处理。    
 
 *注意*：超时逻辑是基于连接的，所有改动这个值只会影响服务器上的新连接，不会影响已存在的连接。     
 
@@ -807,7 +828,7 @@ response.writeHead(200, {
 
 ### message.destroy([error])
 
-略。   
+应该是调用对应于请求的 socket 上的 `destroy()` 方法，如果提供了额 `error`，还会触发一个 `error` 事件。     
 
 ### message.headers   
 
@@ -826,10 +847,10 @@ response.writeHead(200, {
 console.log(request.headers);
 ```    
 
-首先创建原始首部的副本，然后根据首部名对副本进行如下处理：   
+原始首部中重复的首部会按照如下方式处理，取决于首部的名字：    
 
-+ `age, authorization, content-length, content-type, etag, expires, from, host, if-modified-since, if-unmodified-since, last-modified, location, max-forwards, proxy-authorization, referer, retry-after, or user-agen` 副本是被丢弃   
-+ `set-cookie` 是一个数组。副本添加到数组中。
++ `age, authorization, content-length, content-type, etag, expires, from, host, if-modified-since, if-unmodified-since, last-modified, location, max-forwards, proxy-authorization, referer, retry-after, or user-agen` 重复的会被丢弃
++ `set-cookie` 是一个数组。重复值添加到数组中。
 + 对于所有其他的首部，值是用 `,` 连接起来。     
 
 ### message.httpVersion   

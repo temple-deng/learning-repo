@@ -2,42 +2,77 @@
 
 目录：   
 
-+ [socket.bufferSize](#so_bufferSize)
-+ [socket.bytesRead](#so_bytesRead)
-+ [socket.bytesWritten](#so_bytesWritten)
-+ [socket.connect()](#so_connect)
-+ [socket.connect(options[, connectListener])](#so_connect1)
-+ [socket.connect(path[, connectListener])](#so_connect2)
-+ [socket.connect(port[, host][, connectListener])](#so_connect3)
-+ [socket.connecting](#so_connecting)
-+ [socket.destroy([exception])](#so_destroy)
-+ [socket.destroyed](#so_destroyed)
-+ [socket.end([data][, encoding])](#so_end)
-+ [socket.localAddress](#so_localAddress)
-+ [socket.localPort](#so_localPort)
-+ [socket.pause()](#so_pause)
-+ [socket.ref()](#so_ref)
-+ [socket.remoteAddress](#so_remoteAddress)
-+ [socket.remoteFamily](#so_remotePort)
-+ [socket.remotePort](#so_remotePort)
-+ [socket.resume()](#so_resume)
-+ [socket.setEncoding([encoding])](#so_setEncoding)
-+ [socket.setKeepAlive([enable][, initialDelay])](#so_setKeepAlive)
-+ [socket.setTimeout(timeout[, callback])](#so_setTimeout)
-+ [socket.unref()](#so_unref)
-+ [socket.write(data[, encoding][, callback])](#so_write)
-+ [net.connect()](#netConnect)
-+ [net.connect(options[, connectListener])](#netConnect1)
-+ [net.connect(path[, connectListener])](#netConnect2)
-+ [net.connect(port[, host][, connectListener])](#netConnect3)
-+ [net.createConnection()](#createConnection)
-+ [net.createConnection(options[, connectListener])](#createConnection1)
-+ net.createConnection(path[, connectListener])
-+ net.createConnection(port[, host][, connectListener])
-+ [net.createServer([options][, connectionListener])](#createServer)
-+ [net.isIP(input)](#isIP)
-+ [net.isIPv4(input)](#isIPv4)
-+ [net.isIPv6(input)](#isIPv6)
+<!-- TOC -->
+
+- [Net](#net)
+- [Net](#net-1)
+  - [IPC Support](#ipc-support)
+    - [Identifying paths for IPC connections](#identifying-paths-for-ipc-connections)
+  - [Class: net.Server](#class-netserver)
+  - [new net.Server([options][, connectionListener])](#new-netserveroptions-connectionlistener)
+    - [Event:'close'](#eventclose)
+    - [Event: 'connection'](#event-connection)
+    - [Event: 'error'](#event-error)
+    - [Event: 'listening'](#event-listening)
+    - [server.address()](#serveraddress)
+    - [server.close([callback])](#serverclosecallback)
+    - [server.getConnections(callback)](#servergetconnectionscallback)
+    - [server.listen()](#serverlisten)
+      - [server.listen(handle[, backlog][,callback])](#serverlistenhandle-backlogcallback)
+      - [server.listen(options[,callback])](#serverlistenoptionscallback)
+      - [server.listen(path[,backlog][,callback])](#serverlistenpathbacklogcallback)
+      - [server.listen([port][, host][, backlog][, callback])](#serverlistenport-host-backlog-callback)
+    - [server.listening](#serverlistening)
+    - [server.maxConnections](#servermaxconnections)
+    - [server.ref()](#serverref)
+    - [server.unref()](#serverunref)
+  - [Class: net.Socket](#class-netsocket)
+    - [new net.Socket([options])](#new-netsocketoptions)
+    - [Event: 'close'](#event-close)
+    - [Event: 'data'](#event-data)
+    - [Event: 'drain'](#event-drain)
+    - [Event: 'end'](#event-end)
+    - [Event: 'error'](#event-error-1)
+    - [Event: 'lookup'](#event-lookup)
+    - [Event:'timeout'](#eventtimeout)
+    - [socket.address()](#socketaddress)
+    - [socket.bufferSize](#socketbuffersize)
+    - [socket.bytesRead](#socketbytesread)
+    - [socket.bytesWritten](#socketbyteswritten)
+    - [socket.connect()](#socketconnect)
+      - [socket.connect(options[,connectListener])](#socketconnectoptionsconnectlistener)
+      - [socket.connect(path[,connectListener])](#socketconnectpathconnectlistener)
+      - [socket.connect(port[,host][,connectListener])](#socketconnectporthostconnectlistener)
+    - [socket.connecting](#socketconnecting)
+    - [socket.destroy([exception])](#socketdestroyexception)
+    - [socket.destroyed](#socketdestroyed)
+    - [socket.end([data][,encoding])](#socketenddataencoding)
+    - [socket.localAddress](#socketlocaladdress)
+    - [socket.localPort](#socketlocalport)
+    - [socket.pause()](#socketpause)
+    - [socket.ref()](#socketref)
+    - [socket.remoteAddress](#socketremoteaddress)
+    - [socket.remoteFamily](#socketremotefamily)
+    - [socket.remotePort](#socketremoteport)
+    - [socket.resume()](#socketresume)
+    - [socket.setEncoding([encoding])](#socketsetencodingencoding)
+    - [socket.setKeepAlive([enable][,initialDelay])](#socketsetkeepaliveenableinitialdelay)
+    - [socket.setNoDelay([noDelay])](#socketsetnodelaynodelay)
+    - [socket.setTimeout(timeout[,callback])](#socketsettimeouttimeoutcallback)
+    - [socket.unref()](#socketunref)
+    - [socket.write(data[,encoding][,callback])](#socketwritedataencodingcallback)
+  - [net.connect()](#netconnect)
+    - [net.connect(options[, connectListenenr])](#netconnectoptions-connectlistenenr)
+    - [net.connect(path[, connectListenenr])](#netconnectpath-connectlistenenr)
+    - [net.connect(port[,host][,connectListenenr])](#netconnectporthostconnectlistenenr)
+  - [net.createConnection()](#netcreateconnection)
+    - [net.createConnection(options[,connectListener])](#netcreateconnectionoptionsconnectlistener)
+  - [net.createServer([options][,connectionListener])](#netcreateserveroptionsconnectionlistener)
+  - [net.isIP(input)](#netisipinput)
+  - [net.isIPv4(input)](#netisipv4input)
+  - [net.isIPv6(input)](#netisipv6input)
+
+<!-- /TOC -->
 
 # Net
 
@@ -54,7 +89,9 @@
 `net.connect()`, `net.createConnection()`, `server.listen()` and `socket.connect()`
 接受一个 `path` 参数来识别 IPC 终端。     
 
-在 UNIX 上，本地域也称为 UNIX 域。路径是一个文件系统的路径名。它被截断为`sizeof(sockaddr_un.sun_path)-1`，其在不同的操作系统上在91和107字节之间变化。在 Linux 的
+下面说的本地域应该指的是我们建立 IPC 的时候，自身套接字绑定的 socket 的位置吧。    
+
+在 UNIX 上，本地域也称为 UNIX 域。路径是一个文件系统的路径名。会使用 `sizeof(sockaddr_un.sun_path)-1` 截短，其在不同的操作系统上在91和107字节之间变化。在 Linux 的
 典型值为107，在maxOS 上为103。该路径遵守与创建文件时相同的命名约定和权限检查。其会在文件系统中可见，
 并且将 *persist until unlinked* 保持在待链接状态？。     
 
@@ -124,7 +161,8 @@ server.listen(() => {
 ### server.close([callback])
 
 停止服务器，不再接受新的连接，但会保持现有的连接。函数是异步的，服务器会在所有连接都结束，服务器
-触发 `'close'` 事件后才完全关闭。    
+触发 `'close'` 事件后才完全关闭。但是不同于 `close` 事件的监听函数，如果当关闭服务器的时候服务器本身就不是
+打开的，`callback` 会有一个错误参数。         
 
 ### server.getConnections(callback)
 
@@ -144,9 +182,10 @@ server.listen(() => {
 + `server.listen([port][, host][, backlog][, callback])` for TCP servers   
 
 这个函数是异步的。当服务器开始监听时，`listening` 事件触发。最后的参数 `callback` 会被添加
-为 `listening` 事件的监听函数。    
+为 `listening` 事件的监听函数。这个 `callback` 会遵从添加到 `listening` 事件的顺序调用，与普通的监听器添加
+顺序一致。        
 
-所有的 `listen()` 方法可以接收一个 `backlog` 参数来指定待处理队列的最大长度。准确的长度由
+所有的 `listen()` 方法可以接收一个 `backlog` 参数来指定正在处理队列的最大长度。准确的长度由
 系统决定。默认值为511。
 
 *Note*:   
@@ -162,7 +201,6 @@ server.on('error', (e) => {
   if (e.code === 'EADDRINUSE') {
     console.log('Address in use, retrying...');
     setTimeout(() => {
-      // 奇怪，既然监听时出了错误，那么应该就没有连接建立，为何要
       server.close();
       server.listen(PORT, HOST);
     }, 1000);
@@ -177,10 +215,14 @@ server.on('error', (e) => {
 + `callback` &lt;Function&gt;    
 
 服务器开始在给定的，之前已经与一个端口，一个 UNIX domain socket，
-或者一个 Windows 命名管道绑定了的 `handle` 上监听连接。       
+或者一个 Windows 命名管道绑定了的 `handle` 上监听连接。注意与上面 `EADDRINUSE` 错误的区别，
+以 TCP 服务器为例，如果 `handle` 是一个已经成功绑定了端口的服务器实例的话，是可以成功监听的，但是
+如果我们使用下面的绑定端口的写法，绑定一个之前已经有服务器绑定了的端口的话，就会报 `EADDRINUSE` 错误。
+也不清楚这两种有什么区别啊。           
 
 `handle` 对象可以是一个服务器，一个 socket(任何底层包括 `_handle` 成员的东西)，或者一个包含
-`fd` 成员是一个有效文件描述符的对象。    
+`fd` 成员是一个有效文件描述符的对象。推测 socket 的话应该是我们自己创建了一个绑定好的 socket（但是不确定是 IPC 连接还是 TCP 连接），
+`fd` 的话可能是 Linux IPC。        
 
 *Note*: Windows 系统不支持监听一个文件描述符。     
 
@@ -300,7 +342,7 @@ server.on('error', (e) => {
 
 + &lt;Error&gt;    
 
-`close` 事件会紧随这个事件触发后直接触发。     
+`close` 事件会紧随这个事件触发后直接触发。注意如果是服务器上发生了 `error` 事件貌似就不会触发 `close` 事件。        
 
 ### Event: 'lookup'
 
@@ -315,36 +357,27 @@ server.on('error', (e) => {
 
 当 socket 不活动的时间超时后触发。这个事件只是通知 socket 是闲置状态的，用户必须手动关闭连接。    
 
-
 ### socket.address()
 
 返回操作系统报告的 socket 绑定的地址，地址族名及端口。返回一个带有3个属性的对象。例如：
 `{ port: 12346, family: 'IPv4', address: '127.0.0.1' }`。     
 
-### socket.bufferSize    
-
-<a name="so_bufferSize"></a>    
+### socket.bufferSize
 
 `net.Socket` 有 `socket.write()` 始终有效的特性。Node.js 会将要写入 `socket` 的数据
 在内部排队，并且在可能的时候将其发送出去。     
 
 这种内部缓冲的结果就是内存的使用量会变高。这个特性展示了当前缓冲的待写入的字符的数量。（字符数大约等于要写入的字节数，但是缓冲区可能包含字符串，并且这些字符串是懒惰编码的，所以确切的字节量是不知道的。）
 
-### socket.bytesRead   
-
-<a name="so_bytesRead"></a>    
+### socket.bytesRead
 
 接受到的字节数。    
 
-### socket.bytesWritten
-
-<a name="so_bytesWritten"></a>     
+### socket.bytesWritten 
 
 发送的字节量。    
 
-### socket.connect()
-
-<a name="so_connect"></a>    
+### socket.connect()   
 
 在给定的 socket 上初始化一个连接。   
 
@@ -358,9 +391,7 @@ server.on('error', (e) => {
 事件。如果提供了 `connectListener`，那么会被添加到 `connect` 事件（然而上面没有提到有 `connect` 事件啊）监听函数中去（注意这里强调了一个
 once，应该是类似于执行 once 然后就取消绑定）。     
 
-#### socket.connect（options[,connectListener]
-
-<a  name="so_connect1"></a>   
+#### socket.connect(options[,connectListener])
 
 + `options` &lt;Object&gt;
 + `connectListener`
@@ -386,39 +417,27 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 #### socket.connect(path[,connectListener])
 
-<a name="so_connect2"></a>   
-
 等同于 `socket.connect({ path: path }[,connectListener])`。   
 
 #### socket.connect(port[,host][,connectListener])
 
-<a name="so_connect3"></a>    
-
 等同于 `socket.connect({ port: port, host: host}[,connectListener])`。    
 
-### socket.connecting  
-
-<a name="so_connecting"></a>    
+### socket.connecting 
 
 当调用 `socket.connect()` 后但是还没有完成连接时返回 `true`，其余时间就是 `false`。   
 
 ### socket.destroy([exception])
 
-<a name="so_destroy"></a>    
-
 确保在 socket 上不会再有 I/O 活动。只有在出错的情况才需要调用这个方法。    
 
 如果指定了 `exception` 的话， `error` 事件会触发，`exception` 会作为事件回调的参数传入。    
 
-### socket.destroyed   
-
-<a name="so_destroyed"></a>   
+### socket.destroyed
 
 是否连接已经被摧毁。   
 
 ### socket.end([data][,encoding])
-
-<a name="so_end"></a>   
 
 半关闭 socket。例如：发送一个 FIN 包。但是服务器仍然可能会发送数据。    
 
@@ -426,63 +445,44 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 返回 `socket`。    
 
-### socket.localAddress   
-
-<a  name="so_localAddress"></a>    
+### socket.localAddress
 
 这个字符串代表了远程客户端连接本地的 IP 的地址。例如在一个监听在 `0.0.0.0` 的服务器上，
 一个客户端连接到了 `192.168.1.1`，那么这个值就是 `192.168.1.1`。（就是对外的地址）       
 
-### socket.localPort   
-
-<a  name="so_localPort"></a>    
+### socket.localPort
 
 略。    
 
-### socket.pause()
-
-<a  name="so_pause"></a>    
+### socket.pause()   
 
 暂停读取数据。意味着 `'data'` 事件不再触发。   
 
 ### socket.ref()
 
-<a name="so_ref"></a>    
-
 略。   
 
-### socket.remoteAddress   
-
-<a  name="so_remoteAddress"></a>   
+### socket.remoteAddress
 
 远程 IP 地址的代表字符串。就是连接到何处的地址吧。   
 
-### socket.remoteFamily   
+### socket.remoteFamily
 
-<a  name="so_remoteFamily"></a>  
 例如 `IPv4` or `IPv6`。
 
 ### socket.remotePort  
 
-<a  name="so_remotePort"></a>    
-
 略。   
 
-### socket.resume()
-
-<a  name="so_resume"></a>     
+### socket.resume()  
 
 恢复读取。    
 
-### socket.setEncoding([encoding])
-
-<a name="so_setEncoding"></a>     
+### socket.setEncoding([encoding])  
 
 为 socket 的可读流设置编码。    
 
-### socket.setKeepAlive([enable][,initialDelay])    
-
-<a name="so_setKeepAlive"></a>    
+### socket.setKeepAlive([enable][,initialDelay])
 
 启用 / 禁用 keep-alive 功能，并且可选的设置在第一个 keepalive 探针发送给一个闲置 socket
 前的延迟时间。    
@@ -495,9 +495,7 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 返回 `socket`。    
 
-### socket.setNoDelay([noDelay])
-
-<a name="so_setNoDelay"></a>    
+### socket.setNoDelay([noDelay])  
 
 禁止 Nagel 算法。默认情况下 TCP 连接会使用 Nagle 算法，在发送数据前先缓冲一段时间。设置
 为 `true` 的话会让数据立即发送不缓冲，注意这个缓冲和可写流的缓冲应该是不一样的，这个缓冲
@@ -506,8 +504,6 @@ once，应该是类似于执行 once 然后就取消绑定）。
 返回 `socket`。    
 
 ### socket.setTimeout(timeout[,callback])
-
-<a name="so_setTimeout"></a>  
 
 设置不活动的 socket 在 `timeout` 时间后超时。默认情况下 `net.Socket` 没有超时一说。    
 
@@ -522,19 +518,14 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 ### socket.unref()
 
-<a  name="so_unref"></a>   
 略。
 
 ### socket.write(data[,encoding][,callback])
 
-<a  name="so_write"></a>     
-
 如果整个数据成功的刷新到内核的缓冲区中就返回 `true`。如果有数据在用户的内存中排队就返回 `false`。
 当缓冲清空后会触发 `'drain'`事件（这个缓冲应该指的是可写流的缓冲区）。　　　　　
 
-## net.connect()   
-
-<a name="netConnect"></a>   
+## net.connect()  
 
 `net.createConnection()` 的别名。    
 
@@ -546,25 +537,17 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 ### net.connect(options[, connectListenenr])
 
-<a name="netConnect1"></a>    
-
 `net.createConnection(options[, connectListenenr])` 的别名。   
 
 ### net.connect(path[, connectListenenr])
-
-<a  name="netConnect2"></a>    
 
 `net.createConnection(path[, connectListenenr])` 的别名。   
 
 ### net.connect(port[,host][,connectListenenr])
 
-<a name="netConnect3"></a>    
-
 `net.createConnection(port[,host][,connectListenenr])`的别名。　　　　
 
 ## net.createConnection()
-
-<a name="createConnection"></a>   
 
 一个工厂函数，用来创建新的 `net.Socket`，并使用 `socket.connect()` 立即初始化连接，
 返回启动了连接的 `net.Socket`。    
@@ -578,9 +561,7 @@ once，应该是类似于执行 once 然后就取消绑定）。
 + `net.createConnection(path[, connectListener])` for IPC connections.
 + `net.createConnection(port[, host][, connectListener])` for TCP connections.   
 
-### net.createConnection(options[,connectListener])
-
-<a  name="createConnection1"></a>    
+### net.createConnection(options[,connectListener]) 
 
 + `options` 必需。会传递给 `new net.Socket([options])` and `new socket.connect(options[, connections])`
 + Returns: &lt;net.Socket&gt; 用来开始连接的新建的 socket。    
@@ -591,9 +572,7 @@ once，应该是类似于执行 once 然后就取消绑定）。
 
 剩下的两种就不说了，略。   
 
-## net.createServer([options][,connectionListener])
-
-<a name="createServer"></a>    
+## net.createServer([options][,connectionListener]) 
 
 创建一个 TCP or IPC 服务器    
 
@@ -602,23 +581,18 @@ once，应该是类似于执行 once 然后就取消绑定）。
   - `pauseOnConnect` &lt;boolean&gt; 默认为 `false`。表明 socket 对新来的连接是否是暂停的状态
 
 如果 `pauseOnConnect` 为 `true`，那么与 socket 相关联的每个新来的连接都是暂停状态，不会从其
-handle 中读取任何数据。这可以让我们在原始进程没有读取数据的情况下将连接在进程之间传递。如果想
+handle 中读取任何数据。这可以让我们在原始进程没有读取数据的情况下将连接在进程之间传递（推测可能会新建子进程来处理）。如果想
 要从暂停的 socket 上读取数据，调用 `socket.resume()`。    
 
-## net.isIP(input)
-
-<a name="isIP"></a>    
+## net.isIP(input) 
 
 测试输入是否为一个 IP 地址，对于不合法的字符串返回 0，IPv4 的地址返回4，IPv6的地址返回6。    
 
-## net.isIPv4(input)
-
-<a  name="isIPv4"></a>     
+## net.isIPv4(input)  
 
 如果是 IPv4 的地址返回 true。   
 
-## net.isIPv6(input)
-
-<a  name="isIPv6"></a>   
+## net.isIPv6(input) 
 
 略。   
+
