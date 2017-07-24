@@ -60,7 +60,7 @@ Flex lines are filled with items and placed into the container starting on the c
 布局而不是块级布局。例如，容器内部不包含浮动，并且容器的 margin 不会和其内容 margin 重叠。
 容器会像普通的块容器一样为其内容形成包含块。    
 
-flex 容器不会块容器，所以一些针对块布局设计的属性可能不会在 flex 布局中适用。特别是：   
+flex 容器不同于块容器，所以一些针对块布局设计的属性可能不会在 flex 布局中适用。特别是：   
 
 + flex 容器的 'column-\*' 属性不会生效
 + flex item 的 'float' and 'clear' 会创建浮动挥着清除浮动，也不会在流外（这里和上面的流都是指

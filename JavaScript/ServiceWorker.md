@@ -125,9 +125,9 @@ if ('serviceWorker' in navigator) {
 最大范围的列表。
 4. 在 FireFox 中，如果用户使用的是私人浏览模式，那么 service worker 是不可用的。    
 
-### 按照及激活：污染我们的缓存
+### 安装及激活：污染我们的缓存
 
-在注册完 worker 后，浏览器就尝试为我们的页面/站点按照并激活 service worker。    
+在注册完 worker 后，浏览器就尝试为我们的页面/站点安装并激活 service worker。    
 
 当安装成功完成后触发 `install` 事件。这个事件通常用我们应用在离线状态下需要的资源来污染
 我们的浏览器离线缓存。为了完成这项工作，我们使用 Service Worker 提供的新的存储 API - cache -

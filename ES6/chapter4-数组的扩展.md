@@ -1,13 +1,15 @@
 # 4. 数组的扩展
 
+<!-- TOC -->
 
-```
- 1. Array.from()
- 2. Array.of()
- 3. 数组实例的copyWithin()方法
- 4. 数组实例的find()和findIndex()和includes()方法
-```
- ---
+- [1.Array.from()](#1arrayfrom)
+- [2. Array.of()](#2-arrayof)
+- [3. 数组实例的copyWithin()方法](#3-数组实例的copywithin方法)
+- [4. 数组实例的find()和findIndex()和includes()方法](#4-数组实例的find和findindex和includes方法)
+- [5. 数组实例的fill()方法](#5-数组实例的fill方法)
+- [6.数组实例的entries()，keys()和values()](#6数组实例的entrieskeys和values)
+
+<!-- /TOC -->
 
 ## 1.Array.from()
 

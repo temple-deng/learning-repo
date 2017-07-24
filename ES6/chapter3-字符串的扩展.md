@@ -2,14 +2,12 @@
 
 
 
- 1. [本章主要的API](#part1)
- 2. [字符串的Unicode表示法](#part2)
- 3. [字符串的遍历器接口](#part3)
- 4. [includes(), startsWith(), endsWith()](#part4)
- 5. [repeat()](#part5)
- 6. [padStart(),padEnd()](#part6)
-
----
+1. [本章主要的API](#part1)
+2. [字符串的Unicode表示法](#part2)
+3. [字符串的遍历器接口](#part3)
+4. [includes(), startsWith(), endsWith()](#part4)
+5. [repeat()](#part5)
+6. [padStart(),padEnd()](#part6)
 
 <a name="part1"></a>
 ## 1.本章主要的API

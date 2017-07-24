@@ -7,7 +7,6 @@
  3. Object.getOwnPropertyDescriptor()
  4. Object.setPrototypeOf()   Object.getPrototypeOf()
 ```
----
 
 ##  1.Object.is()方法
 

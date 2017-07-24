@@ -1,10 +1,10 @@
 # cssnano   
 
-当前这份文档是基于4.0 的，不过貌似还没不是稳定版，所有安装时 `npm install cssnao@next`。    
+当前这份文档是基于4.0 的，不过貌似还没不是稳定版，所有安装时 `npm install cssnano@next`。    
 
 ## Presets
 
-从版本 4开始，cssnao 可以针对不同的用例使用 presets 来实现不同的功能。   
+从版本 4开始，cssnano 可以针对不同的用例使用 presets 来实现不同的功能。   
 
 貌似目前好像只有两种 preset: default, advanced。    
 
