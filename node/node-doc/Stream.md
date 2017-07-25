@@ -2,35 +2,76 @@
 
 目录：   
 
-+ [Organization of this Document](#part1)
-+ [Types of Stream](#part2)
-  - Object Mode
-  - Buffering
-+ [API for Stream Consumers](#consumer)
-  - [Writable Streams](#writable)
-    + [Class: stream.Writable](#writclass)
-      - [Event: 'close'](#writclose)
-      - [Event: 'drain'](#writdrain)
-      - [Event: 'error'](#writerror)
-      - [Event: 'finish'](#writfinish)
-      - [Event: 'pipe'](#writpipe)
-      - [Event: 'unpipe'](#writunpipe)
-      - [writable.cork()](#cork)
-      - [writable.end([chunk][, encoding][, callback])](#end)
-      - [writable.setDefaultEncoding(encoding)](#writsetencoding)
-      - [writable.uncork()](#uncork)
-      - [writable.write(chunk[, encoding][, callback])](#write)
-      - [writable.destroy([error])](#destroy)
-  - [Readable Streams](#readable)
-    + [Two Modes](#twomodes)
-    + [Three States](#threestates)
-    + [Choose One](#chooseone)
-    + [Class: stream.Readable](#classread)
-      - [Event: 'close'](#readclose)
-      - [Event: 'data'](#readdata)
-      - [Event: 'end'](#readend)
-      - [Event: 'error'](#readerror)
-      - [Event: 'readable'](#readread)
+<!-- TOC -->
+
+- [Stream](#stream)
+- [Stream](#stream-1)
+  - [Organization of this Document](#organization-of-this-document)
+  - [Types of Streams](#types-of-streams)
+    - [Object Mode](#object-mode)
+    - [Buffering](#buffering)
+  - [API for Stream Consumers](#api-for-stream-consumers)
+    - [Writable Streams](#writable-streams)
+      - [Class: stream.Writable](#class-streamwritable)
+        - [Event: 'close'](#event-close)
+        - [Event: 'drain'](#event-drain)
+        - [Event: 'error'](#event-error)
+        - [Event: 'finish'](#event-finish)
+        - [Event: 'pipe'](#event-pipe)
+        - [Event: 'unpipe'](#event-unpipe)
+        - [writable.cork()](#writablecork)
+        - [writable.end([chunk][,encoding][,callback])](#writableendchunkencodingcallback)
+        - [writable.setDefaultEncoding(encoding)](#writablesetdefaultencodingencoding)
+        - [writable.uncork()](#writableuncork)
+        - [writable.write(chunk[,encoding][,callback])](#writablewritechunkencodingcallback)
+        - [writable.destroy([error])](#writabledestroyerror)
+    - [Readable  Streams](#readable--streams)
+      - [Two Modes](#two-modes)
+      - [Three States](#three-states)
+      - [Choose One](#choose-one)
+      - [Class: stream.Readable](#class-streamreadable)
+        - [Event: 'close'](#event-close-1)
+        - [Event: 'data'](#event-data)
+        - [Event: 'end'](#event-end)
+        - [Event: 'error'](#event-error-1)
+        - [Event: 'readable'](#event-readable)
+        - [readable.isPaused()](#readableispaused)
+        - [readable.pause()](#readablepause)
+        - [readable.pipe(destination[,options])](#readablepipedestinationoptions)
+        - [readable.read([size])](#readablereadsize)
+        - [readable.resume()](#readableresume)
+        - [readable.setEncoding(encoding)](#readablesetencodingencoding)
+        - [readable.unpipe([destination])](#readableunpipedestination)
+        - [readable.unshift(chunk)](#readableunshiftchunk)
+        - [readable.wrap(stream)](#readablewrapstream)
+        - [readable.destroy([error])](#readabledestroyerror)
+    - [Duplex and Transform Streams](#duplex-and-transform-streams)
+      - [Class: stream.Duplex](#class-streamduplex)
+      - [Class: stream.Transform](#class-streamtransform)
+        - [transform.destroy([error])](#transformdestroyerror)
+  - [API for Stream Implementers](#api-for-stream-implementers)
+    - [Simplified Construction](#simplified-construction)
+    - [Implementing a Writable Stream](#implementing-a-writable-stream)
+      - [Constructor: new stream.Writable([options])](#constructor-new-streamwritableoptions)
+      - [writable.\_write(chunk, encoding, callback)](#writable\_writechunk-encoding-callback)
+      - [writable.\_writev(chunks,callback)](#writable\_writevchunkscallback)
+      - [writable.\_destroy(err, callback)](#writable\_destroyerr-callback)
+      - [writable.\_final(callback)](#writable\_finalcallback)
+    - [Implementing a Readable Stream](#implementing-a-readable-stream)
+      - [new stream.Readable([options])](#new-streamreadableoptions)
+      - [readable.\_read(size)](#readable\_readsize)
+      - [readable.push(chunk[,encoding])](#readablepushchunkencoding)
+    - [Implementing a Duplex Stream](#implementing-a-duplex-stream)
+      - [new stream.Duplex(options)](#new-streamduplexoptions)
+      - [An Example Duplex Stream](#an-example-duplex-stream)
+      - [Object Mode Duplex Streams](#object-mode-duplex-streams)
+    - [Implementing a Transform Stream](#implementing-a-transform-stream)
+      - [new stream.Transform([options])](#new-streamtransformoptions)
+    - [Events: 'finish' and 'end'](#events-finish-and-end)
+    - [transform.\_flush(callback)](#transform\_flushcallback)
+    - [transform.\_transform(chunk, encoding, callback)](#transform\_transformchunk-encoding-callback)
+
+<!-- /TOC -->
 
 # Stream  
 
@@ -46,15 +87,13 @@ API 来构建，其次，流默认都是工作在字符串及 Buffer 类型上�
 使用 object mode。    
 
 ## Organization of this Document
-
-<a name="part1"></a>   
+  
 
 这份文档被划分成两个主要的章节，及一个包含额外注意点的第三章节。第一部分解释了在应用程序中
 使用流时需要了解的流 API 元素。第二部分介绍了实现新类型的流所需的 API 元素。    
 
 ## Types of Streams
-
-<a name="part2"></a>   
+  
 
 Node.js 中有四种基本的流的类型：
 
@@ -104,12 +143,10 @@ Node.js 中有四种基本的流的类型：
 允许每一方独立于另一方操作，同时保持适当和有效的数据流。    
 
 ## API for Stream Consumers
-
-<a name="consumer"></a>    
+    
 
 ### Writable Streams   
-
-<a name="writable"></a>   
+   
 
 可写流是对数据写入目的地的一种抽象。    
 
@@ -137,41 +174,29 @@ myStream.end('done writing data');
 
 #### Class: stream.Writable   
 
-<a name="writclass"></a>
-
-##### Event: 'close'
-
-<a name="writclose"></a>    
+##### Event: 'close'    
 
 `'close'` 事件会在流以及其任意的底层资源（例如一个文件描述符）关闭后触发。这个事件表明将来
 不会再有别的事件触发。    
 
 不是所有的可写流都会触发`'close'` 事件。   
 
-##### Event: 'drain'
-
-<a name="writdrain"></a>    
+##### Event: 'drain'   
 
 如果调用 `stream.write(chunk)` 返回了 `false`，`'drain'`事件会在可以恢复向流中写入数据的
 恰当时间触发。    
 
-##### Event: 'error'
-
-<a name="writerror"></a>   
+##### Event: 'error'  
 
 当写入数据或者 piping 数据出错时触发 `'error'` 事件。监听回调会接受一个 `Error` 实例作参数。   
 
 *注意*：当 `'error'` 事件触发时，流还没有关闭。    
 
-##### Event: 'finish'
-
-<a name="writfinish"></a>   
+##### Event: 'finish'   
 
 当调用 `stream.end()` 方法后，并且所有数据都被刷新到底层系统后触发 `'finish'` 事件。    
 
-##### Event: 'pipe'
-
-<a name="writpipe"></a>    
+##### Event: 'pipe'   
 
 + `src` &lt;stream.Readable&gt; piping to 这个写流的源流   
 
@@ -187,17 +212,13 @@ writer.on('pipe', (src) => {
 reader.pipe(writer);
 ```    
 
-##### Event: 'unpipe'
-
-<a name="writunpipe"></a>    
+##### Event: 'unpipe'   
 
 + `src` &lt;Readable Stream&gt; unpiped 这个写流的源流    
 
 当在可读流上调用 `stream.unpipe()` 方法，将这个可写流从其目的地中移除后触发 `'unpipe'` 事件
 
-##### writable.cork()   
-
-<a name="cork"></a>    
+##### writable.cork()       
 
 `writable.cork()` 方法强制将所有写入的数据缓冲到内存中。缓冲的数据会在 `stream.uncork()`
 or `stream.end()` 方法调用后被刷新。    
@@ -208,8 +229,6 @@ or `stream.end()` 方法调用后被刷新。
 
 ##### writable.end([chunk][,encoding][,callback])
 
-<a name="end"></a>   
-
 + `chunk` &lt;string&gt; | &lt;Buffer&gt; | &lt;Uint8Array&gt; | &lt;any&gt;  可选的
 需要写入的数据。对于不在对象模式下运行的流，`chunk` 必须是 `string`, `Buffer`, `Uint8Array` 类型。
 对于对象模式的流，则可以是除 `null` 以外的任意值。   
@@ -219,18 +238,14 @@ or `stream.end()` 方法调用后被刷新。
 调用 `end()`方法意味着不会再有数据写入到流中。`chunk` 可以作为在流关闭前最后写入的数据。
 如果提供了 `callback` 的话，这个函数会作为一个 `'finish'` 事件的监听函数。     
 
-##### writable.setDefaultEncoding(encoding)
-
-<a name="writsetencoding"></a>    
+##### writable.setDefaultEncoding(encoding)   
 
 + `encoding` &lt;string&gt; 新的默认的编码方式
 + Returns: `this`    
 
 为可写流设置默认的编码方式。    
 
-##### writable.uncork()
-
-<a name="uncork"></a>    
+##### writable.uncork()   
 
 这个方法会将自 `stream.cork()` 方法调用后缓冲的所有数据刷新。    
 
@@ -259,9 +274,7 @@ process.nextTick(() => {
 });
 ```    
 
-##### writable.write(chunk[,encoding][,callback])   
-
-<a name="write"></a>   
+##### writable.write(chunk[,encoding][,callback])     
 
 + `chunk`,`encoding` 参数同 `end()` 方法
 + `callback` &lt;Function&gt; 当数据块刷新后调用的回调函数  
@@ -290,14 +303,10 @@ process.nextTick(() => {
 
 ##### writable.destroy([error])
 
-<a name="destroy"></a>    
-
 摧毁流，并发出传递的错误。在调用这个函数后，可写流就结束了。流的实现不应该覆盖这个
 方法，而应该去实现 `writable._destroy()` 方法。        
 
 ### Readable  Streams
-
-<a name="readable"></a>     
 
 可读流是对将要消费的数据的来源的一种抽象。    
 
@@ -314,9 +323,7 @@ process.nextTick(() => {
 
 所有可读流都实现了 `stream.Readable` 类上定义的接口。    
 
-#### Two Modes
-
-<a name="twomodes"></a>   
+#### Two Modes  
 
 可读流可以有效地在两种模式之一下操作：流动态 flowing 与暂停态 paused。    
 
@@ -349,8 +356,6 @@ pipe 目的地。
 
 #### Three States
 
-<a name="threestates"></a>   
-
 上面的两种模式是对当实现可读流时复杂的内部状态管理的一种简化的抽象。   
 
 具体来说，在任何给定的时间点，每个可读流会是三种可能的状态之一：   
@@ -377,24 +382,16 @@ pipe 目的地。
 
 ####  Choose One  
 
-<a name="chooseone"></a>   
-
 可读流的 API 在多个Node.js版本间不断进化，提供了多种消费流中数据的方式。通常来说，开发者
 应该从这些方式中选择一种，并且永远不要在一个流上使用多种方式来消费数据。    
 
 #### Class: stream.Readable  
 
-<a name="classread"></a>    
-
 ##### Event: 'close'   
-
-<a name="readclose"></a>   
 
 当流及其底层资源关闭后触发 'close' 事件。不是所有的可读流都会触发 `'close'` 事件。   
 
 ##### Event: 'data'
-
-<a name="readdata"></a>   
 
 + `chunk` &lt;Buffer&gt; | &lt;string&gt; | &lt;any&gt; 数据块。对于不在对象模式的流来说，数据
 必须是 `string` or `Buffer`。对于对象模式的流来说，可以是非 `null` 的任意值。   
@@ -412,8 +409,6 @@ pipe 目的地。
 
 ##### Event: 'end'
 
-<a name="readend"></a>    
-
 `'end'` 事件会在流中没有更多的数据要消费时触发。   
 
 *注意*：除非数据被完全消费掉了，否则不会触发 `'end'` 事件。可以通过将流转为流动模式，
@@ -421,13 +416,9 @@ pipe 目的地。
 
 ##### Event: 'error'
 
-<a  name="readerror"></a>   
-
 + &lt;Error&gt;    
 
-##### Event: 'readable'
-
-<a name="readread"></a>    
+##### Event: 'readable' 
 
 当流中还有数据可以读取时会触发 `'readable'` 事件（这里的还有数据应该指的是底层资源还有可读取
 的数据）。一些情况下，为 `'readable'` 事件绑定监听器会造成一些数据读取到内部缓冲区中。   
@@ -686,7 +677,7 @@ const myWritable = new Writable({
 + `chunk` &lt;Buffer&gt; | &lt;string&gt; | &lt;any&gt; 写入的数据块。除非将 `decodeStrings`
 设为 `false` 或者流是处于对象模式，否则总是 buffer
 + `encoding` &lt;string&gt; 如果 chunk 是字符串，就是编码。如果是 `Buffer` 或者处于对象模式，这个参数被忽略
-+ `callback` &lt;Function&gt; 当提供的chunk全部出来完成时调用的函数（可选的带有一个 error 参数）    
++ `callback` &lt;Function&gt; 当提供的chunk全部处理完成时调用的函数（可选的带有一个 error 参数）    
 
 所有的可写流的实现都必须提供 `writable._write()` 方法将数据发送到底层资源上。   
 
@@ -699,7 +690,7 @@ const myWritable = new Writable({
 
 很重要的一点是当我们在调用 `writable._write()` 后到调用 `callback` 被调用前这段时间内
 调用 `writable.write()` 会造成写入的数据被缓冲。一旦`callback` 被调用，流就会触发 `'drain'`
-事件。如果流的实现想要增加一次性处理多个数据块的能力，就必须实现 `writeable._writec()` 方法。    
+事件。如果流的实现想要增加一次性处理多个数据块的能力，就必须实现 `writeable._writev()` 方法。    
 
 如果在构造函数中设置了 `decodeStrings` 属性（这里具体设置为什么并没有说清楚，不知道是都行，还是专指一种），`chunk` 应该是一个字符串而不是 `Buffer`。如果明确的将 `decodeStrings` 设为 `false`，
 那么 `encoding` 参数可以安全地被忽视，`chunk` 会仍然作为对象传递给 `.write()`。     
