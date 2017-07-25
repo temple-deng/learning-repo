@@ -1,5 +1,4 @@
 # webpack-dev-server
-****
 
 ### 启动server
 首先明确一点， 启动webpack-dev-server应该有两种方式， 一种是直接用命令行`webpack-dev-server`启动服务器， 第二种就是编写脚本， 使用WebpackDevServer API来启动服务器。
