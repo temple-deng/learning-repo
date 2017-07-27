@@ -968,6 +968,8 @@ HTTP 响应码和原因短语的结合。例如 `http.STATUS_CODES[404] === 'Not
 
 回调函数的参数是 `http.IncomingMessage` 实例。    
 
+回调应该和 `request()` 方法一样，是一个 `response` 事件的监听函数。    
+
 ## http.globalAgent  
 
 + `http.Agent`   
@@ -1000,3 +1002,8 @@ HTTP 响应码和原因短语的结合。例如 `http.STATUS_CODES[404] === 'Not
 + Returns: &lt;http.ClientRequest&gt;
 
 可选的 `callback` 会作为 `'response'` 事件的处理函数。   
+
+注意返回的 `http.ClientRequest` 对象必须明确的调用 `req.end()` 方法来表示请求的结束，但是 `http.get` 就不用，人家会自动调用。    
+
+发送一个 `Connection: keep-alive` 首部会通知 Node.js 这个连接到服务器的连接
+应该维持住，直到发送下个请求。推测的话，应该是连接不会关闭，但是请求的话应该还得重新调用 `request()` 或者 `get()` 方法发送出，这里应该主要是为了节省关闭连接，摧毁 socket 等步骤吧，提高性能。   

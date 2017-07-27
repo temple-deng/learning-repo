@@ -1,5 +1,76 @@
 # Request and Response  
 
+<!-- TOC -->
+
+- [Request and Response](#request-and-response)
+  - [Request](#request)
+    - [属性](#属性)
+        - [req.app](#reqapp)
+        - [req.baseUrl](#reqbaseurl)
+        - [req.body](#reqbody)
+        - [req.cookies](#reqcookies)
+        - [req.fresh](#reqfresh)
+        - [req.hostname](#reqhostname)
+        - [req.ip](#reqip)
+        - [req.ips](#reqips)
+        - [req.method](#reqmethod)
+        - [req.originalUrl](#reqoriginalurl)
+      - [几个路径值的比较](#几个路径值的比较)
+        - [req.params](#reqparams)
+        - [req.path](#reqpath)
+        - [req.protocol](#reqprotocol)
+      - [req.query](#reqquery)
+        - [req.route](#reqroute)
+        - [req.secure](#reqsecure)
+        - [req.signedCookies](#reqsignedcookies)
+        - [req.stale](#reqstale)
+        - [req.subdomains](#reqsubdomains)
+        - [req.xhr](#reqxhr)
+    - [方法](#方法)
+        - [req.accepts(types)](#reqacceptstypes)
+        - [req.acceptsCharset(charset [, ...])](#reqacceptscharsetcharset--)
+        - [req.acceptsEncodings(encoding [, ...])](#reqacceptsencodingsencoding--)
+        - [req.acceptsLanguages(lang [, ...])](#reqacceptslanguageslang--)
+        - [req.get(field)](#reqgetfield)
+        - [req.is(type)](#reqistype)
+        - [req.range(size [, options])](#reqrangesize--options)
+  - [Response](#response)
+    - [属性](#属性-1)
+        - [res.app](#resapp)
+        - [res.headerSent](#resheadersent)
+        - [res.locals](#reslocals)
+    - [方法](#方法-1)
+          - [res.append(field [, value])](#resappendfield--value)
+        - [res.attachment([filename])](#resattachmentfilename)
+        - [res.cookie(name, value [,options])](#rescookiename-value-options)
+        - [res.clearCookie(name [, options])](#resclearcookiename--options)
+        - [res.download(path [, filename] [, fn])](#resdownloadpath--filename--fn)
+        - [res.end([data] [,encoding])](#resenddata-encoding)
+        - [res.format(object)](#resformatobject)
+        - [res.get(field)](#resgetfield)
+        - [res.json([body])](#resjsonbody)
+        - [res.jsonp([body])](#resjsonpbody)
+        - [res.links(links)](#reslinkslinks)
+        - [res.location(path)](#reslocationpath)
+        - [res.redirect([status,] path)](#resredirectstatus-path)
+        - [res.render(view [locals] [,callback])](#resrenderview-locals-callback)
+        - [res.send([body])](#ressendbody)
+        - [res.sendFile(path [options] [, fn])](#ressendfilepath-options--fn)
+        - [res.sendStatus(statusCode)](#ressendstatusstatuscode)
+        - [res.set(field [,value])](#ressetfield-value)
+        - [res.status(code)](#resstatuscode)
+        - [res.type(type)](#restypetype)
+        - [res.vary(field)](#resvaryfield)
+  - [Router](#router)
+    - [方法](#方法-2)
+      - [router.all(path, [callback, ...] callabck)](#routerallpath-callback--callabck)
+      - [router.METHOD(path, [callback, ...] callback)](#routermethodpath-callback--callback)
+      - [router.param(name, callback)](#routerparamname-callback)
+      - [router.route(path)](#routerroutepath)
+      - [router.use([path], [function, ...] function)](#routerusepath-function--function)
+
+<!-- /TOC -->
+
 ## Request
 
 ### 属性
@@ -10,7 +81,9 @@
 
 ##### req.baseUrl  
 
-路由器实例挂载的 URL 路径。如果没有挂载的话，好像就是当前使用中间件的路由路径。  
+路由器实例挂载的 URL 路径。如果没有挂载的话，好像就是当前使用中间件的路由路径。文档上说是与 `app.mountpath` 类似，
+其实个人觉得 `baseUrl` 应该是与 `app.path()` 类似，应为如果是多层挂载，最终返回的多层挂载匹配的路径，而不像 `app.mountpath`
+只是单层挂载。       
 
 ##### req.body
 
@@ -46,16 +119,16 @@ req.cookies.name
 
 说明请求是否是“新鲜的”，这和 `req.stale` 是相对的。其实还是条件请求的验证，用来说明请求的资源是不是新鲜的。  
 
-返回 true 表明客户端缓存的资源还是新鲜的，可以直接使用呗。     
+返回 true 表明客户端缓存的资源还是新鲜的，可以直接使用呗，可以直接使用 304 响应。相反返回 `false` 我们就应该返回完整的响应。         
 
-当 `cache-control` 请求首部不包含一个 `no-cache` 指令（如果请求首部有这个首部及指令，表明客户端希望重新加载这个请求，应该
-就是类似不管缓存可不可用都重新加载资源），并且下面任一情况为 `true` 时，这个属性返回 `true`：   
+当 `cache-control` 请求首部不包含一个 `no-cache` 指令，并且下面的情况为 `true` 时，这个属性返回 `true`：   
 
-+ 如果指定了 `if-modified-since` 请求首部，并且 `last-modified` 请求首部等于或早于 `modified` 响应首部。这里说的不清楚，应该是资源的最后
-修改日期 `last-modified` 早于IMS指定的 `modified` 的日期。说明资源还没有过期可用。
++ 如果指定了 `if-modified-since` 请求首部，并且 `last-modified` 请求首部等于或早于 `modified` 响应首部。这里说的不清楚，应该是响应中的
+`Last-Modified` 的日期等于或者早于 `If-Modified-Since` 中指明的上次修改日期的话，这时表明缓存的还可用。    
 + 如果 `if-none-match` 请求首部为 `*`，任意都能匹配了，说明资源还没有过期。
 + 如果解析 `if-none-match` 首部后不匹配 `etag` 响应首部。（感觉这里文档有问题，都不匹配肯定是过期了，怎么可能返回
-true,应该是可以找到一个匹配才能返回 true。）
+true,应该是可以找到一个匹配才能返回 true。而且看使用的库代码也是这个意思，只有所有 etag 都不匹配的时候才返回 `false`，只要
+有一个匹配就返回 `true`）    
 
 
 ##### req.hostname
@@ -87,7 +160,7 @@ req.originalUrl
 // => "/search?q=something"
 ```    
 
-在中间件函数中，`req.originalUrl` 是 `req.baseUrl` 和 `req.path` 的组合。（不对呀，看上面的例子还有查询参数的部分呀。   
+在中间件函数中，`req.originalUrl` 是 `req.baseUrl` 和 `req.path` 的组合。     
 
 ```javascript
 app.use('/admin', function(req, res, next) {  // GET 'http://www.example.com/admin/new'
@@ -97,6 +170,29 @@ app.use('/admin', function(req, res, next) {  // GET 'http://www.example.com/adm
   next();
 });
 ```    
+
+#### 几个路径值的比较
+
+`app.mountpath`, `app.path()` 都是返回 app 的挂载路径， 而且是匹配的 patterns。    
+
+不同点是 `app.path()` 返回的是从顶层挂载点一直到目前应用的所有挂载路径的叠加值。也就说，如果只是单层的挂载的话，`app.mountpath` 与 `app.path()` 值应该是相同的。    
+
+注意如果挂载点是数组的话，应该会字符串化，所以这两个值始终是字符串。而且默认的挂载点是 `/`，也就说如果我们使用
+`app.use()` 挂载时没有提供挂载路径，那么匹配的是 `/`，但是需要注意的是和没有挂载的区别，如果当前的 app 没有使用其他的 `app.use()` 挂载，那么返回的是空串     
+注意在挂载的时候应该是会重写请求的 url。     
+
+还有一点需要注意的是，所谓的挂载其实是针对中间件来说的，仔细想一想使用 `app.use()` 挂载的时候，我们都是将传入的 app 或者 router
+当做是中间件处理的。但是上面的 `app.mountpath` 和 `app.path()` 确实是针对挂载的子 app 说的。          
+
+`req.baseUrl` 就不单是只有 `app` 对象能用了，这个属性更像是中间件的挂载路径，返回的匹配的挂载路径的路径值，如果没有挂载就返回空串，需要说明的是
+这里的没有挂载，即指使用路由方法绑定的中间件，又指使用 `app.use()` 绑定的中间件但是却没有指定挂载路径的情况。而且这个值也是多层挂载的叠加值，
+而且是匹配挂载路径的请求的路径实际值。    
+
+`req.originalUrl` 则就是原始的请求地址。但是应该和 `req.url` 值类似，只是请求起始行中的那一部分，应该就只有路径部分。    
+
+`req.path` 和 `req.baseUrl` 合起来就是 `req.originalUrl`，注意 `req.path` 和 `req.url` 是相等的。所以推测 `app.mountpath` 和 `app.path()` 都是应用
+内自己记录的绑定的挂载路径，而`req.originalUrl`，`req.baseUrl` 和 `req.path` 应该都是从 `req.url` 一步步拆解而来的，因此它们
+返回的都是实际请求的路径。每挂载一次，可能就会修改一次 `req.url`，重写 url 地址。          
 
 ##### req.params   
 
@@ -108,13 +204,15 @@ req.params.name
 // => "tj"
 ```    
 
-如果定义路由时使用的是正则，会提供一些捕获的数组，使用 `req.param[n]` 访问这些数组，`n`就是第n个捕获数组。这个规则只在使用类似 `/file/*` 等未命名的通配符时有用：  
+如果定义路由时使用的是正则，会提供一些捕获的数组，使用 `req.param[n]` 访问这些数组，`n`就是第n个捕获数组。这个规则在使用字符串形式类似 `/file/*` 等未命名的通配符时也会使用：  
 
 ```javascript
 // GET /file/javascripts/jquery.js
 req.params[0]
 // => "javascripts/jquery.js"
 ```    
+
+注意这个 `*` 通配符的意思现在还不是很明确。    
 
 ##### req.path  
 
@@ -155,7 +253,8 @@ req.query.shoe.type
 
 ##### req.route
 
-当前匹配的路由字符串：   
+返回一个对象，包含了当前匹配的路由，注意这个属性只能在路由的处理器中使用，
+普通的中间件会返回 `undefined`。      
 
 ```javascript
 app.get('/user/:id?', function userIdHandler(req, res) {
@@ -203,9 +302,15 @@ req.subdomains
 
 ### 方法
 
+注意很多方法都是内容协商相关的，这里完整的介绍一些，其实协商的内容无非这几项：MIME类型，字符编码方式，语言语种，编码方式（特指压缩编码）。   
+
+MIME 类型的话在请求首部中是 `Accept` 来指定接受的类型，在响应中是 `Content-Type` 来声明主体的类型。字符编码的话在请求首部
+是 `Accept-Charset`，在响应中还是 `Content-Type` 指定的，这个首部是可以同时指定 MIME 类型及字符编码的。语言语种的话在请求首部
+是 `Accept-Language`，在响应首部是 `Content-Language`，编码方式的话在请求首部是 `Accept-Encoding`，响应是 `Content-Encoding`。   
+
 ##### req.accepts(types)
 
-基于请求的 `Accept` 首部来选择一个最优的资源格式。   
+基于请求的 `Accept` 首部来选择一个最优的资源格式。如果指定的格式没有一种是可接受的，那么返回 `false`。       
 
 `type` 参数可以是一个MIME字符串（例如"application/json"），一个扩展名如"json"，一个逗号分隔的列表，或者是一个数组。对于列表或数组，会返回最佳匹配。   
 
@@ -227,15 +332,15 @@ req.accepts('application/json');
 // Accept: text/*, application/json
 req.accepts('image/png');
 req.accepts('png');
-// => undefined
+// => undefined 这里有异议啊，上面说的是返回 false 的呀
 
 // Accept: text/*;q=.5, application/json
 req.accepts(['html', 'json']);
 // => "json"
 ```    
 
-感觉就是拿参数和首部值进行正则匹配啊。   
-
+注意匹配后返回的都是提供的参数中的内容，而不是首部值，所以如果提供的扩展名匹配了
+就返回扩展名。    
 
 ##### req.acceptsCharset(charset [, ...])  
 
@@ -289,11 +394,12 @@ req.is('html');
 
 ##### req.range(size [, options])
 
-`Range` 首部解析。   
+`Range` 首部解析器。不是很懂这个的意思，看样子是会解析 `Range` 首部，然后将解析
+的返回放在一个数组中。        
 
-`size` 是资源最大的尺寸。这里应该是将请求主体分为多个部分，每个部分最大的尺寸。      
+`size` 是资源最大的尺寸。          
 
-`options` 选项当前只有 `combine` 属性，是布尔值。	Specify if overlapping & adjacent ranges should be combined, defaults to false. When true, ranges will be combined and returned as if they were specified that way in the header.   
+`options` 选项当前只有 `combine` 属性，是布尔值。指定是否相邻及覆盖的范围应该合并，默认是 `false`，如果是 `true` 的话，就会合并起来。       
 
 会返回一个范围数组，或者当解析出错时返回一个负值：  
 
@@ -312,6 +418,19 @@ if (range.type === 'bytes') {
   })
 }
 ```   
+
+具体使用的库是这个样子：    
+
+```js
+parseRange(100, 'bytes=50-55,0-10,5-10,56-60', { combine: true })
+// => [
+//      { start: 0,  end: 10 },
+//      { start: 50, end: 60 }
+//    ]
+```    
+
+也就说将解析的范围放在一个数组中，每个元素是一个对象，对象的 `start` 表明范围的起始位置，`end` 表示结束位置。`size` 参数应该是我们自己设置的请求的资源的最大长度，这样的
+话如果请求的范围超出，那么这个函数就可以返回负数来表示有问题。    
 
 ## Response
 
@@ -342,7 +461,8 @@ app.use(function(req, res, next){
 
 添加响应首部，`value` 可以是字符串或数组。多次设置一个首部的值会添加多个相同名字的首部，即使值相等也是。       
 
-注意在 `res.append()` 之后调用 `res.set()` 会重置之前设置的响应首部值。   
+注意在 `res.append()` 之后调用 `res.set()` 会重置之前设置的响应首部值。而且恰好是重复出现次的首部的话，会设置
+第一个首部的值，然后删除多余的首部。        
 
 ```javascript
 res.append('Link', ['<http://localhost/>', '<http://localhost:3000/>']);
@@ -352,7 +472,7 @@ res.append('Warning', '199 Miscellaneous warning');
 
 ##### res.attachment([filename])   
 
-设置HTTP 响应首部 `Content-Disposition` 为 "attachment"，如果给定了 `filename`，会基于扩展名通过 `res.type()` 设置 `Content-Type`，并且设置 `Content-Disposition` "filename=" 参数。  
+设置HTTP 响应首部 `Content-Disposition` 为 "attachment"，如果给定了 `filename`，会基于扩展名通过 `res.type()` 设置 `Content-Type`，并且设置 `Content-Disposition` "filename=" 参数。    
 
 ```javascript
 res.attachment();
@@ -379,11 +499,20 @@ res.attachment('path/to/logo.png');
 | signed | Boolean | |
 | sameSite | Boolean or String | |
 
+我们可以传入一个对象作为 cookie 值，这个情况下，对象会序列化为 JSON，并且之后会被 `bodyParser()` 中间件解析（话说我们这里是设置 cookie，关解析什么时，应该是在请求的时候解析吧）：    
+
+```js
+res.cookie('cart', { items: [1,2,3] });
+res.cookie('cart', { items: [1,2,3] }, { maxAge: 900000 });
+```     
+
 ##### res.clearCookie(name [, options])
 
 为什么会有第二个参数，具体时怎么清除的。   
 
 ##### res.download(path [, filename] [, fn])  
+
+将 `path` 位置的文件作为 `attachment` 传输。默认情况下，`Content-Disposition` 首部的 `filename` 参数是 `path`（应该是 `path` 的文件名部分吧）。使用 `filename` 参数会覆盖这种默认行为。   
 
 应该是内部使用 `res.sendFile()` 传输文件，当出错或者传输完成时调用回调。  
 
@@ -404,11 +533,13 @@ res.download('/report-12345.pdf', 'report.pdf', function(err){
 
 ##### res.end([data] [,encoding])  
 
-结束响应进程。   
+结束响应进程。这个方法的话实际上应该是原生 `Response` 对象上的 `end()` 方法，不过为什么不能有回调。。。       
 
 ##### res.format(object)  
 
-根据 `Accept` 请求首部执行内容协商。其会使用 `req.accepts()` 挑选一个处理函数。如果没有指定这个首部，就调用第一个回调，如果都不匹配，就响应 406, 或者调用 `default` 回调。  
+根据 `Accept` 请求首部执行内容协商。其会使用 `req.accepts()` 挑选一个处理函数。如果没有指定这个首部，就调用第一个回调，如果都不匹配，就响应 406, 或者调用 `default` 回调。    
+
+下面的例如会对 `Accept` 首部值为 `application/json` 或者 `*/json` 的请求响应 `{"message": "hey"}`。但是如果是 `*/*`，响应就是 `"hey"`。   
 
 ```javascript
 res.format({
@@ -431,15 +562,46 @@ res.format({
 });
 ```   
 
+除了规范的 MIME 类型，我们也可以使用扩展名：   
+
+```js
+res.format({
+  text: function(){
+    res.send('hey');
+  },
+
+  html: function(){
+    res.send('<p>hey</p>');
+  },
+
+  json: function(){
+    res.send({ message: 'hey' });
+  }
+});
+```    
+
 ##### res.get(field)
 
-不明白这个有什么意义。  
+获取响应首部，注意匹配是大小写不敏感的。
 
 ##### res.json([body])  
 
-使用 `JSON.stringify()` 将参数转换为 JSON 字符串。   
+使用 `JSON.stringify()` 将参数转换为 JSON 字符串发送 JSON 响应。      
 
 ##### res.jsonp([body])   
+
+发送 JSONP 响应，其实类似 `res.json`，无非就是最后拿 JSONP 回调把字符串包裹以下。     
+
+```js
+res.jsonp(null);
+// => callback(null)
+
+res.jsonp({ user: 'tobi' });
+// => callback({ "user": "tobi" })
+
+res.status(500).jsonp({ error: 'message' });
+// => callback({ "error": "message" })
+```    
 
 ##### res.links(links)  
 
@@ -480,12 +642,27 @@ res.redirect(301, 'http://example.com');
 res.redirect('../login');
 ```   
 
+重定向到 `path` 指定的 URL 地址。可以是一个完整的 URL 地址直接定向到一个其他的站点，或者是一个相对地址，不过相对地址是相对于主机的根目录的。  
+
+不过相对地址倒是也可以是相对与当前 URL，不过这时的相对地址应该不是一个 `/` 开头的绝对地址。    
+
+同样 `back` 关键字会重定向到请求的 `referer` 首部的地址处，或者当这个首部不存在，就默认是 `/`，相当于重定向到站定根目录。    
+
 ##### res.render(view [locals] [,callback])  
 
 + locals: 为视图定义的局部变量对象
-+ callback: 如果提供了的话，render方法可能会返回错误或者渲染的字符串，但不会自动响应。当出错的时候，方法内部会调用 `next(err)`。  
++ callback: 如果提供了的话，render方法可能会返回错误或者渲染的字符串，但不会自动响应。当出错的时候，方法内部会调用 `next(err)`。   
 
-`view` 是渲染的文件的位置，可以是绝对路径，或者是相对于 `views` 设置的相对路径，如果不包含文件扩展名， `view engine` 或决定文件扩展。
+也就是说如果提供了 `callback` 参数，需要我们自己负责把渲染字符串发送给客户端。    
+
+`view` 是渲染的文件的位置，可以是绝对路径，或者是相对于 `views` 设置的相对路径，如果不包含文件扩展名， `view engine` 或决定文件扩展。这时的话
+Express 会使用 `require()` 加载指定的模板引擎模块，然后使用这个模块的
+`__express` 函数渲染这个文件。    
+
+`app.render(), res.render()` 中的第二个参数中，如果局部变量 `cache`
+设为 `true` 的话，会在开发环境缓存视图。在生产环境下是默认开启的。注意这种缓存指的是对渲染文件的缓存，而不是说渲染后字符串的缓存。   
+
+话说那模块里面使用的局部变量就包括 `app.locals`, `res.locals` 以及 `render()` 函数的局部变量，那么哪个优先级高呢？    
 
 ##### res.send([body])  
 
@@ -497,7 +674,15 @@ res.send({ some: 'json' });
 res.send('<p>some html</p>');
 res.status(404).send('Sorry, we cannot find that!');
 res.status(500).send({ error: 'something blew up' });
-```   
+```    
+
+这个方法会对非流式响应执行多个任务：例如，会自动设置 `Content-Length` 首部值，并自动提供 `HEAD` 和 HTTP 缓存新鲜度支持。   
+
+当参数是 `Buffer` 对象时，这个方法会将 `Content-Type` 设为 `application/octet-stream`。    
+
+参数是字符串时，`Content-Type` 为 `text/html`。参数是对象或数组的话，
+会用一个 JSON 格式响应。    
+
 
 ##### res.sendFile(path [options] [, fn])
 
@@ -528,6 +713,8 @@ res.sendStatus(500); // equivalent to res.status(500).send('Internal Server Erro
 
 设置响应首部，可以传入一个对象一次性设置多个。这个是采用覆盖式的设置。   
 
+别名函数 `res.header(field [,value])`。    
+
 ##### res.status(code)  
 
 ```javascript
@@ -540,10 +727,38 @@ res.status(404).sendFile('/absolute/path/to/404.png');
 
 设置 `Content-Type` 首部。  
 
+```js
+res.type('.html');              // => 'text/html'
+res.type('html');               // => 'text/html'
+res.type('json');               // => 'application/json'
+res.type('application/json');   // => 'application/json'
+res.type('png');                // => image/png:
+```    
+
 ##### res.vary(field)
 
 ## Router
 
-router 对象是一个独立的中间件与路由实例。   
+router 对象是一个独立的中间件与路由实例。可以把它看做是一个 mini 应用，仅能执行中间件及路由功能。     
 
-看这个意思，路由实例是已经指定了路由路径的对象，只能后续添加对方法的路由
+### 方法
+
+#### router.all(path, [callback, ...] callabck)
+
+略。    
+
+#### router.METHOD(path, [callback, ...] callback)
+
+略。   
+
+#### router.param(name, callback)
+
+为路由参数添加回调触发器，应该是与 `app.param()` 类似的。不过不同于 `app.param()` 这个不支持数组参数。    
+
+参数回调函数对定义其的路由器来说是局部的。他们不会从挂载的 app 或者 router 上继承。因此，定义在 `router` 上的参数回调值在定义在 `router` 路由上的路由参数才会触发。    
+
+#### router.route(path)
+
+略。    
+
+#### router.use([path], [function, ...] function)
