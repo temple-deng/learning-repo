@@ -37,7 +37,7 @@ Notifications API 可以让 web 页面去向终端用户展示一些系统通知
 在支持这个 API 的平台上，如果我们想要给用户展示系统消息需要做两件事情。第一件就是用户
 需要授权给当前源展示系统通知的权限，通常会在应用或站点初始化时完成，使用 `Notification.requestPermission()` 方法。这个方法会派生出一个请求框，如下图所示：    
 
-![request-dialog](notification-bubble.png)     
+![request-dialog](https://github.com/temple-deng/learning-repo/blob/master/pics/notification-bubble.png)     
 
 接下来我们就可以使用 `Notification()` 构造函数新建一条通知的实例。这个函数必须传递一标题参数，可选参数包括一个选项对象。    
 
