@@ -1,5 +1,29 @@
 # 第二章 主机规划与磁盘分区
 
+<!-- TOC -->
+
+- [第二章 主机规划与磁盘分区](#第二章-主机规划与磁盘分区)
+  - [Linux 与硬件](#linux-与硬件)
+    - [各硬件设备在 Linux 中的文件名](#各硬件设备在-linux-中的文件名)
+  - [磁盘分区](#磁盘分区)
+    - [开机流程中的 BIOS 与 UEFI 开机检测程序](#开机流程中的-bios-与-uefi-开机检测程序)
+- [第三章 安装 CentOS7](#第三章-安装-centos7)
+- [第四章 首次登录与线上求助](#第四章-首次登录与线上求助)
+  - [命令](#命令)
+    - [基础的几个命令](#基础的几个命令)
+      - [date](#date)
+      - [cal](#cal)
+      - [bc](#bc)
+  - [man page 和 info page](#man-page-和-info-page)
+    - [搜寻特定指令/文件的 man page 说明文档](#搜寻特定指令文件的-man-page-说明文档)
+  - [关机](#关机)
+    - [Sync](#sync)
+    - [shutdown](#shutdown)
+    - [reboot, halt, poweroff](#reboot-halt-poweroff)
+    - [systemctl](#systemctl)
+
+<!-- /TOC -->
+
 ## Linux 与硬件
 
 ### 各硬件设备在 Linux 中的文件名
@@ -41,7 +65,7 @@
 
 与 MBR 仅使用第一个 512 Bytes 区块来记录不同，GPT 使用了 34个 LBA区块来记录分区信息。同时除了前面的34个 LBA 之外，整个磁盘的最后33个LBA 也拿来作为另一个备份。    
 
-![GUID partition table](https://github.com/temple-deng/learning-repo/pics/GUID-partition-table.png)     
+![GUID partition table](https://github.com/temple-deng/learning-repo/blob/master/pics/GUID-partition-table.png)     
 
 + LBA0(MBR 相容区块)：与 MBR 模式相似，这个相容区块也分为两个部分，一个就是跟之前 446Bytes 相似的区块，储存了第一阶段的开机管理程序！而在原本的分区表的记录区内，这个相容模式仅放入一个特殊标志的分区，用来表示此磁盘为 GPT 格式之意。而不懂 GPT 分区表的磁盘管理程序，就不会认识这颗磁盘。  
 + LBA1（GPT 表头记录）：这个部分记录了分区表本身的位置和大小，同时记录了备份用的GPT分区放置的位置，同时放置了分区表的检验机制码。操作系统可以根据这个校验码来判断 GPT 是否正确，若有错误，可以通过这个记录区取得备份的GPT来恢复。
@@ -65,7 +89,7 @@ Boot loade 是操作系统安装在 MBR 上面的一套软件。其主要任务�
 
 根据上面的第3点，开机管理程序除了可以安装在 MBR 之外，开可以安装在每个分区的开机扇区(boot sector)中。如下图中的例子，第一、二分区分别安装了 Windows 及 Linux：    
 
-![boot loader](https://github.com/temple-deng/learning-repo/pics/boot-loader.png)    
+![boot loader](https://github.com/temple-deng/learning-repo/blob/master/pics/boot-loader.png)    
 
 在上图中，MBR 的开机管理程序提供两个菜单，菜单一可以直接载入 Windows 的核心文件来开机，菜单二则是将开机管理工作交给第二个分区的开机扇区。当使用者在开机的时候选择菜单二时，那么整个开机管理工作就会交给第二分区的开机管理程序。这就是多重开机的情况。   
 
