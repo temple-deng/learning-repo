@@ -1,15 +1,20 @@
-# CSS Flexible Box Layout Module Level 1  (2016-5-26 CR)
+# CSS Flexible Box Layout Module Level 1  (2017-10-19 CR)
 
 ## 1. Introcduction  
 
 CSS 2.1 定义了4种布局模式——根据与其兄弟及组合盒子的关系来确定盒子位置和尺寸的算法：   
 
-+ 块级布局，为文档布局设计的
-+ 内联布局，为文本布局设计的
-+ 表格布局，为表格格式的 2D 数据布局设计
++ 块级布局，主要是设计用来完成文档的布局
++ 内联布局，主要是设计用来规定文本内容的布局
++ 表格布局，为表格式的二维数据设计的
 + 绝对定位的布局，为明确定义位置，不关心文档中其他元素的位置的布局设计的   
 
-这个模块介绍了一种新的布局模式，flex layout，为更复杂的的布局设计的。    
+这个CSS模块介绍了一种新的布局模式，flex layout，为更复杂的的布局设计的。    
+
+
+### 1.1 Overview
+
+flex 布局与 block 布局很相似,但是少了一些以文本或者文档为中心的复杂的属性,例如浮动和多列布局
 
 ### 1.2 Module interactions   
 
@@ -63,7 +68,7 @@ Flex lines are filled with items and placed into the container starting on the c
 flex 容器不同于块容器，所以一些针对块布局设计的属性可能不会在 flex 布局中适用。特别是：   
 
 + flex 容器的 'column-\*' 属性不会生效
-+ flex item 的 'float' and 'clear' 会创建浮动挥着清除浮动，也不会在流外（这里和上面的流都是指
++ flex item 的 'float' and 'clear' 会创建浮动挥着清除浮动，也不会使其处于流外 out-of-flow（这里和上面的流都是指
 之前文档中定义的流）    
 + flex item 的 'vertical-align' 没有效果
 + 容器的 '::first-line' and '::first-letter' 不能应用，并且 flex 容器应该也不能作为
@@ -79,7 +84,7 @@ flex 容器不同于块容器，所以一些针对块布局设计的属性可能
 
 ### 4.1 Absolutely-Positioned Flex Children
 
-由于绝对定位的子节点是在流外的，所有这样的子节点是不参与 flex 布局的。      
+由于绝对定位的子节点是在流外的，所以这样的子节点是不参与 flex 布局的。      
 
 flex 容器的绝对定位子元素的静态位置是这样得出的：首先假设这个定位的子节点是容器中唯一的 flex
 item，之后假设子节点和 flex 容器都是其使用的固定大小的盒子尺寸。出于这种目的，`align-self: auto`
@@ -119,11 +124,10 @@ flex item 在层叠顺序上与行内块元素一致，除了 `order` 会修改�
 在一个 flex item 上声明 `visibility:collapse` 会让这个 item 成为一个 **collapsed flex item**，
 具体的效果就是：折叠的 item 会从渲染中整个移除，但会留下一个 "strut" 来保持 flex line 的
 侧轴尺寸稳定。因此，如果一个 flex 容器只有一个 flex line，动态折叠或者不折叠 items 会改变容器
-的主轴尺寸，但会确保在侧轴尺寸上没影响。flex line wrapping 会在折叠后重新实现，然而，容器
+的主轴尺寸，但会确保在侧轴尺寸上没影响(注意其实和 `visibility: hidden`感觉没上面区别，这个`strut` 也不像平时垂直对齐的那个零宽的 `strut`，这个`strut`是和元素同高宽的，并且占据着布局空间，所以感觉完全和`visibility:hidden`一样啊)。flex line wrapping 会在折叠后重新实现，然而，容器
 盒带有多条线的侧轴尺寸可能会变也可能不会变。    
 
-虽然折叠的 item 不会被渲染，但还是会出现在格式化结构中。（其实和 `visibility:hidden` 效果
-类似吧，虽然不渲染，但还是在原位置占据着地方）    
+虽然折叠的 item 不会被渲染，但还是会出现在格式化结构中。    
 
 ### 4.5 Implied Minimum Size of Flex Items
 

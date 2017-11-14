@@ -81,13 +81,13 @@ BIOS 实在开机的时候，计算机系统会自动执行的第一个程序了
 
 由于 LBA0 仅提供第一阶段的开机管理程序码，因此如果使用类似 grub 的开机管理程序，得额外分区出一个"BIOS boot" 的分区，这个分区才能够放置其他开机过程所需的程序码。    
 
-Boot loade 是操作系统安装在 MBR 上面的一套软件。其主要任务如下：    
+Boot loader 是操作系统安装在 MBR 上面的一套软件。其主要任务如下：    
 
 + 提供菜单：使用者可以选择不同的开机项目，这也是多重开机的重要功能
 + 载入核心文件：直接指向可开机的程序区段来开始操作系统
 + 转交其他loader：将开机管理功能转交给其他loader负责     
 
-根据上面的第3点，开机管理程序除了可以安装在 MBR 之外，开可以安装在每个分区的开机扇区(boot sector)中。如下图中的例子，第一、二分区分别安装了 Windows 及 Linux：    
+根据上面的第3点，开机管理程序除了可以安装在 MBR 之外，还可以安装在每个分区的开机扇区(boot sector)中。如下图中的例子，第一、二分区分别安装了 Windows 及 Linux：    
 
 ![boot loader](https://github.com/temple-deng/learning-repo/blob/master/pics/boot-loader.png)    
 
