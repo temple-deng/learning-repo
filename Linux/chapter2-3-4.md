@@ -61,7 +61,7 @@
 
 **GUID partition table GPT 磁盘分区表**     
 
-因为过去的一个扇区大小为 512Bytes，目前则有4K的扇区出现。为了相容于所有的磁盘，因此在扇区的定义上面，大多会使用所谓的逻辑区块位址（Logical Block Address, LBA）来处理。GPT 将磁盘所有区块以此 LBA（默认为 512 Bytes）来规划，第一个 LBA 称为 LBA0。      
+因为过去的一个扇区大小为 512Bytes，目前则有4K的扇区出现。为了相容于所有的磁盘，因此在扇区的定义上面，大多会使用所谓的逻辑区块位址（Logical Block Address, LBA）来处理。GPT 将磁盘所有区块以此 LBA（默认为 512 Bytes）来规划，第一个 LBA 称为 LBA0。所以 LBA 只是一种定义扇区大小的方式。      
 
 与 MBR 仅使用第一个 512 Bytes 区块来记录不同，GPT 使用了 34个 LBA区块来记录分区信息。同时除了前面的34个 LBA 之外，整个磁盘的最后33个LBA 也拿来作为另一个备份。    
 
