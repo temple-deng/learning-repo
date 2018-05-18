@@ -68,3 +68,8 @@
 用setTimeout模拟定期计时和直接用setInterval是有区别的。   
 
 因为每次setTimeout计时到后就会去执行，然后执行一段时间后才会继续setTimeout，中间就多了误差（误差多少与代码执行时间有关）
+
+
+## 关于滚动的讨论
+
+https://www.zcfy.cc/article/scroll-to-the-future
