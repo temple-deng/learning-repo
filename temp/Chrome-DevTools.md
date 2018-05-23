@@ -41,7 +41,7 @@
 3. **Timeline** 在这里暂停和开始一个动画的播放，或者跳到动画中的某一点。
 4. **Details** 检查和修改当前选择的动画组。
 
-![Animation pane](https://github.com/temple-deng/learning-repo/tree/master/pics/annotated-animation-inspector.png)    
+![Animation pane](https://github.com/temple-deng/learning-repo/blob/master/pics/annotated-animation-inspector.png)    
 
 要捕捉动画，只需在动画检查器打开时执行可以触发动画的交互。 如果动画在页面加载时触发，您可以重新加载页面，帮助动画检查器检测动画。    
 
@@ -59,7 +59,7 @@
 
 动画最左侧的深色部分是其定义。右侧的浅色部分表示重复。 例如，在下方的屏幕截图中，第二和第三部分表示第一部分的重复。   
 
-![animation-iterations](https://github.com/temple-deng/learning-repo/tree/master/pics/animation-iterations.png)   
+![animation-iterations](https://github.com/temple-deng/learning-repo/blob/master/pics/animation-iterations.png)   
 
 
 如果两个元素应用了同一个动画，动画检查器会给它们分配相同的颜色。   
