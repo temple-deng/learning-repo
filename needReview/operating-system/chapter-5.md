@@ -311,7 +311,7 @@ I/O 软件通常组成四个层次。
 ## 5.6 中断详解
 
 在 CPU 的运行过程中，有两种特殊机制能够使 CPU 暂时放弃当前执行的代码，跳转到相应的处理例程上
-进行处理的事件。这两种机制就是**中断**和**异常**。  
+进行处理的事件。这两种机制就是 **中断**和 **异常**。  
 
 一般来说，中断分为两种。一种是外部中断，另一种是软件中断。在收到中断时，CPU 会把当前那条指令
 执行完，然后转移到中断处理程序，返回后执行的是当前的下一条指令。     
@@ -374,16 +374,15 @@ CPU 到系统总线上读取中断芯片(如 8259A)提供的中断向量号，�
 
 #### 5.6.1.2 中断描述符
 
-在异常 / 中断发生时，CPU 需要进行相应处理。这就需要一张描述收到什么中断 / 异常时执行什么行为的表，
-称为中断描述符表(IDT, Interrupt Descriptor Table)。每项被称为 gate ，一共有 256 项。     
+每个中断或异常与一个中断服务例程(Interrupt Service Routinem, ISR)关联，其关联关系存储
+在中断描述符表(Interrupt Descriptor Table, IDT)。IDT 的起始地址和大小保存在中断描述
+符表寄存器 IDTR 中。     
 
-IDTR 寄存器存放了 IDT 的起始地址和长度：    
-
-![IDTR](https://github.com/temple-deng/learning-repo/blob/master/pics/idtr.png)    
+![idtr](https://raw.githubusercontent.com/temple-deng/markdown-images/master/operating-system/idtr.png)   
 
 查询时，从 IDTR 拿到 base address ，加上向量号 * IDT entry size，即可以定位到对应的表项(gate)。     
 
-Linux 使用与 Intel 稍有不同的分类，把中断描述符分为五类：    
+从对应的 gate 中我们可以获取到中断服务例程的 Segment Selector，然后再根据 Segment 
+Selector 就可以获取到 Segment Descriptor，那就可以得到中断服务例程的代码位置咯。   
 
-+ 
 
