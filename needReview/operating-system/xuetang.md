@@ -167,12 +167,6 @@ FLAG 寄存器好像就是我们通常说的程序状态字 PSW。
 + 调试寄存器 DR0~DR7
 + 测试寄存器 TR6, TR7
 
-## 特权级
-
-x86 CPU将特权级分为4类 0~3，0 是最高特权级，操作系统就运行在这个特权级，应用程序往往
-运行在最低的特权级 3.
-
-
 # 第三讲 启动、中断、异常和系统调用
 
 ## 3.1 BIOS
@@ -269,8 +263,7 @@ x86 CPU将特权级分为4类 0~3，0 是最高特权级，操作系统就运行
   - Base + EIP = FFFF0000H + 0000FFF0H = FFFFFFF0H
   - 这个 BIOS 的 EEPROM 所在地    
 
-貌似是因为加电后是实模式，所以很多东西都是向下兼容的。Base 是 CS 中隐藏的一个内容，这里
-其实不太懂。而且注意实模式下应该只有20位的地址空间，所以第一条指令的实际地址应该是 ffff0H
+貌似是因为加电后是实模式，所以很多东西都是向下兼容的。Base 是 CS 中隐藏的一个内容。而且注意实模式下应该只有20位的地址空间，所以第一条指令的实际地址应该是 ffff0H
 吧（这里不太确定）。     
 
 为什么16位的 CS 和 EIP 能形成 20 位的地址呢，如下图所示，其实上面也讲到了：    
@@ -280,9 +273,4 @@ x86 CPU将特权级分为4类 0~3，0 是最高特权级，操作系统就运行
 bootloader 会切换 CPU 为保护模式，并开启段机制。怎么做的呢，就是将 CR0 的第一个 bit 置0，
 这样 CPU 就进入了保护模式。       
 
-![logical-to-Linear](https://raw.githubusercontent.com/temple-deng/markdown-images/master/operating-system/logical-to-Linear.png)
-
-这里的线性地址其实感觉就是最后的虚拟地址。     
-
-上面的 Desctiptor Table 就是 GDT(Global Descriptor Table)，这个表是由 bootloader 建立的。
-GDT 的位置是由 CPU 内部的 GDTR 寄存器保存的。
+![logical-to-linear](https://raw.githubusercontent.com/temple-deng/markdown-images/master/operating-system/logical-to-linear.png)
