@@ -1,0 +1,94 @@
+# CSS 相关内容  
+
+## html与body
+
+当html标签无背景样式时，body的背景色其实不是body标签的背景色，而是浏览器的。一旦html标
+签含有背景色，则body的背景色变成了正常的body标签（一个实实在在，普普通通标签）的背景色，
+而此时的html标签最顶级，背景色被浏览器获取，成为浏览器的背景色。  
+
+html和body均支持margin值。  
+
+单独给body设置`height：100%`并不起作用，必须同时设置html的height。默认情况下100%就是
+浏览器可视区域的高度。这就意味着如果html同时还设置`margin, border, padding`中的任意部分，就会出现滚动条。  
+
+## 三栏自适应的两种方法
+
+
+1. margin负值  
+
+```css
+		html,body {
+			margin: 0;
+			height: 100%;
+		}
+
+		#main {
+			width: 100%;
+			height: 100%;
+			float: left;
+			background: #ff9;
+		}
+
+		#box {
+			margin: 0 210px;
+			background: #6f9;
+			height: 100%
+		}
+
+		#left,#right {
+			width: 200px;
+			height: 100%;
+			float: left;
+			background: #3ff;
+		}
+		#left {
+			margin-left: -100%
+		}
+		#right {
+			margin-left: -200px;
+		}
+```    
+
+```html
+	<div id="main">
+		<div id="box">
+
+		</div>
+	</div>
+	<div id="left"></div>
+	<div id="right"></div>
+```    
+
+
+2. 自身浮动     
+
+```css
+	html,body {
+			margin: 0;
+			height: 100%;
+		}
+
+		#main {
+			height: 100%;
+			margin: 0 210px;
+			background: #ff9;
+		}
+
+		#left,#right {
+			width: 200px;
+			height: 100%;
+			background: #3ff;
+		}
+		#left {
+			float: left;
+		}
+		#right {
+			float: right;
+		}
+```    
+
+```html
+	<div id="left"></div>
+	<div id="right"></div>
+	<div id="main"></div>
+```  

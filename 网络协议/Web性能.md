@@ -1,8 +1,6 @@
 ﻿# Web性能
 
-
-
-##  1.延迟与带宽
+##  延迟与带宽
 
 延迟： 消息(message)或分组(pakcet)从起点到终点经历的时间.  
 
@@ -14,37 +12,17 @@
 
 排队延迟： 到来的分组排队等待处理的时间。  
 
+## TCP
 
-##  2.TCP
-
-### 三次握手
-
-1. client发送 SYN分组，包含一个序列号x=rand();
-2. server收到SYN分组， 发送一个ACK分组，包含x+1，和自己的SYN分组，包含序列号y=rand();
-3. client收到ACK分组，发送一个ACK分组，包含y+1， 这时可以发送数据了。  
 
 ### 流量控制
-
-流量控制是一种预防发送端过多向接收端发送数据的机制。TCP连接的每一方都要通告自己的接受窗口(rwnd).  
 
 窗口缩放(TCP Window Scaling)，可以把接受窗口大小由65535字节提高到1G字节！缩放TCP窗口是在三次握手期间完成的。其中有一个值表示在将来的ACK中左移16位窗口字段的位数。  
 
 
 ### 慢启动
 
-服务器通过TCP连接初始化一个新的拥塞窗口(cwnd)变量。4~10个 TCP 段。
-
 慢启动重启：这种机制会在连接空闲一定时间后重置连接的拥塞窗口。 建议在服务器禁用。  
-
-### 拥塞预防
-
-慢启动以保守的窗口初始化连接，随后的每次往返都会成倍提高传输的数据量，直到超过接收端的流量控制接口，即系统的拥塞阀值，或者有分组丢失为止，此时拥塞预防算法介入。调整窗口大小。
-
-PPR 比例降速。
-
-### 队首阻塞
-
-每个TCP都会带着唯一一个序列号发出，而所有分组必须按顺序传送到接收端。如果有一个没能到达，后续分组都不许保存在接收端的TCP缓冲区，等待丢失的分组重发并到达接收端。应用程序对TCP重发和缓冲区中排队的分组一无所知，必须等待分组全部到达才能访问数据。在此之前，应用程序只能通过套接字读数据时感觉到延迟交付，这种效应称为队首阻塞（HOL）。
 
 
 ### 针对TCP的优化建议
@@ -60,22 +38,16 @@ PPR 比例降速。
 	+ 重用TCP连接
 
 
-##  3.UDP
+##  UDP
 
-### UDP
+### UDP 的服务模型
 
 1. 不保证消息交付： 不确认，不重传，无超时
 2. 不保证交付顺序： 不设置包序号，不重排，不会发生队首阻塞
 3. 不跟踪连接状态： 不必建立连接或重启状态机
 4. 不需要拥塞控制： 不内置客户端或网络反馈机制
 
-### NAT穿透
-- STUN(Session traversal utilities for NAT)：假设STUN服务器IP地址已知，应用程序先向STUN服务器发送一个绑定请求，然后，服务器返回响应，其中包含在外网中代表客户端的IP地址和端口号。  
-
-
-## 4.TLS
-
-参见2016-04-01的内容  
+## TLS
 
 ALPN(Application Layer Protocol Negotation)应用层协议协商
 - 客户端在ClientHello消息中追加一个新的ProtocolNameList字段，包含自己支持的应用协议。
@@ -106,81 +78,7 @@ ALPN(Application Layer Protocol Negotation)应用层协议协商
 3. 从信任链中去掉不必要的证书，减少链条层次。
 4. 禁用服务器TLS压缩(安全问题和计算的问题)
 
-
-## 5. HTTP2.0
-
-### 新概念
-
-1. 流： 已建立的连接上的双向字节流  
-2. 消息： 与逻辑消息对应的完整的一系列数据帧。  
-3. 帧： HTTP2.0通信的最小单位，每个帧包含帧首部，至少也会标识出当前帧所属流。  
-4. 每个流都可以带有一个31比特的优先值： 0表示最高优先值， Math.pow(2,31)-1表示最低优先值。  
-5. 服务器的推送资源要遵守同源策略。  
-6. 首部压缩  
-   - HTTP2.0在客户端和服务器端使用“首部表”来跟踪和存储之前发送的键值对，对于相同的数据，不再通过每次请求和响应发送。  
-   - 首部表在HTTP2.0的连接存续期内始终存在，由客户端和服务器共同渐进地更新  
-   - 每个新的首部键-值对要么被追加到当前表的末尾，要么替换表中之前的值。
-
-
-<table><tr><td>:method</td><td>GET</td></tr><tr><td>:scheme</td><td>https</td></tr><tr><td>:host</td><td>example.com</td></tr><tr><td>:path</td><td>/resourse</td></tr><tr><td>:accept</td><td>image/jpeg</td></tr><tr><td>user-agent</td><td>Mozila/5.0..</td></tr></table>  
-
-### 二进制分帧
-
-<table style="text-align: right;">
-	<tr>
-		<td>Bit</td>
-		<td>+0..7</td>
-		<td>+8..15</td>
-		<td>+16..23</td>
-		<td>+24..31</td>
-	</tr>
-	<tr>
-		<td>0</td>
-		<td colspan="2">长度</td>
-		<td>类型</td>
-		<td>标志</td>
-	</tr>
-	<tr>
-		<td>32</td>
-		<td>R</td>
-		<td colspan="3">流标识符</td>
-	</tr>
-	<tr>
-		<td>...</td>
-		<td colspan="4">帧净荷</td>
-	</tr>
-</table>  
-
-
-所有帧共享一个8字节的首部。  
-- 16位的长度前缀意味着一帧大约可以携带64KB的数据，不包括8字节首部  
-- 8位的类型字段决定如何解释帧其余部分的内容  
-- 8位的标志字段允许不同的帧类型定义特定于帧的消息标志 v
-- 1位的保留字段始终设置为0  
-- 31位的流标识符唯一标识HTTP2.0的流  
-
-### 帧的类型
-1. DATA: 用于传输HTTP消息体  
-2. HEADERS: 用于传输关于流的额外的首部字段
-3. PRIORITY: 用于指定或重新指定引用资源的优先级
-4. RST_STREAM: 用于通知流的非正常终止
-5. SETTINGS: 用于通知两端通信方式的配置数据
-6. PUSH_PROMISE: 用于发出创建流和服务器引用资源的要约
-7. PING: 用于计算往返时间，执行活性检查
-8. GOAWAY: 用于通知对端停止在当前连接中创建流
-9. WINDOW_UPDATE: 用于针对个别流或个别连接实现流量控制
-10. CONTINUATION: 用于继续一系列首部块片段  
-
-
-### 发起新流的两种可能  
-
-1. 客户端通过发送HEADERS帧来发起新流，这个帧里包含带有新流ID的公用首部、可选的31位优先值，以及一组HTTP键-值对首部。
-2. 服务器通过发送PUSH_PROMISE帧来发起推送流，这个帧与HEADERS帧等效，但它包含"要约流ID"，没有优先值。
-客户端发起的流具有奇数ID，服务器发起的流具有偶数ID。
-
-
-
-## 6. 优化应用的交付
+## 优化应用的交付
 
 性能优化的两条核心：消除和减少不必要的网络延迟，将需要传输的数据压缩至最少。  
 
@@ -206,7 +104,7 @@ ALPN(Application Layer Protocol Negotation)应用层协议协商
 3. 打包资源减少HTTP请求
 4. 嵌入小资源
 
-## 8. XHR
+## XHR
 
 针对 CORS 请求的选择同意认证机制由底层处理：请求发出后，浏览器自动追加受保护的 Origin HTTP 首部，包含着发出请求的来源。相应地，远程服务器可以检查 Origin 首部，决定是否接受该请求
 ，如果接受就返回 Access-Control-Allow-Origin 响应首部。  
@@ -217,7 +115,7 @@ ALPN(Application Layer Protocol Negotation)应用层协议协商
 利用长时间保留的 HTTP 请求（“挂起的 GET”）来让服务器向浏览器推送数据的技术，经常被称作 Comet。通过将连接一直保持打开到有更新（长轮询），就可以把更新立即从服务器发送给客户端。    
 
 
-## 7. 服务器发送事件
+## 服务器发送事件
 
 EventSource API
 
@@ -292,55 +190,3 @@ EventStream protocol
 
 服务器可以给每条消息关联任意 ID 字符串。浏览器会自动记录最后一次收到的消息ID，并在发送重连请求时自动在 HTTP 首部追加 "Last-Event-ID" 值。  
 
-
-##   8. WebSocket
-
-WebSocket API  
-
-```javascript
-	var ws = new WebSocket("wss://example.com/socket");         (1)
-
-	ws.onerror = function(error){...}                           (2)
-
-	ws.onclose = function(){...}                                (3)
-
-	ws.onopen = function(){                                     (4)
-		ws.send("Connection established. Hello Server");        (5)
-	}
-
-	ws.onmessage = function(msg){                               (6)
-		if(msg.data instanceof Blob){                           (7)
-			processBlob(msg.data);
-		} else {
-			processText(msg.text);
-		}
-	}
-```  
-
-1. 打开新的安全WebSocket连接(wss)
-2. 可选的回调，在连接出错调用
-3. 可选回调，连接终止调用
-4. 可选回调，在连接时调用
-5. 客户端先向服务器发送一条消息
-6. 回调函数，服务器每发回一条消息就调用一次
-7. 根据消息类型处理
-
-WebSocket 协议不做格式假设，对应用的净荷叶没有限制：文本或者二进制数据都没问题。从内部看，协议只关注消息的两个信息：净荷长度和类型（前者是一个可变长度字段），据以区别UTF-8数据和二进制数据。  
-
-浏览器接收到新消息后，如果是文本数据，会自动将其转换成 DOMString 对象，如果是二进制数据或 Blob 对象，会直接将其交给应用。  
-
-WebSocket API 可以接收 UTF-8 编码的DOMString对象，也可以接收 ArrayBuffer、ArrayBufferView 或 Blob 等二进制数据。
-
-子协议协商：
-
-```javascript
-var ws = new WebSocket("wss://example.com/socket", ['appProtocol', 'appProtocol-v2']);
-
-ws.onopen = function() {
-	if(ws.protocol == 'appProtocol-v2') {
-		...
-	} else {
-		...
-	}
-}
-```

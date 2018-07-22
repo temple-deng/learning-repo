@@ -73,3 +73,7 @@
 ## 关于滚动的讨论
 
 https://www.zcfy.cc/article/scroll-to-the-future
+
+## 浏览器渲染
+
+1. [浏览器渲染流水线](#https://www.zybuluo.com/rogeryi/note/834994)
