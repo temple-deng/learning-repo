@@ -1,0 +1,22 @@
+<svg width="300" height="300" 
+  xmlns="http://www.w3.org/2000/svg">
+  <text x="20" y="20" style="font-size: 16px;">
+    Switch among
+    <tspan style="font-style: italic">italic</tspan>,
+    normal, and
+    <tspan font-weight="bold">bold</tspan> text.
+  </text>
+
+  <text x="30" y="70" style="font-size: 16px;">
+      F <tspan dy="4">a</tspan>l<tspan dy="4">l</tspan>
+  </text>
+    <text x="30" y="100" style="font-size: 16px;">
+      W<tspan dx="4">i</tspan>d<tspan dx="8">er</tspan>
+  </text>
+
+  <text x="30" y="150">
+    They dined on mince, and slices of quince,
+    <tspan x="20" y="170">Which they ate with a runcible spoon;</tspan>
+    <tspan x="10" y="190">And hand in hand, on the edge of the sand</tspan>
+  </text>
+</svg>
