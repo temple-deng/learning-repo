@@ -1,9 +1,9 @@
-# 第10章 实例研究1：UNIX、Linux 和 Android
+# 第 10 章 实例研究1：UNIX、Linux 和 Android
 
 
 <!-- TOC -->
 
-- [第10章 实例研究1：UNIX、Linux 和 Android](#第10章-实例研究1unixlinux-和-android)
+- [第 10 章 实例研究1：UNIX、Linux 和 Android](#第-10-章-实例研究1unixlinux-和-android)
   - [10.2 Linux 简介](#102-linux-简介)
     - [10.2.2 到 Linux 的接口](#1022-到-linux-的接口)
     - [10.2.3 shell](#1023-shell)
