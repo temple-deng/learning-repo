@@ -219,8 +219,39 @@ Babel 的核心功能位于 @babel/core 包。不过一般我们不会直接使�
 ## Polyfill
 
 @babel/polyfill 模块包含了 core-js 和一个 regenerator runtime 来模拟完整的 ES6+
-环境。注意那个 regenerator runtime 好像是这样的一个文件：它会在运行时检查当前运行环境，
-然后决定是否需要在当前环境中模拟一些新的功能，又或者当前环境已经支持的功能就不需要再添加了。    
+环境。其实 polyfill 也只做了这些，这个包自己其实并不提供功能，它只是把 core-js 和
+regeneratro runtime 两个包导入，下面是代码：   
+
+```js
+// Cover all standardized ES6 APIs.
+import "core-js/es6";
+
+// Standard now
+import "core-js/fn/array/includes";
+import "core-js/fn/string/pad-start";
+import "core-js/fn/string/pad-end";
+import "core-js/fn/symbol/async-iterator";
+import "core-js/fn/object/get-own-property-descriptors";
+import "core-js/fn/object/values";
+import "core-js/fn/object/entries";
+import "core-js/fn/promise/finally";
+
+// Ensure that we polyfill ES6 compat for anything web-related, if it exists.
+import "core-js/web";
+
+import "regenerator-runtime/runtime";
+
+if (global._babelPolyfill && typeof console !== "undefined" && console.warn) {
+  console.warn(
+    "@babel/polyfill is loaded more than once on this page. This is probably not desirable/intended " +
+      "and may have consequences if different versions of the polyfills are applied sequentially. " +
+      "If you do need to load the polyfill more than once, use @babel/polyfill/noConflict " +
+      "instead to bypass the warning.",
+  );
+}
+
+global._babelPolyfill = true;
+```
 
 由于 polyfill 会污染全局作用域以及一个原生对象的原型。就像上面提到的我们可能需要使用
 transform runtime plugin。    
