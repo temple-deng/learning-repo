@@ -17,6 +17,11 @@
   - [Entry, Context, Output](#entry-context-output)
   - [Module](#module)
   - [Resolve](#resolve)
+  - [optimization](#optimization)
+- [webpack-merge](#webpack-merge)
+  - [标准合并](#标准合并)
+  - [添加额外的合并策略](#添加额外的合并策略)
+  - [Smart 合并](#smart-合并)
 
 <!-- /TOC -->
 
@@ -164,7 +169,10 @@ class ConsoleLogOnBuildWebpackPlugin {
 2. runtime 代码以及一些 manifest 数据是我们应用在浏览器中运行时用来连接我们所有模块代码的东西。
 包括一些加载逻辑代码和一些定位模块位置的逻辑代码
 3. manifest 看意思其实就是一些 runtime 用来定位模块的一些数据，比如说 pubilcPath 啦，各个
-模块的标识符啦。   
+模块的标识符与位置的映射   
+4. 无论我们使用的是哪种模块系统 `import` 亦或是 `require()`，最终这些导入函数都会被转换
+成 `__webpack_require__` 方法来执行模块 id。使用 manifest 里的数据，runtime 代码就
+知道如何根据这些 id 去获取真正的打包代码。
 
 ## HMR
 
@@ -320,4 +328,239 @@ module.exports = {
 }
 ```    
 
-现在就可以这样加载模块：`import Utility from 'Utilities/utility'`
+现在就可以这样加载模块：`import Utility from 'Utilities/utility'`   
+
+可以给对象的键名后缀一个 `$` 来表示精确匹配：   
+
+```js
+module.exports = {
+  // ...
+  resolve: {
+    alias: {
+      xyz$: path.resolve(__dirname, 'path/to/file.js')
+    }
+  }
+}
+```   
+
+```js
+import Test1 from 'xyz';   // 精确匹配，导入 path/to/file.js 文件
+import Test2 from 'xyz/file.js';  // 非精确匹配，使用其他的定位方案
+```   
+
+
+alias | `import "xyz"` | `import "xyz/file.js"`
+---------|----------|---------
+ `{}` | `import "/abs/node_modules/xyz/index.js"` | `import "/abs/node_modules/xyz/file.js"`
+ `{ xyz: "/abs/path/to/file.js"}` | `import "/abs/path/to/file.js"` | error
+ `{ xyz$: "/abs/path/to/file.js" }` | `import "/abs/path/to/file.js"` | `import "/abs/node_modules/xyz/file.js"`
+ `{ xyz: "./dir/file.js" }` | `import "/abc/dir/file.js"` | error
+ `{ xyz$: "./dir/file.js" }` | `import "/abc/dir/file.js"` | `import "/abc/node_modules/xyz/file.js"`
+ `{ xyz: "/some/dir" }` | `import "/some/dir/index.js"` | `import "/some/dir/file.js"`
+ `{ xyz$: "/some/dir" }` | `import "/some/dir/index.js"` | `import "/abc/node_modules/xyz/file.js"`
+ `{ xyz: "./dir" }` | `import "/abc/dir/index.js"` | `import "/abc/dir/file.js"`
+ `{ xyz: "modu" }` | `import "/abc/node_modules/modu/index.js"` | `import "/abc/node_modules/modu/file.js"`
+ `{ xyz$: "modu" }` | `import "/abc/node_modules/modu/index.js"` | `import "/abc/node_modules/xyz/file.js"`
+ `{ xyz: "modu/some/file.js" }` | `import "/abc/node_modules/modu/some/file.js"` | error
+ `{ xyz: "modu/dir" }` | `import "/abc/node_modules/modu/dir/index.js"` | `import "/abc/node_modules/modu/dir/file.js`
+ `{ xyz: "xyz/dir" }` | `import "/abc/node_modules/xyz/dir/index.js"` | `import "/abc/node_modules/xyz/dir/file.js`
+ `{ xyz$: "xyz/dir" }` | `import "/abc/node_modules/xyz/dir/index.js"` | `import "/abc/node_modules/xyz/file.js"`
+
+2. `descriptionFiles`: array，描述用的 JSON 文件位置
+3. `enforceExtension`: bool, 如果设为 true，就不会自动补全扩展名
+4. `enforceModuleExtension`: 对模块例如 loaders 是否强制要求扩展名
+5. `entensions`: array 默认 `['.wasm', '.mjs', '.js', '.json']`
+6. `mainFields`: array 这个配置默认值跟着 target 配置走，如果是 webworker, web 或者
+省略，就是 `['browser', 'module', 'main']`，其他的就都是 `['module', 'main']`
+7. `mainFiles`： 默认 `['index']`
+8. `modules`: 可以使用绝对路径和相对路径，相对路径的搜寻方式有点类似 Node 搜索 node_modules，
+一层一层向上找。
+
+## optimization
+
+1. 从 webpack4 开始，webpack 会根据 mode 来进行优化的配置，但是我们也可以手工配置并覆盖
+2. `minimize`: 是否使用 `UglifyjsWebpackPlugin`
+3. `minimizer`: 默认 `[UglifyjsWebpackPlugin]` 主要是用来定制 Uglifyjs 的配置的。   
+
+```js
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+module.exports = {
+  //...
+  optimization: {
+    minimizer: [
+      new UglifyJsPlugin({ /* your config */ })
+    ]
+  }
+};
+```   
+
+4. `splitChunks`: 参考 `SplitChunksPlugin` 配置
+5. `runtimeChunk`: object|string|boolean，设置为 true 或者 "mulitple"，会为每个入口点
+生成仅包含 runtime 代码的 chunk。如果是 "single" 就所有生成的块共享一个 runtime 文件
+6. `namedModules`: bool，使用可读性更好的模块标识符以便调试。
+7. `namedChunks`: bool
+8. `moduleIds`: bool | string，使用哪种算法来选择模块 id。
+9. `nodeEnv`: 将 `process.env.NODE_ENV` 设置为指定的字符串。背后其实就是使用 `DefinePlugin`
+
+# webpack-merge
+
+`merge` 函数拼接数组和合并对象。如果遇到了函数，会执行这个函数，然后会使用一个函数包裹其
+返回值。    
+
+## 标准合并
+
+**`merge(...configuration | [...configuration])`**    
+
+```js
+var output = merge(obj1, obj2, obj3, ...);
+// or
+var output = merge([obj1, obj2, obj3]);
+```    
+
+**`merge({ customizeArray, customizeObject })(...configuration | [...configuration])`**    
+
+```js
+var output = merge(
+  {
+    customizeArray(a, b, key) {
+      if (key === 'extensions') {
+        return _.uniq([...a, ...b]);
+      }
+
+      // 回退至默认的合并策略
+      return undefined;
+    },
+    customizeObject(a, b, key) {
+      if (key === 'module') {
+        return _.merge({}, a, b);
+      }
+
+      return undefined;
+    }
+  }
+)(obj1, obj2, obj3, ...);
+```    
+
+例如，obj1:   
+
+```js
+{
+  foo1: ['object1'],
+  foo2: ['object1'],
+  bar1: { object1: {} },
+  bar2: { object1: {} }
+}
+```   
+
+obj2 为：   
+
+```js
+{
+  foo1: ['object2'],
+  foo2: ['object2'],
+  bar1: { object2: {} },
+  bar2: { object2: {} }
+}
+```    
+
+`customizeArray` 会为每个数组类型的属性调用，例如：    
+
+```js
+customizeArray(['object1'], ['object2'], 'foo1');
+customizeArray(['object1'], ['object2'], 'foo2');
+```    
+
+`customizeObject` 会为每个对象类型的属性调用，例如：   
+
+```js
+customizeObject({ object1: {} }, { object2: {} }, bar1);
+customizeObject({ object1: {} }, { object2: {} }, bar2);
+```    
+
+**`merge.unique(<field>, <fields>, field => field)`** 不是太能理解这个函数：   
+
+```js
+const output = merge({
+  customizeArray: merge.unique(
+    'plugins',
+    ['HotModuleReplacementPlugin'],
+    plugin => plugin.constructor && plugin.constructor.name
+  )
+})({
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
+}, {
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
+});
+ 
+// Output contains only single HotModuleReplacementPlugin now.
+```    
+
+## 添加额外的合并策略
+
+**`merge.strategy({ <field>: '<prepend|append|replace>'})(...configuration | [...configuration])`**    
+
+```js
+var output = merge.strategy({
+  entry: 'prepend',   // 默认 append
+  'module.loaders': 'prepend'
+})(object1, object2, object3, ...)
+```   
+
+**`merge.smartStrategy({ <key>: '<prepend|append|replace>'})(...configuration | [...configuration])`**
+与上面的相同，但是使用 smart 合并策略。   
+
+```js
+var output = merge.smartStrategy(
+  {
+    entry: 'prepend', // or 'replace'
+    'module.loaders': 'prepend'
+  }
+)(object1, object2, object3, ...);
+```    
+
+## Smart 合并
+
+**`merge.smart(...configuration | [...configuration])`** 使用这个方法的话在合并
+loaders 时会变得很智能。有着相同匹配 test 的 loaders 会合并到一个单一的 loader 值。   
+
+```js
+const merge = require('webpack-merge');
+const common = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      }
+    ]
+  }
+}
+
+console.log(JSON.stringify(merge.smart(common, {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: ['babel-loader']
+      },
+      {
+        test: /\.css$/,
+        use: 'sass-loader'
+      }
+    ]
+  }
+})));
+
+// rules: [
+//  { test: {}, use: ["style-loader", "css-loader", "sass-loader"]}
+//  { test: {}, use: ["babel-loader"] }
+// ]
+```    
+
+注意如果两个 css 的匹配 rule 中任意一个 use 是一个字符串，还是可以正常拼接成数组，但是
+js 的那个如果就是 `use: 'babel-loader'` 那最后那个 rule 的 use 就也只是单一字符串。   
