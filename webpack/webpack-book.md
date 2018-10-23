@@ -86,14 +86,14 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          MinCssExtractPlugin.loader,
+          MiniCssExtractPlugin.loader,
           'css-loader'
         ]
       }
     ]
   },
   plugins: [
-    new MinCssExtractPlugin({
+    new MiniCssExtractPlugin({
       filename: '[name].css'
     })
   ]
@@ -159,6 +159,185 @@ paths: globAll.sync([
 ```    
 
 但是很奇怪，如果用了 purifycss-webpack，好像 css 内容并没有 minify。必须手动配置 `minimize`
-选项。    
+选项。不过也对，purifycss 只对 tree shaking，并没有说要 minimize。    
 
 这一小节和上一小节完整代码参看 demo02。    
+
+## 加载静态资源
+
+使用 url-loader 内嵌静态资源，它可以将图片进行 base64 编码，然后把结果字符串打包到最终的
+bundles 中。    
+
+file-loader 可以输出图片文件并返回其路径而不是将图片内联。这项技术可以在其他静态资源上
+使用，例如字体。   
+
+url-loader 有一个 `limit` 配置项，可以在图片的大小到达阈值时，将图片的生成推给 file-loader。
+也就是说小图片就内联，大图片不管。    
+
+如果使用 `limit` 选项，就必须同时使用 url-loader 和 file-loader。    
+
+如果想要压缩图片，使用 image-webpack-loader, svgo-loader, imagemin-webpack-plugin。
+这种类型的 loader 应该第一个使用。    
+
+resize-image-loader 和 reponsive-loader 可以让我们生成 `srcset`。   
+
+字体：   
+
+```js
+{
+  test: /\.(ttf|eot|woff|woff2)$/,
+  use: {
+    loader: "file-loader",
+    options: {
+      name: "fonts/[name].[ext]",
+    },
+  },
+}
+```   
+
+## 构建
+
+### Source Map
+
+内联的 source map 由于有更好的性能因此在开发时更受用，而分离的 source map 文件可以减少
+打包文件的尺寸，因此更适合在生产环境使用。    
+
+隐藏的 source map 只提供堆栈信息。   
+
+webpack 提供了两种使用 source map 的方式，一种是使用 `devtool` 配置字段，或者还有两种
+插件可供使用。   
+
+### 内联的 Source Map
+
+以代码 `console.log('Hello world')` 并使用 `NamedModulesPlugin` 为例，各个内联的
+Source Map 生成代码如下：   
+
+**`devtool: "eval"`**   
+
+`eval` 将每个模块代码用一个 `eval` 函数包裹起来：   
+
+```js
+webpackJsonp([1, 2], {
+  "./src/index.js": function(module, exports) {
+    eval("console.log('Hello world');\n\n//////////////////\n// WEBPACK FOOTER\n// ./src/index.js\n// module id = ./src/index.js\n// module chunks = 1\n\n//# sourceURL=webpack:///./src/index.js?")
+  }
+}, ["./src/index.js"]);
+```    
+
+话说这里面包含了 source map 的内容吗？好像没有啊。。。    
+
+**`devtool: "cheap-eval-source-map"`**    
+
+`cheap-eval-source-map` 更进一步，使用了 base64 编码。结果只包含行数据，丢失列数据。   
+
+```js
+webpackJsonp([1, 2], {
+  "./src/index.js": function(module, exports) {
+    eval("console.log('Hello world');//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9hcHAvaW5kZXguanMuanMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9hcHAvaW5kZXguanM/MGUwNCJdLCJzb3VyY2VzQ29udGVudCI6WyJjb25zb2xlLmxvZygnSGVsbG8gd29ybGQnKTtcblxuXG4vLy8vLy8vLy8vLy8vLy8vLy9cbi8vIFdFQlBBQ0sgRk9PVEVSXG4vLyAuL2FwcC9pbmRleC5qc1xuLy8gbW9kdWxlIGlkID0gLi9hcHAvaW5kZXguanNcbi8vIG1vZHVsZSBjaHVua3MgPSAxIl0sIm1hcHBpbmdzIjoiQUFBQSIsInNvdXJjZVJvb3QiOiIifQ==")
+  }
+}, ["./src/index.js"]);
+```    
+
+**`devtool: "cheap-module-eval-source-map"`**    
+
+同上，但是提供了更高的质量和低性能。   
+
+```js
+webpackJsonp([1, 2], {
+  "./src/index.js": function(module, exports) {
+    eval("console.log('Hello world');//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9hcHAvaW5kZXguanMuanMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vYXBwL2luZGV4LmpzPzIwMTgiXSwic291cmNlc0NvbnRlbnQiOlsiY29uc29sZS5sb2coJ0hlbGxvIHdvcmxkJyk7XG5cblxuLy8gV0VCUEFDSyBGT09URVIgLy9cbi8vIGFwcC9pbmRleC5qcyJdLCJtYXBwaW5ncyI6IkFBQUEiLCJzb3VyY2VSb290IjoiIn0=")
+  }
+}, ["./src/index.js"]);
+```    
+
+**`devtool: "eval-source-map"`**   
+
+这个是内联 source map 中质量最高的了，不过也是最慢的：   
+
+```js
+webpackJsonp([1, 2], {
+  "./src/index.js": function(module, exports) {
+    eval("console.log('Hello world');//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9hcHAvaW5kZXguanM/ZGFkYyJdLCJuYW1lcyI6WyJjb25zb2xlIiwibG9nIl0sIm1hcHBpbmdzIjoiQUFBQUEsUUFBUUMsR0FBUixDQUFZLGFBQVoiLCJmaWxlIjoiLi9hcHAvaW5kZXguanMuanMiLCJzb3VyY2VzQ29udGVudCI6WyJjb25zb2xlLmxvZygnSGVsbG8gd29ybGQnKTtcblxuXG4vLyBXRUJQQUNLIEZPT1RFUiAvL1xuLy8gLi9hcHAvaW5kZXguanMiXSwic291cmNlUm9vdCI6IiJ9")
+  }
+}, ["./src/index.js"]);
+```    
+
+### 分离的 Source Map
+
+**`devtool: "cheap-source-map"`**    
+
+与上面带有 cheap 的类型类似，丢失了列的信息。loader 提供的 source map 是不会被使用的。（啥意思）    
+
+```json
+{
+  "file": "main.9aff3b1eced1f089ef18.js",
+  "mappings": "AAAA",
+  "sourceRoot": "",
+  "sources": [
+    "webpack:///main.9aff3b1eced1f089ef18.js"
+  ],
+  "sourcesContent": [
+    "webpackJsonp([1,2],{\"./src/index.js\":function(o,n){console.log(\"Hello world\")}},[\"./src/index.js\"]);\n\n\n// WEBPACK FOOTER //\n// main.9aff3b1eced1f089ef18.js"
+  ],
+  "version": 3
+}
+```    
+
+源代码文件末尾处会包含一个 `//# sourceMappingURL=main.9a...18.js.map` 注释。    
+
+**`devtool: "cheap-module-source-map"`**    
+
+```json
+{
+  "file": "main.9aff3b1eced1f089ef18.js",
+  "mappings": "AAAA",
+  "sourceRoot": "",
+  "sources": [
+    "webpack:///main.9aff3b1eced1f089ef18.js"
+  ],
+  "version": 3
+}
+```   
+
+这个选项目前在启用 minify 功能的时候好像有问题，因此建议暂时不要使用这个选项。    
+
+**`devtool: "hidden-source-map"`**    
+
+等同于 `source-map`，除了不会在源代码文件中添加对 source map 文件的引用。    
+
+**`devtool: "nosources-source-map"`**    
+
+创建一个没有 `sourceContent` 的 source map。    
+
+**`devtool: "source-map"`**   
+
+质量最高，速度最慢：    
+
+```json
+{
+  "file": "main.9aff3b1eced1f089ef18.js",
+  "mappings": "AAAAA,cAAc,EAAE,IAEVC,iBACA,SAAUC,EAAQC,GCHxBC,QAAQC,IAAI,kBDST",
+  "names": [
+    "webpackJsonp",
+    "./src/index.js",
+    "module",
+    "exports",
+    "console",
+    "log"
+  ],
+  "sourceRoot": "",
+  "sources": [
+    "webpack:///main.9aff3b1eced1f089ef18.js",
+    "webpack:///./src/index.js"
+  ],
+  "sourcesContent": [
+    "webpackJsonp([1,2],{\n\n/***/ \"./src/index.js\":\n/***/ (function(module, exports) {\n\nconsole.log('Hello world');\n\n/***/ })\n\n},[\"./src/index.js\"]);\n\n\n// WEBPACK FOOTER //\n// main.9aff3b1eced1f089ef18.js",
+    "console.log('Hello world');\n\n\n// WEBPACK FOOTER //\n// ./src/index.js"
+  ],
+  "version": 3
+}
+```    
+
+如果使用了 `UglifyJsPlugin`，记得配置插件的 `sourceMap: true`。     
+
+### SourceMapDevToolPlugin, EvalSourceMapDevToolPlugin

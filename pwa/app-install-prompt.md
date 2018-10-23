@@ -1,5 +1,22 @@
 # App Install Prompt
 
+<!-- TOC -->
+
+- [App Install Prompt](#app-install-prompt)
+  - [Add to Home Screen](#add-to-home-screen)
+    - [可安装的标准](#可安装的标准)
+    - [展示安装到主屏的对话框](#展示安装到主屏的对话框)
+    - [mini-infobar](#mini-infobar)
+    - [检测是否成功安装](#检测是否成功安装)
+    - [检测 app 是否是从用户主屏启动的](#检测-app-是否是从用户主屏启动的)
+    - [测试](#测试)
+  - [安装原生 app banner](#安装原生-app-banner)
+  - [Icons & Browser Colors](#icons--browser-colors)
+    - [提供更好的 icon](#提供更好的-icon)
+    - [给浏览器元素上色](#给浏览器元素上色)
+
+<!-- /TOC -->
+
 ## Add to Home Screen
 
 Chrome 可以帮我们处理安装到主屏的大部分工作：   
@@ -86,10 +103,11 @@ btnAdd.addEventListener('click', (e) => {
 我们只能调用 `prompt()` 方法一次，一旦用户拒绝了，就必须等到下次页面导航时触发的另一个 `beforeinstallprompt`
 事件。    
 
-Chrome on Android 还提供了另外一个工具 mini-infobar，用来在不同的平台创建一致的体验，反正
-应该就是下图的这个东西。    
 
 ### mini-infobar
+
+Chrome on Android 还提供了另外一个工具 mini-infobar，用来在不同的平台创建一致的体验，反正
+应该就是下图的这个东西。    
 
 ![mini-infobar](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/mini-infobar.png)    
 

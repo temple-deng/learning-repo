@@ -2,80 +2,70 @@
 
 <!-- TOC -->
 
-- [创建一个 manifest](#创建一个-manifest)
-- [告诉浏览器 manifest 文件](#告诉浏览器-manifest-文件)
-- [设置启动 URL](#设置启动-url)
-- [定制 icons](#定制-icons)
-- [添加启动画面](#添加启动画面)
-  - [设置一个标题和图片](#设置一个标题和图片)
-  - [设置背景色](#设置背景色)
-  - [设置主题颜色](#设置主题颜色)
-- [设置启动风格](#设置启动风格)
-  - [定制展示类型](#定制展示类型)
-  - [指定页面初始的方向](#指定页面初始的方向)
-- [提供全站主题颜色](#提供全站主题颜色)
-- [MDN 上的内容](#mdn-上的内容)
-  - [各个属性值的介绍](#各个属性值的介绍)
-    - [background_color](#background_color)
-    - [description](#description)
-    - [dir](#dir)
-    - [display](#display)
+- [The Web App Manifest](#the-web-app-manifest)
+  - [创建一个 manifest](#创建一个-manifest)
+  - [告诉浏览器 manifest 文件](#告诉浏览器-manifest-文件)
+  - [关键的 manifest 属性](#关键的-manifest-属性)
+    - [short_name/name](#short_namename)
     - [icons](#icons)
-    - [lang](#lang)
-    - [name](#name)
-    - [orientation](#orientation)
-    - [prefer\_related_applications](#prefer\_related_applications)
-    - [related_applications](#related_applications)
-    - [scope](#scope)
-    - [short_name](#short_name)
-    - [start_url](#start_url)
-    - [theme_color](#theme_color)
+  - [设置启动 URL](#设置启动-url)
+  - [添加启动画面](#添加启动画面)
+    - [设置一个标题和图片](#设置一个标题和图片)
+    - [设置背景色](#设置背景色)
+    - [设置主题颜色](#设置主题颜色)
+  - [设置启动风格](#设置启动风格)
+    - [定制展示类型](#定制展示类型)
+    - [指定页面初始的方向](#指定页面初始的方向)
+  - [提供全站主题颜色](#提供全站主题颜色)
+  - [MDN 上的内容](#mdn-上的内容)
+    - [各个属性值的介绍](#各个属性值的介绍)
+      - [background_color](#background_color)
+      - [description](#description)
+      - [dir](#dir)
+      - [display](#display)
+      - [icons](#icons-1)
+      - [lang](#lang)
+      - [name](#name)
+      - [orientation](#orientation)
+      - [prefer\_related_applications](#prefer\_related_applications)
+      - [related_applications](#related_applications)
+      - [scope](#scope)
+      - [short_name](#short_name)
+      - [start_url](#start_url)
+      - [theme_color](#theme_color)
 
 <!-- /TOC -->
 
-Web app manifest 只是一个简单的 JSON 文件，我们可以利用它控制在用户想要看到应用的区域（例如移动设备主屏幕）中如何向用户显示网络应用或网站，指示用户可以启动哪些功能，以及定义其在启动时的外观。       
-
-Web app manifests 为我们提供了将站点书签保存到设备主屏幕的能力。当一个站点是以这种方式启动时：   
-
-+ 其有一个唯一的 icon 及名字，以便用户可以把它和其他站点区分开。
-+ 它会在下载资源或从缓存恢复资源时向用户显示某些信息。
-+ 它会向浏览器提供默认显示特性，以避免网站资源可用时的过渡过于生硬。    
+Web app manifest 只是一个简单的 JSON 文件来告诉浏览器关于我们 web app 的一些信息，以及
+在 “安装” 这个 app 到用户设备时的一些行为。   
 
 ## 创建一个 manifest
 
-首先我们创建一个 manifest 文件，并将其链接到一个 web 页面上。   
-
-这个文件的名字可以是任意名字，大多数情况下我们使用 `manifest.json`。例如：   
+一个 PWA 的 `manifest.json` 文件大致如下：  
 
 ```json
 {
-  "short_name": "AirHorner",
-  "name": "Kinlan's AirHorner of Infamy",
+  "short_name": "Maps",
+  "name": "Google Maps",
   "icons": [
     {
-      "src": "launcher-icon-1x.png",
-      "type": "image/png",
-      "sizes": "48x48"
-    },
-    {
-      "src": "launcher-icon-2x.png",
-      "type": "image/png",
-      "sizes": "96x96"
-    },
-    {
-      "src": "launcher-icon-4x.png",
+      "src": "/images/icons-192.png",
       "type": "image/png",
       "sizes": "192x192"
+    },
+    {
+      "src": "/images/icons-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
-  "start_url": "index.html?launcher=true"
+  "start_url": "/maps/?source=pwa",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "scope": "/maps/",
+  "theme_color": "#3367D6"
 }
 ```   
-
-确保这个文件包含下面的内容：   
-
-+ 一个 `short_name` 用来显示在主屏上的文本
-+ 在网络应用安装 banner 中使用的 `name`。    
 
 ## 告诉浏览器 manifest 文件
 
@@ -83,15 +73,14 @@ Web app manifests 为我们提供了将站点书签保存到设备主屏幕的�
 
 `<link rel="manifest" href="/manifest.json">`    
 
-## 设置启动 URL
+## 关键的 manifest 属性
 
-如果我们没有提供 `start_url`，那么会使用当前页面。由于我们现在可以定义应用的启动方式，因此可向 `start_url` 添加一个查询字符串参数来说明其启动方式。    
+### short_name/name
 
-`"start_url": "/utm_source=homescreen"`    
+至少要提供 `short_name` 或者 `name` 属性，如果两者都提供了，`short_name` 会用在用户
+主屏，app launcher，以及其他空间受限的地方。`name` 通常用来 app 安装时候的对话框中。    
 
-这个查询参数可以是任意值。    
-
-## 定制 icons
+### icons
 
 当用户将站点添加到主屏时，我们可以定义一个浏览器使用的 icons 的集合。   
 
@@ -116,6 +105,16 @@ Web app manifests 为我们提供了将站点书签保存到设备主屏幕的�
 ```    
 
 注：将图标保存到主屏幕时，Chrome 首先寻找与显示密度匹配并且尺寸调整到 48dp 屏幕密度的图标。如果未找到任何图标，则会查找与设备特性匹配度最高的图标。无论出于任何原因，如果您想把目标明确锁定在具有特定像素密度的图标，可以使用带数字参数的可选 density 成员。如果您不声明密度，其默认值为 1.0。这意味着“可将该图标用于等于和大于 1.0 的屏幕密度”，而这通常就是您所需要的。     
+
+## 设置启动 URL
+
+如果我们没有提供 `start_url`，那么会使用当前页面。由于我们现在可以定义应用的启动方式，因此可向 `start_url` 添加一个查询字符串参数来说明其启动方式。    
+
+`"start_url": "/utm_source=homescreen"`    
+
+这个查询参数可以是任意值。    
+
+
 
 ## 添加启动画面
 
