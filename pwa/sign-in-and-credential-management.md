@@ -1,5 +1,23 @@
 # Sign in and Credential Management API
 
+<!-- TOC -->
+
+- [Sign in and Credential Management API](#sign-in-and-credential-management-api)
+  - [The Credential Management API](#the-credential-management-api)
+    - [检查 API 是否可用](#检查-api-是否可用)
+    - [登录用户](#登录用户)
+    - [保存和更新用户证书](#保存和更新用户证书)
+    - [登出](#登出)
+  - [登录用户](#登录用户-1)
+    - [自动登录](#自动登录)
+      - [获取证书信息](#获取证书信息)
+      - [认证用户](#认证用户)
+    - [通过 account chooser 登录](#通过-account-chooser-登录)
+    - [Federated 登录](#federated-登录)
+      - [存储身份信息](#存储身份信息)
+
+<!-- /TOC -->
+
 ## The Credential Management API
 
 这个 API：   
@@ -223,3 +241,5 @@ var cred = new FederatedCredential({
   iconURL:  iconUrl                       // Profile image url
 });
 ```    
+
+Last Update: 2018.10.24   

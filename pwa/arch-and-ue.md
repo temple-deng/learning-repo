@@ -222,4 +222,6 @@ background-image: image-set(
   url(icon1x.jpg) 1x,
   url(icon2x.jpg) 2x
 );
-```
+```    
+
+Last Update: 2018.10.24   

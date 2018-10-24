@@ -8,31 +8,14 @@
   - [关键的 manifest 属性](#关键的-manifest-属性)
     - [short_name/name](#short_namename)
     - [icons](#icons)
-  - [设置启动 URL](#设置启动-url)
+    - [start_url](#start_url)
+    - [background_color](#background_color)
+    - [display](#display)
   - [添加启动画面](#添加启动画面)
     - [设置一个标题和图片](#设置一个标题和图片)
-    - [设置背景色](#设置背景色)
-    - [设置主题颜色](#设置主题颜色)
-  - [设置启动风格](#设置启动风格)
-    - [定制展示类型](#定制展示类型)
-    - [指定页面初始的方向](#指定页面初始的方向)
-  - [提供全站主题颜色](#提供全站主题颜色)
-  - [MDN 上的内容](#mdn-上的内容)
-    - [各个属性值的介绍](#各个属性值的介绍)
-      - [background_color](#background_color)
-      - [description](#description)
-      - [dir](#dir)
-      - [display](#display)
-      - [icons](#icons-1)
-      - [lang](#lang)
-      - [name](#name)
-      - [orientation](#orientation)
-      - [prefer\_related_applications](#prefer\_related_applications)
-      - [related_applications](#related_applications)
-      - [scope](#scope)
-      - [short_name](#short_name)
-      - [start_url](#start_url)
-      - [theme_color](#theme_color)
+    - [orientation](#orientation)
+    - [scope](#scope)
+    - [theme_color](#theme_color)
 
 <!-- /TOC -->
 
@@ -104,17 +87,32 @@ Web app manifest 只是一个简单的 JSON 文件来告诉浏览器关于我们
   }],
 ```    
 
-注：将图标保存到主屏幕时，Chrome 首先寻找与显示密度匹配并且尺寸调整到 48dp 屏幕密度的图标。如果未找到任何图标，则会查找与设备特性匹配度最高的图标。无论出于任何原因，如果您想把目标明确锁定在具有特定像素密度的图标，可以使用带数字参数的可选 density 成员。如果您不声明密度，其默认值为 1.0。这意味着“可将该图标用于等于和大于 1.0 的屏幕密度”，而这通常就是您所需要的。     
+首先尽量包括 192px 和 512px 大小的 icon，其他大小也尽量是 48dp 的倍数。    
 
-## 设置启动 URL
+### start_url
 
-如果我们没有提供 `start_url`，那么会使用当前页面。由于我们现在可以定义应用的启动方式，因此可向 `start_url` 添加一个查询字符串参数来说明其启动方式。    
+`start_url` 告诉浏览器 app 启动时候从哪个页面开始。   
 
 `"start_url": "/utm_source=homescreen"`    
 
 这个查询参数可以是任意值。    
 
+### background_color
 
+使用 `background_color` 属性来设置背景色。 Chrome 在网络应用启动后会立即使用此颜色，这一
+颜色将保留在屏幕上，直至网络应用首次呈现为止。    
+
+### display
+
+可以设置 `display` 属性为 `standalone` 来隐藏浏览器的 UI。    
+
+
+值 | 描述
+----------|---------
+ `fullscreen` | 全屏
+ `standalone` | 像一个独立 app 一样打开。app 在自己的窗口中，与浏览器分类，隐藏了浏览器的 UI
+ `minimal-ui` | 类似 `fullscreen` 但多了一些用来导航的 UI，Chrome 不支持
+ `browser` | 浏览器体验打开
 
 ## 添加启动画面
 
@@ -134,184 +132,25 @@ Web app manifest 只是一个简单的 JSON 文件来告诉浏览器关于我们
 
 启动画面图像提取自 icons 数组。Chrome 为设备选择最接近 128dp 的图像。标题是直接从 name 成员获取的。    
 
-### 设置背景色
-
-使用 `background_color` 属性来设置背景色。 Chrome 在网络应用启动后会立即使用此颜色，这一颜色将保留在屏幕上，直至网络应用首次呈现为止。    
-
-### 设置主题颜色
-
-使用 `theme_color` 声明主题颜色。这个属性会设置工具栏的颜色。    
-
-## 设置启动风格
-
-使用 manifest 可以控制显示的类型与页面的方向。    
-
-### 定制展示类型
-
-可以设置 `display` 属性为 `standalone` 来隐藏浏览器的 UI。    
-
-![display](https://github.com/temple-deng/learning-repo/blob/master/pics/manifest-display-options.png)   
-
-如果我们认为用户可能更喜欢在一个浏览器的界面中使用页面，则设置为 `browser`。    
-
-### 指定页面初始的方向
-
-您可以强制一个特定方向，这对于某些应用很有用，例如只能在一个方向上运行的游戏。 请有选择地使用。 用户更愿意能够自行选择方向。   
+### orientation
 
 `"orientation": "landscape"`   
 
-## 提供全站主题颜色
+### scope
 
-主题颜色是来自您的网页的提示，用于告知浏览器使用什么颜色来为地址栏等 UI 元素着色。    
+`scope` 定义了 URLs 的集合，浏览器使用这个集合来决定当用户点击链接时，是在当前 app 打开还是
+到浏览器中打开。    
 
-## MDN 上的内容
+`"scope": "/maps/"`   
 
-一个例子：   
++ 如果不指定 `scope`，默认就是 manifest 所在的目录，这里其实应该是 web 地址路径，而不是文件
+系统的目录，毕竟浏览器怎么可能知道服务器的文件系统内容
++ `scope` 可以是相对路径
++ `start_url` 必须在范围内
++ `scope` 就是相对于 `start_url` 的
 
-```json
-{
-  "name": "HackerWeb",
-  "short_name": "HackerWeb",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#fff",
-  "description": "A simply readable Hacker News app.",
-  "icons": [{
-    "src": "images/touch/homescreen48.png",
-    "sizes": "48x48",
-    "type": "image/png"
-  }, {
-    "src": "images/touch/homescreen72.png",
-    "sizes": "72x72",
-    "type": "image/png"
-  }, {
-    "src": "images/touch/homescreen96.png",
-    "sizes": "96x96",
-    "type": "image/png"
-  }, {
-    "src": "images/touch/homescreen144.png",
-    "sizes": "144x144",
-    "type": "image/png"
-  }, {
-    "src": "images/touch/homescreen168.png",
-    "sizes": "168x168",
-    "type": "image/png"
-  }, {
-    "src": "images/touch/homescreen192.png",
-    "sizes": "192x192",
-    "type": "image/png"
-  }],
-  "related_applications": [{
-    "platform": "web"
-  }, {
-    "platform": "play",
-    "url": "https://play.google.com/store/apps/details?id=cheeaun.hackerweb"
-  }]
-}
-```   
+### theme_color
 
-### 各个属性值的介绍
+使用 `theme_color` 声明主题颜色。这个属性会设置工具栏的颜色。    
 
-#### background_color
-
-略。    
-
-#### description
-
-为应用的功能提供一个通用的解释。   
-
-#### dir
-
-指定 `name`, `short_name`, `description` 属性文本的方向。与 `lang` 属性一起搭配，可以正确的展示从右到左的语言。   
-
-```json
-"dir": "rtl",
-"lang": "ar",
-"short_name": "أنا من التطبيق!"
-```   
-
-可选值有 `ltr`, `rtl`, `auto`。   
-
-#### display
-
-定义开发者希望的应用的展示模式。   
-
-可选值有：  
-
-+ `fullscreen`
-+ `standalone` 可能没有浏览器的 UI元素，但是有状态栏等元素
-+ `minimal-ui`
-+ `browser`     
-
-#### icons
-
-指定一个图片的数组。   
-
-每个图片对象包含的属性如下：   
-
-+ `sizes` 一个包含空格分隔的图片尺寸的字符串
-+ `src` 图片的路径，如果是相对 URL，那么基础路径是 manifest 的路径
-+ `type`   
-
-#### lang
-
-指定 `name` 和 `short_name` 的语种。    
-
-#### name 
-
-略。   
-
-#### orientation
-
-设置应用默认的方向。   
-
-可选值如下：   
-
-+ any
-+ natual
-+ landscape
-+ landscape-primary
-+ landscape-secondary
-+ portrait
-+ portrait-primary
-+ portrait-secondary   
-
-#### prefer\_related_applications  
-
-一个布尔值。    
-
-#### related_applications
-
-指定一个 "application objects" 的数组，表示原生应用程序，这些应用程序可由底层平台安装或访问。相当于指定一些可以替换我们 web app 功能的一些原生应用的信息吧。   
-
-```json
-"related_applications": [
-  {
-    "platform": "play",
-    "url": "https://play.google.com/store/apps/details?id=com.example.app1",
-    "id": "com.example.app1"
-  }, {
-    "platform": "itunes",
-    "url": "https://itunes.apple.com/app/example-app1/id123456789"
-  }]
-```    
-
-#### scope
-
-定义我们应用可以导航的范围。貌似如果导航到一个范围外的页面，就会返回一个常规的页面。    
-
-如果是相对 URL，基础 URL 是 manifest 的路径。    
-
-#### short_name  
-
-略。    
-
-#### start_url
-
-指定当用户启动应用时加载的 URL。同理也可以是相对 manifest 的地址。   
-
-#### theme_color  
-
-略。       
-
-
+Last Update: 2018.10.24

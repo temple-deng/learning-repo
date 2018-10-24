@@ -1,5 +1,15 @@
 # User Input
 
+<!-- TOC -->
+
+- [User Input](#user-input)
+  - [添加触摸功能](#添加触摸功能)
+    - [禁止浏览器的默认样式](#禁止浏览器的默认样式)
+    - [禁用 user-select](#禁用-user-select)
+    - [实现定制的手势](#实现定制的手势)
+
+<!-- /TOC -->
+
 ## 添加触摸功能
 
 ### 禁止浏览器的默认样式
@@ -81,3 +91,5 @@ if (window.PointerEvent) {
   swipeFrontElement.addEventListener('mousedown', this.handleGestureStart, true);
 }
 ```    
+
+Last Update: 2018.10.24   

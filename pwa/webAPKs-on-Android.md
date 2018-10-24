@@ -1,5 +1,13 @@
 # WebAPKs on Android
 
+<!-- TOC -->
+
+- [WebAPKs on Android](#webapks-on-android)
+  - [Android intent filters](#android-intent-filters)
+  - [权限管理](#权限管理)
+
+<!-- /TOC -->
+
 在 Android 上使用 A2HS 不仅仅是将 PWA 添加到用户主屏。Chrome 会自动生成并安装一个
 特殊的我们 app 的 APK。有时也将其称为 **WebAPK**。在通过 APK 安装后，我们的 app 就会
 出现在应用的启动器中，以及 Android 的应用配置的种，并注册一系列的 intent 过滤器。   
@@ -48,5 +56,5 @@ WebAPK 会包含以下的 intent fileters:
 权限必须在运行时请求，而不能在安装时请求。通常来说 Android 在安装 app 的时候会弹出提示
 框要求用户授权，但是通过 WebAPK 安装的 app 不会这么做。    
 
-## 常见问题
+Last Update: 2018.10.24   
 

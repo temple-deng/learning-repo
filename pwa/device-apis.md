@@ -8,7 +8,7 @@
     - [在用户交互时请求权限](#在用户交互时请求权限)
   - [Fullscreen Experiences](#fullscreen-experiences)
     - [请求浏览器全屏](#请求浏览器全屏)
-      - [Tips](#tips)
+    - [Tips](#tips)
     - [从主屏启动全屏页面](#从主屏启动全屏页面)
 
 <!-- /TOC -->
@@ -68,7 +68,7 @@ function toggleFullScreen() {
 }
 ```    
 
-#### Tips
+### Tips
 
 通常来说，我们可能会让 body 元素进入全屏，但是如果在基于 Webkit 或 Blink 渲染引擎的浏览器中，
 这样做会出现一种怪异的效果：body 会收缩至能包含所有内容的最小尺寸，为了修复这个问题，我们在
@@ -101,3 +101,5 @@ html 元素上进入全屏：
 ```    
 
 关于 manifest 的内容以后再说。   
+
+Last Update: 2018.10.24   
