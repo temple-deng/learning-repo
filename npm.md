@@ -28,6 +28,7 @@
   - [package-lock.json](#package-lockjson)
   - [package-locks - An explanation of npm lockfiles](#package-locks---an-explanation-of-npm-lockfiles)
   - [package.json](#packagejson)
+  - [npx](#npx)
 
 <!-- /TOC -->
 
@@ -478,3 +479,10 @@ Cache 是受 `cache` 配置参数控制的。
   }
 }
 ```    
+
+## npx
+
+npx 好像还可以临时安装一个包，如果这个包当前不在项目的 node_modules 目录中。`npx <command>`
+当 `<command>` 不在 `$PATH` 中时，npx 会自动使用这个名字在 npm 仓库中搜索包并安装然后调用。   
+
+Last Update: 2018-11-06
