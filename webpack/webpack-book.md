@@ -207,7 +207,7 @@ resize-image-loader 和 reponsive-loader 可以让我们生成 `srcset`。
 webpack 提供了两种使用 source map 的方式，一种是使用 `devtool` 配置字段，或者还有两种
 插件可供使用。   
 
-### 内联的 Source Map
+#### 内联的 Source Map
 
 以代码 `console.log('Hello world')` 并使用 `NamedModulesPlugin` 为例，各个内联的
 Source Map 生成代码如下：   
@@ -262,7 +262,7 @@ webpackJsonp([1, 2], {
 }, ["./src/index.js"]);
 ```    
 
-### 分离的 Source Map
+#### 分离的 Source Map
 
 **`devtool: "cheap-source-map"`**    
 
@@ -340,4 +340,232 @@ webpackJsonp([1, 2], {
 
 如果使用了 `UglifyJsPlugin`，记得配置插件的 `sourceMap: true`。     
 
-### SourceMapDevToolPlugin, EvalSourceMapDevToolPlugin
+#### SourceMapDevToolPlugin, EvalSourceMapDevToolPlugin
+
+略。    
+
+### 打包分割
+
+#### Webpack4 production mode 下开箱即用的优化
+
+webpack4 移除了 CommonsChunkPlugin，并用两个新的选项来替代它 `optimization.splitChunks`
+和 `optimization.runtimeChunk`。    
+
+默认情况下，这些优化只针对按需加载的 chunks。    
+
+除了按需加载的 chunks 外，webpack 基于以下的情况会自动分割 chunks:   
+
++ 新的 chunk 可以被共享或者是在 `node_modules` 文件夹中的模块
++ 新的 chunk 大于 30kb（压缩前）
++ 当加载按需加载 chunks 时的并行请求数量小于等于 5
++ 初始页面加载的并行请求的数量小于等于 5
+
+**例 1**    
+
+```js
+// entry.js
+import("./a");
+```    
+
+```js
+import "react"
+// ...
+```    
+
+这种情况下会创建一个分离的 chunk，这里感觉应该 a.js 也会在一个单独的 chunk 中，在调用
+`import()` 时，这个 chunk 会和原始的包含 `./` 的 chunk 并行加载。    
+
+为什么呢？   
+
++ 条件1：chunk 是 `node_modules` 中的模块
++ 条件2：react 大于 30kb
++ 条件3：在 `import()` 调用时的并行请求数量是 2
++ 条件4：不影响初始页面请求的加载     
+
+**例 2**    
+
+```js
+// entry.js
+import('./a');
+import('./b');
+```    
+
+```js
+// a.js
+import './helpers';  // helpers is 40kb in size
+// ...
+```    
+
+```js
+// b.js
+import './helpers';
+import './more-helpers'; // 40kb
+// ...
+```    
+
+会为 helpers 创建一个额外的 chunk。     
+
+#### 配置项
+
+**Cache Groups**     
+
+webpack 会将模块分配到不同的 cache groups。默认情况下，所有 `node_modules` 中的模块
+会分配到一个叫做 `vendors` 的 cache group 中。所有至少出现了 2 次的模块分配到一个叫做
+`default` 的 cache group 中。     
+
+一个模块可以分配到多个 cache groups 中。webpack 通常是分配到一个高优先级 `priorty` 或者
+一个大的 chunk 中的。    
+
+**Conditions**    
+
+当所有的条件满足时属于同一 chunk 和 cache group 的模块会形成一个新的 chunk。（不懂）    
+
+有 4 个条件配置项：    
+
++ `minSize`（默认 30000），chunk 的最小尺寸
++ `minChunks`（默认 1），在分割前共享这个模块的最小的 chunk 数量
++ `maxInitialRequests`（默认 3）入口点的最大并行请求数量
++ `maxAsyncRequests`（默认 5）按需加载的最大并行请求数量
+
+**Naming**     
+
+配置项 `name` 定义分割的 chunk 的名字。     
+
+注意：当给两个不同的 chunks 分配一个相同的名字时，这两个 chunk 会合并。    
+
+如果设置为 `true` 会基于 chunk 和 cache group key 自动选择一个名字。    
+
+如果名字与入口点名字相同，入口点会被移除。？？？？    
+
+**Select chunks**    
+
+`chunks` 配置项配置要被挑选的 chunks。可选值有 3 个 `initial, async, all`。分别对应
+只选择初始 chunks，按需加载 chunks 和所有的 chunks。    
+
+**Select modules**    
+
+`test` 配置项控制 cache group 选择哪个模块。如果省略就选择所有模块。可以是正则、字符串
+或函数。     
+
+默认的配置如下：    
+
+```js
+splitChunks: {
+  chunks: "async",
+  minSize: 30000,
+  minChunks: 1,
+  maxAsyncRequests: 5,
+  maxInitialRequests: 3,
+  name: true,
+  cacheGroups: {
+    default: {
+      minChunks: 2,
+      priority: -20,
+      reuseExisingChunk: true
+    },
+    venderos: {
+      test: /[\\/]node_modules[\\/]/,
+      priority
+    }
+  }
+}
+```    
+
+`test`, `priority`, `reuseExisingChunk` 只能在 cache group 级别配置。    
+
+### 样例
+
+假如项目使用了 react, react-dom:    
+
+```bash
+$ npm install react react-dom --save
+```   
+
+如果想将 `node_modules` 中的分割到额外的 bundle 中，如下配置：   
+
+```js
+  optimization: {
+    splitChunks: {
+      chunks: 'initial'
+    }
+  }
+```    
+
+这时候会生成一个叫做 `vendors~app.bundle.js` 的文件（这个名字默认依赖于入口点的名字）。
+而且这个文件会包括启动代码。    
+
+如果将上述配置补充完整就是：    
+
+```js
+optimization: {
+  splitChunks: {
+    cacheGroups: {
+      commons: {
+        test: /[\\/]node_modules[\\/]/,
+        name: 'vendor',
+        chunks: 'initial'
+      }
+    }
+  }
+}
+```    
+
+Webpack 中三种不同类型的 chunk:   
+
++ **Entry chunks** - 包含 webpack 启动代码和要加载的模块
++ **Normal chunks** - 不包含启动代码。可以在应用运行时动态加载。
++ **Initial chunks** - 也是 normal chunks 但是可能是数量到达并发请求的数量上限时，其他
+的 initial chunks 就作为了 normal chunks。    
+
+### 代码分割
+
+首先其实我们可以明确的一点是，分块打包和懒加载是两个不同的功能，如果只分块打包的话，我们
+仍然要将所有的 chunks 写到 html 中的 script 中，而且页面初始加载时，所有的 chunks 都
+要加载，光做这点优化，只方便了多个不同的应用间共享一些公共代码。但是懒加载其实是依托于
+分块打包技术的，不然如果我们所有代码都打到一个包中，如何做懒加载。    
+
+在 webpack 中主要使用两种方式来实现代码分割：动态 `import()` 函数和 `require.ensure`。
+那其实分块打包只是 webpack 针对满足一些要求的模块额外打包出来，而代码分割其实是我们在
+代码中明确暗示一个模块应该额外打个包，前者通过配置以及整个应用对模块的应用来推断出哪些
+模块要分开打包，而后者则是在应用代码中明确提出要额外打包。    
+
+```js
+import(/* webpackChunkName: "optional-name" */ "./module").then(
+  module => {...}
+).catch(
+  error => {...}
+);
+```    
+
+可选的名字可以让我们将多个分割点打包到一个文件中，不然的话每个分割点都生成一个分离的文件。    
+
+## 优化
+
+### 最小化
+
+在 webpack4 中，最小化过程通过两个配置项 `optimization.minimize` 和 `optimization.minimizer`
+来控制。    
+
+除了最小化以外，还有一些其他的方案可以预处理我们的代码，以便可以让代码运行的更快。这些
+方案可以作为最小化的一种补充，这些技术包括 **scope hoisting**, **pre-evaluation**,
+**improving parsing**。    
+
+**Scope Hoisting**    
+
+webpack4 中生产模式下默认使用了 scope hoisting。它会将所有模块提升至一个单一的作用域
+中，而不是每个模块写到一个分离的闭包中。    
+
+**Pre-evaluation**    
+
+prepack-webpack-plugin 使用了 Prepack，一个局部的 JS 执行器。可以在编译阶段重写一些
+计算结果，因此可以加速代码的执行。   
+
+**Improving Parsing**    
+
+optimize-js-plugin。    
+
+### 环境变量
+
+首先 JS minifier 可以移除一些死代码(`if (false)`)，那么如果我们使用 `DefinePlugin`
+替换一些变量，那么 `if (process.env.NODE_ENV === 'development')` 就可以转换为
+`if (true)` 或者 `if (false)`，进而代码可以被 minifier 处理。    
