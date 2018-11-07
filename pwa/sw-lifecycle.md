@@ -70,6 +70,8 @@ self.addEventListener('activate', event => {
 资源仍然遵循它们的缓存首部规则。
 + 只要 SW 脚本有修改，就认为是新的，这个规则被扩展到了被导入的脚本/模块
 + `self.skipWaiting()` 会跳过 `waiting` 阶段，意味着在完成安装后会尽快进入 activate 阶段。   
+通常一个 sw 在首次下载后，每隔 24 个小时会再次下载一次。当然也可能由于其他的操作更新的更频繁，
+但是 24 小时一更新是最低的限度。   
 
 ```js
 const expectedCaches = ['static-v2'];

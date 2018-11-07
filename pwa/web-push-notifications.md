@@ -3,59 +3,59 @@
 <!-- TOC -->
 
 - [Web Push Notifications](#web-push-notifications)
-  - [Overview](#overview)
-  - [How Push Works](#how-push-works)
-    - [第一步：客户端](#第一步客户端)
-    - [第二步：发送推送消息](#第二步发送推送消息)
-    - [第三步：用户设备上触发推送事件](#第三步用户设备上触发推送事件)
-  - [订阅用户](#订阅用户)
-    - [功能检测](#功能检测)
-    - [注册 sw](#注册-sw)
-    - [权限请求](#权限请求)
-    - [使用 `PushManager` 订阅用户](#使用-pushmanager-订阅用户)
-    - [如何创建 application server keys](#如何创建-application-server-keys)
-    - [将 Subscription 发送到我们的服务器](#将-subscription-发送到我们的服务器)
-  - [使用 Web Push 库发送消息](#使用-web-push-库发送消息)
-    - [保存 Subscriptions](#保存-subscriptions)
-    - [发送推送消息](#发送推送消息)
-  - [The Web Push Protocol](#the-web-push-protocol)
-    - [Application server keys](#application-server-keys)
-    - [负载加密](#负载加密)
-      - [输入](#输入)
-      - [共享密钥](#共享密钥)
-      - [PRK](#prk)
-      - [CEK 和 nonce](#cek-和-nonce)
-      - [加密](#加密)
-    - [其他的首部](#其他的首部)
-  - [推送事件](#推送事件)
-  - [展示通知](#展示通知)
-    - [视觉层面](#视觉层面)
-      - [Title, Body](#title-body)
-      - [Icon](#icon)
-      - [Badge](#badge)
-      - [Image](#image)
-      - [Actions](#actions)
-      - [Directions](#directions)
-      - [Vibrate](#vibrate)
-      - [Sound](#sound)
-      - [Timestamp](#timestamp)
-    - [行为层面](#行为层面)
-      - [Notificationclick 事件](#notificationclick-事件)
-      - [Actions](#actions-1)
-      - [Tag](#tag)
-      - [Renotify](#renotify)
-      - [Silent](#silent)
-    - [要求交互](#要求交互)
-  - [通用模式](#通用模式)
-    - [打开窗口](#打开窗口)
-    - [聚焦到一个存在的窗口](#聚焦到一个存在的窗口)
-    - [合并通知](#合并通知)
-  - [FAQ](#faq)
-    - [为什么推送在浏览器关闭的时候还可以工作](#为什么推送在浏览器关闭的时候还可以工作)
+  - [1. Overview](#1-overview)
+  - [2. How Push Works](#2-how-push-works)
+    - [2.1 第一步：客户端](#21-第一步客户端)
+    - [2.2 第二步：发送推送消息](#22-第二步发送推送消息)
+    - [2.3 第三步：用户设备上触发推送事件](#23-第三步用户设备上触发推送事件)
+  - [3. 订阅用户](#3-订阅用户)
+    - [3.1 功能检测](#31-功能检测)
+    - [3.2 注册 sw](#32-注册-sw)
+    - [3.3 权限请求](#33-权限请求)
+    - [3.4 使用 `PushManager` 订阅用户](#34-使用-pushmanager-订阅用户)
+    - [3.4 如何创建 application server keys](#34-如何创建-application-server-keys)
+    - [3.5将 Subscription 发送到我们的服务器](#35将-subscription-发送到我们的服务器)
+  - [4. 使用 Web Push 库发送消息](#4-使用-web-push-库发送消息)
+    - [4.1 保存 Subscriptions](#41-保存-subscriptions)
+    - [4.2 发送推送消息](#42-发送推送消息)
+  - [5. The Web Push Protocol](#5-the-web-push-protocol)
+    - [5.1 Application server keys](#51-application-server-keys)
+    - [5.2 负载加密](#52-负载加密)
+      - [5.2.1 输入](#521-输入)
+      - [5.2.2 共享密钥](#522-共享密钥)
+      - [5.2.3 PRK](#523-prk)
+      - [5.2.4 CEK 和 nonce](#524-cek-和-nonce)
+      - [5.2.5 加密](#525-加密)
+    - [5.3 其他的首部](#53-其他的首部)
+  - [6. 推送事件](#6-推送事件)
+  - [7. 展示通知](#7-展示通知)
+    - [7.1 视觉层面](#71-视觉层面)
+      - [7.1.1 Title, Body](#711-title-body)
+      - [7.1.2 Icon](#712-icon)
+      - [7.1.3 Badge](#713-badge)
+      - [7.1.4 Image](#714-image)
+      - [7.1.5 Actions](#715-actions)
+      - [7.1.6 Directions](#716-directions)
+      - [7.1.7 Vibrate](#717-vibrate)
+      - [7.1.8 Sound](#718-sound)
+      - [7.1.9 Timestamp](#719-timestamp)
+    - [7.2 行为层面](#72-行为层面)
+      - [7.2.1 Notificationclick 事件](#721-notificationclick-事件)
+      - [7.2.2 Actions](#722-actions)
+      - [7.2.3 Tag](#723-tag)
+      - [7.2.4 Renotify](#724-renotify)
+      - [7.2.5 Silent](#725-silent)
+    - [7.2.6 要求交互](#726-要求交互)
+  - [8. 通用模式](#8-通用模式)
+    - [8.1 打开窗口](#81-打开窗口)
+    - [8.2 聚焦到一个存在的窗口](#82-聚焦到一个存在的窗口)
+    - [8.3 合并通知](#83-合并通知)
+  - [9. FAQ](#9-faq)
+    - [9.1 为什么推送在浏览器关闭的时候还可以工作](#91-为什么推送在浏览器关闭的时候还可以工作)
 
 <!-- /TOC -->
 
-## Overview
+## 1. Overview
 
 ```js
 serviceWorkerRegistration.showNotification(title, options);
@@ -78,7 +78,7 @@ serviceWorkerRegistration.showNotification(title, options);
 
 ![cc-good](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/cc-good.png)    
 
-## How Push Works
+## 2. How Push Works
 
 实现 web push 的三个关键步骤：   
 
@@ -87,7 +87,7 @@ serviceWorkerRegistration.showNotification(title, options);
 3. 当这条推送消息到达用户设备时，sw JS 文件会收到一个 "push" 事件。这时我们就应该调用
 Notification API 来展示一条通知。    
 
-### 第一步：客户端
+### 2.1 第一步：客户端
 
 订阅一个用户要求两件事。首先，获取给用户发送消息的 **权限**。第二点，从浏览器获取 `PushSubscription`。
 `PushSubscription` 包含我们要给用户发送信息所需的所有信息。可以将其假想成一个用户设备的 ID。     
@@ -100,7 +100,7 @@ Notification API 来展示一条通知。
 当所有东西都准备好后，就可以将 `PushSubscription` 中的内容发送给服务器。在服务器上我们会将这些
 内容存储在数据库中，然后用它来发送信息给用户。   
 
-### 第二步：发送推送消息
+### 2.2 第二步：发送推送消息
 
 当我们要发送推送消息到用户时，在服务器上进行一个 API 调用到 push service。API 调用会包含我们
 要发送的信息的内容。   
@@ -128,7 +128,7 @@ push service 接收网络请求，验证其内容，然后发送一条推送消�
 push service 的地址即 `random-push-service.com`，而每个用户的 endpoint 都是唯一的，上面
 的就是 `some-kind-of-unique-id-1234`。     
 
-API 调用定义在标准 [Web Push Protocal](https://tools.ietf.org/html/draft-ietf-webpush-protocol-12)。    
+API 调用定义在标准 [Web Push Protocol](https://tools.ietf.org/html/draft-ietf-webpush-protocol-12)。    
 
 这个 API 调用要求了一些请求首部以及数据必须是字节流的形式。     
 
@@ -142,9 +142,9 @@ service 上是如何入队的。
 + 给推送消息一个 "topic" 名称会替换在队列中的消息（但没明确说是同一 "topic" 的消息，但估计应该
 是这样的）    
 
-![server-to-push-service](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/server-to-push-service.svg)    
+![server-to-push-service](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/server-to-push-service.png)    
 
-### 第三步：用户设备上触发推送事件
+### 2.3 第三步：用户设备上触发推送事件
 
 push service 在收到我们服务器发送的推送消息后，直到以下事件之一发生前，消息会一直保存在其服务器
 上：   
@@ -156,11 +156,11 @@ push service 在收到我们服务器发送的推送消息后，直到以下事�
 
 sw 可以在页面未打开的时候执行，甚至可以在浏览器关闭的时候执行。    
 
-![push-service-to-sw-event](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/push-service-to-sw-event.svg)    
+![push-service-to-sw-event](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/push-service-to-sw-event.png)    
 
-## 订阅用户
+## 3. 订阅用户
 
-### 功能检测
+### 3.1 功能检测
 
 首先肯定要检测浏览器支不支持推送功能，介于 `push` 事件是在 sw 中触发，所以也要支持 sw：   
 
@@ -179,7 +179,7 @@ if (!('PushManager' in window)) {
 }
 ```    
 
-### 注册 sw
+### 3.2 注册 sw
 
 ```js
 function registerServiceWorker() {
@@ -197,7 +197,7 @@ function registerServiceWorker() {
 当 `register()` resolve 了，返回一个 `ServiceWorkerRegistration` 对象，这个对象提供了
 对 PushManager API 的访问。     
 
-### 权限请求
+### 3.3 权限请求
 
 获取权限的 API 最近做过变更，因此我们必须提供两个版本的适配：   
 
@@ -231,7 +231,7 @@ function askPermission() {
 如果用户一旦拒绝授予权限的话，那就比较惨了，我们就不能再次发起请求权限的申请了，用户必须手动到
 配置面板里解封。    
 
-### 使用 `PushManager` 订阅用户
+### 3.4 使用 `PushManager` 订阅用户
 
 ```js
 function subscribtUserToPush() {
@@ -268,7 +268,7 @@ function subscribtUserToPush() {
 具体的步骤就是：   
 
 1. 页面在浏览器中调用 `subscribe()`，传入服务器公钥
-2. 浏览器将公钥通过网络请求发送给 push service，push service 会生成一个 endpoing，将
+2. 浏览器将公钥通过网络请求发送给 push service，push service 会生成一个 endpoint，将
 endpoint 与公钥关联起来，返回将 endpoint 返回给浏览器
 3. 浏览器将 endpoint 添加到 `PushSubscription`。    
 
@@ -276,7 +276,7 @@ endpoint 与公钥关联起来，返回将 endpoint 返回给浏览器
 服务器私钥签名的信息（什么信息也没说啊）。当 push service 收到这个网络请求时，使用查找到的
 公钥解开签名验证消息。   
 
-![application-server-key-send](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/application-server-key-send.svg)    
+![application-server-key-send](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/application-server-key-send.png)    
 
 所以这个 Web Push Protocol 信息都是在这个首部中吗？    
 
@@ -298,14 +298,14 @@ endpoint 与公钥关联起来，返回将 endpoint 返回给浏览器
 注意看意思这里面的 `keys` 才是用来加密数据的，那也就是说 application server keys 就只是
 push service 用来识别应用的功能。    
 
-### 如何创建 application server keys
+### 3.4 如何创建 application server keys
 
 ```js
 $ npm install -g web-push
 $ web-push generate-vapid-keys
 ```    
 
-### 将 Subscription 发送到我们的服务器
+### 3.5将 Subscription 发送到我们的服务器
 
 ```js
 const subscriptionObject = {
@@ -345,9 +345,9 @@ function sendSubscriptionToBackEnd(subscription) {
 }
 ```    
 
-## 使用 Web Push 库发送消息
+## 4. 使用 Web Push 库发送消息
 
-### 保存 Subscriptions
+### 4.1 保存 Subscriptions
 
 ```js
 function sendSubscriptionToBackEnd(subscription) {
@@ -389,7 +389,7 @@ function saveSubscriptionToDatabase(subscription) {
 };
 ```    
 
-### 发送推送消息
+### 4.2 发送推送消息
 
 ```js
 const webpush = require('web-push');
@@ -435,9 +435,9 @@ const triggerPushMsg = function(subscription, dataToSend) {
 };
 ```    
 
-## The Web Push Protocol
+## 5. The Web Push Protocol
 
-### Application server keys
+### 5.1 Application server keys
 
 1. 应用服务器使用其 application 私钥将一个 JSON 消息签名
 2. 被签名的信息被添加到一个 HTTP POST 请求的首部中发送给 push service
@@ -512,7 +512,7 @@ Web Push Protocol 还要求我们使用 URL safe base64 将应用公钥加密，
 Crypto-Key: p256ecdsa=<URL Safe Base64 Public Application Server Key>
 ```   
 
-### 负载加密
+### 5.2 负载加密
 
 消息负载的加密是在规范 [Message Encryption spec](https://tools.ietf.org/html/draft-ietf-webpush-encryption-09)    
 
@@ -558,7 +558,7 @@ function hkdf(salt, ikm, info, length) {
 }
 ```    
 
-#### 输入
+#### 5.2.1 输入
 
 OK，加密算法都讲完了，现在进入正文，当我们想要发送一条推送消息时，输入包括三部分：   
 
@@ -589,7 +589,7 @@ const localPrivateKey = localKeysCurve.getPrivateKey();
 本地密钥（上面的这两个），现在就可以开始加密了。     
 
 
-#### 共享密钥
+#### 5.2.2 共享密钥
 
 第一步就是使用 subscription 公钥和服务器刚创建的私钥创建一个共享密钥：   
 
@@ -598,7 +598,7 @@ const sharedSecret = localKeysCurve.computeSecret(
   subscription.keys.p256dh, 'base64');
 ```    
 
-#### PRK
+#### 5.2.3 PRK
 
 Pseudo Random Key(PRK) 是 auth 密钥和共享密钥的组合：   
 
@@ -607,7 +607,7 @@ const authEncBuff = new Buffer('Content-Encoding: auth\0', 'utf8');
 const prk = hkdf(subscription.keys.auth, sharedSecret, authEncBuff, 32);
 ```    
 
-#### CEK 和 nonce
+#### 5.2.4 CEK 和 nonce
 
 然后还有一个 context 的东东：   
 
@@ -656,7 +656,7 @@ const nonce = hkdf(salt, prk, nonceInfo, 12);
 const contentEncryptionKey = hkdf(salt, prk, cekInfo, 16);
 ```    
 
-#### 加密
+#### 5.2.5 加密
 
 ```js
 const cipher = crypto.createCipheriv(
@@ -711,7 +711,7 @@ Content-Encoding: 'aesgcm'
 
 很明显，加密负载是放在请求主体中了。    
 
-### 其他的首部
+### 5.3 其他的首部
 
 `TTL` 即之前提到的在队列中的最大生存时间，整型秒数值，必有的首部。    
 
@@ -730,7 +730,7 @@ TTL: <Time to live in seconds>
 Urgency: <very-low | low | normal | high>
 ```    
 
-## 推送事件
+## 6. 推送事件
 
 ```js
 self.addEventListener('push', function(event) {
@@ -770,7 +770,7 @@ self.addEventListener('push', function(event) {
 });
 ```    
 
-## 展示通知
+## 7. 展示通知
 
 我们可以将通知的配置项分成两部分，视觉层面和行为层面。    
 
@@ -800,12 +800,12 @@ self.addEventListener('push', function(event) {
 }
 ```    
 
-### 视觉层面
+### 7.1 视觉层面
 
 
 ![notification-ui](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/notification-ui.png)    
 
-#### Title, Body
+#### 7.1.1 Title, Body
 
 这个没什么好介绍的，但是注意点就是不同的浏览器展示的通知的样式是不同的，Chrome 跨平台提供了
 统一的 UI 表项，而 FF 则会使用系统提供的通知功能，例如在 Linux 下是这样：   
@@ -816,13 +816,13 @@ self.addEventListener('push', function(event) {
 
 ![firefox-title-body-windows](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/firefox-title-body-windows.png)    
 
-#### Icon
+#### 7.1.2 Icon
 
 `icon` 是一个在标题和正文旁边的一幅小图片。     
 
 大小的话并没有明确的规定，在 Android 上可能是 64dp。   
 
-#### Badge
+#### 7.1.3 Badge
 
 `badge` 是一个小的单色图标，用来向用户提示通知来源的一些信息。   
 
@@ -836,7 +836,7 @@ registration.showNotification(title, options);
 
 大小可能是 24dp。   
 
-#### Image
+#### 7.1.4 Image
 
 在桌面设备类似这样:   
 
@@ -845,7 +845,7 @@ registration.showNotification(title, options);
 
 ![chrome-image-android](https://raw.githubusercontent.com/temple-deng/markdown-images/master/pwa/chrome-image-android.png)   
 
-#### Actions
+#### 7.1.5 Actions
 
 `actions` 是通知的按钮：   
 
@@ -892,15 +892,15 @@ registration.showNotification(title, options);
 
 当前只有 Android 上的 Chrome 和 Opera 支持 actions。    
 
-#### Directions
+#### 7.1.6 Directions
 
 `dir` 没错就是文字的方向。   
 
-#### Vibrate
+#### 7.1.7 Vibrate
 
 数字的数组，单位是号码，即 \[震动，不震动\]。    
 
-#### Sound
+#### 7.1.8 Sound
 
 目前还没有浏览器支持这一选项，哈哈哈：   
 
@@ -912,7 +912,7 @@ const options = {
 registration.showNotification(title, options);
 ```    
 
-#### Timestamp
+#### 7.1.9 Timestamp
 
 从 1970.01.01 开始的毫秒时间戳，是导致服务器发送推送消息的事件触发的时间。   
 
@@ -925,7 +925,7 @@ const options = {
 registration.showNotification(title, options);
 ```    
 
-### 行为层面
+### 7.2 行为层面
 
 默认情况下，调用 `showNotification()` 会有以下的默认行为：   
 
@@ -934,7 +934,7 @@ registration.showNotification(title, options);
 + 平台可能会发出声音或者震动
 + 一些平台可能在一段时间后会自动关闭通知，另一些则会一直展示着，直到用户交互。   
 
-#### Notificationclick 事件
+#### 7.2.1 Notificationclick 事件
 
 当用户点击通知时，默认的行为是什么都不发生，甚至都不会关闭或者移除通知。   
 
@@ -947,7 +947,7 @@ self.addEventListener('notificationclick', function(e) {
 });
 ```   
 
-#### Actions
+#### 7.2.2 Actions
 
 之前以及提到了 actions，当用户点击 action 按钮后，我们可以检查 notificationclick 事件的
 `event.action` 属性。   
@@ -980,28 +980,28 @@ self.addEventListener('notificationclick', function(event) {
 });
 ```    
 
-#### Tag
+#### 7.2.3 Tag
 
 `tag` 其实是一个将通知分组的字符串 ID。不过需要注意的是同一组后面的通知不会触发声音或者震动。   
 
-#### Renotify
+#### 7.2.4 Renotify
 
 介于 `tag` 中不会重复发出声音和震动的问题，就需要添加另一个配置 `renotify` 布尔值属性，不过
 需要注意的是 `renoify` 必须搭配 `tag` 使用不然要报错。   
 
-#### Silent
+#### 7.2.5 Silent
 
 禁止震动、声音以及把屏幕弄亮吧。    
 
 `silent` 优先级大于 `renotify`。   
 
-### 要求交互
+### 7.2.6 要求交互
 
 桌面上的 Chrome 一段时间后会自动隐藏。Android 上则没有这种行为，必须要交互才行。   
 
 为了强制通知在交互前一直存在，添加 `requireInteraction` 配置项。   
 
-## 通用模式
+## 8. 通用模式
 
 除了 `notificationclick` 事件还有一个 `notificationclose` 事件，在用户选择忽略通知时
 触发。    
@@ -1023,7 +1023,7 @@ registration.showNotification('Notification with Data', options);
 
 在 `notificationclick` 事件回调中，我们可以在 `event.notification.data` 访问到这些数据。   
 
-### 打开窗口
+### 8.1 打开窗口
 
 ```js
 const examplePage = '/demos/notification-examples/example-page.html';
@@ -1031,7 +1031,7 @@ const promiseChain = clients.openWindow(examplePage);
 event.waitUntil(promiseChain);
 ```    
 
-### 聚焦到一个存在的窗口
+### 8.2 聚焦到一个存在的窗口
 
 ```js
 const urlToOpen = new URL(examplePage, self.location.origin).href;
@@ -1061,7 +1061,7 @@ const promiseChain = clients.matchAll({
 event.waitUntil(promiseChain);
 ```    
 
-### 合并通知
+### 8.3 合并通知
 
 针对通知的折叠方面，我们可以使用 API 实现更复杂的折叠方案，而不是像上一节那样直接替换。比如说
 聊天 app，可能会显示 `You have two messages from Matt` 这样的东西。   
@@ -1104,9 +1104,9 @@ event.waitUntil(promiseChain);
     });
 ```    
 
-## FAQ
+## 9. FAQ
 
-### 为什么推送在浏览器关闭的时候还可以工作
+### 9.1 为什么推送在浏览器关闭的时候还可以工作
 
 先谈 Android，Android 系统会一直监听推送消息，直到收到一条推送消息后，系统会唤醒适当的 app 会
 处理这条消息，而不管 app 是否处在关闭状态。   
@@ -1116,4 +1116,4 @@ event.waitUntil(promiseChain);
 
 桌面系统这个没看懂。好像是浏览器如果没运行的话，是接收不到推送事件的。    
 
-Last Update: 2018.10.24   
+Last Update: 2018.11.07   
