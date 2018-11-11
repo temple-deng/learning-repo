@@ -68,8 +68,8 @@ Flex lines are filled with items and placed into the container starting on the c
 flex 容器不同于块容器，所以一些针对块布局设计的属性可能不会在 flex 布局中适用。特别是：   
 
 + flex 容器的 'column-\*' 属性不会生效
-+ flex item 的 'float' and 'clear' 会创建浮动挥着清除浮动，也不会使其处于流外 out-of-flow（这里和上面的流都是指
-之前文档中定义的流）    
++ flex item 的 'float' and 'clear' 不会创建浮动也不会清除浮动，也不会使其处于流外
+out-of-flow    
 + flex item 的 'vertical-align' 没有效果
 + 容器的 '::first-line' and '::first-letter' 不能应用，并且 flex 容器应该也不能作为
 其祖先元素的这样的伪元素。     
@@ -245,7 +245,7 @@ flex 容器中的 items 都是相对于 flex lines 进行布局和对齐的，�
 
 | 属性名 | `flex` |
 | :------------- | :------------- |
-| 值 | none &#124; [&lt;'flex-grow'&gt; &lt;'flex-shrink'&gt;?|| &lt;'flex-basis'&gt;] |
+| 值 | none &#124; [&lt;'flex-grow'&gt; &lt;'flex-shrink'&gt;? &brvbar;&brvbar; &lt;'flex-basis'&gt;] |
 | 初始值 | 0 1 auto |
 | 应用 | flex items |
 | 继承性 | 否 |
