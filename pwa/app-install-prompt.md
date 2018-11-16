@@ -145,7 +145,7 @@ window.addEventListener('appinstalled', (evt) => {
 
 ```js
 if (window.matchMedia('(display-mode: standalone)').matches) {
-  console.log('display-mode is standalone);
+  console.log('display-mode is standalone');
 }
 ```    
 

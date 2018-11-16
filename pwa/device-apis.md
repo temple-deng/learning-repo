@@ -46,7 +46,7 @@ iOS Safari 没有全屏 API，但是其他的大部分平台的浏览器支持�
 
 + `element.requestFullscreen()`: 当前在 Chrome, FF, IE 中需要添加前缀（然而测试时，在
 Chrome 好像叫 `webkitRequestFullScreen()`
-+ `document.exitFullscreen(): 同样，也要前缀，FF 使用 `cancelFullScreen()`
++ `document.exitFullscreen()`: 同样，也要前缀，FF 使用 `cancelFullScreen()`
 + `document.fullscreenElement`: 同样，前缀，返回处于全屏模式的元素，否则返回 null   
 
 Mozilla 提供了一个脚本来切换全屏：   

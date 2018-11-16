@@ -179,6 +179,8 @@ if (!('PushManager' in window)) {
 }
 ```    
 
+好奇怪，PushManager 对象怎么是同时存在于 window 对象上。    
+
 ### 3.2 注册 sw
 
 ```js

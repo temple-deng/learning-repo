@@ -272,7 +272,9 @@ ELF 文件类型 | 说明 | 实例
 有 .code 或 .text；全局变量和局部静态变量数据经常被放在 **数据段**(Data Section)，
 数据段的一般名字叫 .data。     
 
-![3-1](https://raw.githubusercontent.com/temple-deng/markdown-images/master/program/3-1.png)
+![3-1](https://raw.githubusercontent.com/temple-deng/markdown-images/master/program/3-1.png)    
+
+上图中有问题吧，main 内部的局部静态变量为什么是在 .data 段中，不应该是在堆栈中吗。   
 
 假设图中的目标文件格式是 ELF，从图中可以看到，ELF 文件的开始是一个文件头，它描述整个
 文件的文件属性，包括文件是否可执行、是静态链接还是动态链接、目标硬件、目标操作系统等
