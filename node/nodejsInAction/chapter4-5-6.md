@@ -1,5 +1,7 @@
 # 第 2 部分 Node 的 Web 开发
 
+
+
 ## 第 4 章 前端构建系统
 
 安装 gulp, gulp-cli, gulp-babel, gulp-sourcemaps, gulp-concat:   
@@ -394,8 +396,58 @@ class User {
       })
     })
   }
+
+  static getByName(name, cb) {
+    User.getId(name, (err, id) => {
+      if (err) {
+        return cb(err);
+      }
+      User.get(id, cb);
+    });
+  }
+
+  static getId(name, cb) {
+    db.get(`user:id:${name}`, cb);
+  }
+
+  static get(id, cb) {
+    db.hgetall(`user:${id}`, (err, user) => {
+      if (err) {
+        return cb(err);
+      }
+      cb(null, new User(user));
+    });
+  }
+
+  static authenticate(name, pass, cb) {
+    User.getByName(name, (err, user) => {
+      if (err) {
+        return cb(err);
+      }
+      if (!user.id) {
+        return cb();
+      }
+      bcrypt.hash(pass, user.salt, (err, hash) => {
+        if (err) {
+          return cb(err);
+        }
+        if (hash === user.pass) {
+          return cb(null, user);
+        }
+        cb();
+      })
+    })
+  }
 }
 
 module.exports = User;
 ```    
 
+算了算了，后面的讲的有点乱，先跳过。   
+
+### 6.2.9 创建 REST API
+
+`app.use()` 方法可以接收路径参数，这在 Express 中被成为挂载点。不管是什么 HTTP 谓词，只要
+请求的路径以挂载点开头，就会触发这个中间件。   
+
+Last Update: 2018.11.28
