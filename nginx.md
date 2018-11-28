@@ -59,3 +59,48 @@ sudo apt-get install nginx
 
 ### 1.2.2 源代码编译
 
+首先下载安装包并解压：    
+
+```shell
+$ mkdir $HOME/build
+$ cd $HOME/build && tar xzf nginx-<version-number>.tar.gz
+```    
+
+配置：   
+
+```shell
+$ cd $HOME/build/nginx-<version-number> && ./configure
+```   
+
+编译：   
+
+```shell
+$ make && sudo make install
+```   
+
+通用配置选项：   
+
+
+选项 | 描述
+---------|----------
+ `--prefix=<path>` | 安装根路径，所有其他的安装路径都是相对于这个路径，默认是 `/usr/local/nginx`
+ `--sbin-path=<path>` | Nginx 可执行文件的路径，如果未指定的话，相对于 prefix，默认 `/usr/local/nginx/sbin/nginx`
+ `--conf-path=<path>` | Nginx 寻找其配置文件的路径 `/usr/local/nginx/conf/nginx.conf`
+ `--error-log-path=<path>` | 错误日志文件的位置 `/usr/local/nginx/logs/error.log`
+ `--pid-path=<path>` | 主进程 pid 文件的位置 `/usr/local/nginx/logs/nginx.pid`
+ `--lock-path=<path>` | 共享内存 mutex 锁文件的位置
+ `--user=<user>` | 可以运行进程的用户
+ `--group=<group>` | 可以运行进程的用户组
+ `--with-file-aio` | 启用异步 I/O
+ `--with-debug` | 启用 debug 日志   
+
+优化配置选项：   
+
+
+选项 | 描述
+----------|---------
+ `--with-cc=<path>` | C 编译器的位置
+ `--with-cpp=<path>` | C 预处理器
+ `--with-cc-opt=<options>` | 略
+ `--with-ld-opt=<options>` | 略
+ `--with-cpu-opt=<cpu>` | 略
