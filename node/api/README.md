@@ -14,7 +14,7 @@
 + Crypto
 + Debugger
 + DNS
-+ Domain
++ Domain(Deprecated)
 + ECMAScript Modules
 + Errors
 + Events
@@ -23,7 +23,7 @@
 + HTTP
 + HTTP/2
 + HTTPS
-+ Inspector
++ Inspector(Experimental)
 + Internationalization
 + Modules
 + Net
