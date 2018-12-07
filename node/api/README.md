@@ -31,7 +31,7 @@
 + Path
 + Performance Hooks
 + Process
-+ Punycode
++ Punycode(Deprecated)
 + Query Strings
 + Readline
 + REPL
