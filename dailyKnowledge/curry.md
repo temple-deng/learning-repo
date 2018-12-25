@@ -1,18 +1,16 @@
 # 柯里化
 
 ```js
-function add () {
+function add() {
   var args = [].slice.call(arguments);
-
-  var adder = function() {
+  
+  function adder() {
     args = args.concat([].slice.call(arguments));
-    return sumer;
+    return adder;
   }
 
   adder.valueOf = function() {
-    return args.reduce((a, b) => {
-      return a+b;
-    }, 0);
+    return args.reduce((a, b) => a+b);
   }
 
   adder.toString = adder.valueOf;
