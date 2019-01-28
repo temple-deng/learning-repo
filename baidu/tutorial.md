@@ -349,7 +349,10 @@ Touch 对象：
  页面重定向 | 调用 API `swan.redirectTo` 或使用组件 | onUnload | onLoad, onShow
  页面返回 | 调用 API `swan.navigateBack` 或使用组件或用户按左上角返回按钮 | onUnload | onShow
  Tab 切换 | 调用 API `swan.switchTab` 或使用组件或用户切换 Tab | - | 各种情况请参考下表
- 重启动 | 调用 API `swan.reLaunch` 或使用组件 | onUnload | onLoad, onShow
+ 重启动 | 调用 API `swan.reLaunch` 或使用组件 | onUnload | onLoad, onShow   
+
+首先需要注意的一点是，除了几个 tab 页可能地位相对来说不同，其他的非 tab 页其实从本质上来看地位
+都是一样的。    
 
 Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A 页面打开的页面，D 页面
 是从 C 页面打开的页面为例）：   
@@ -367,7 +370,11 @@ Tab 切换对应的生命周期（以 A、B 页面为 Tabbar 页面，C 是从 A
 
 - navigateTo, redirectTo 只能打开非 tabBar 页面。
 - switchTab 只能打开 tabBar 页面。
-- reLaunch 可以打开任意页面。
+- reLaunch 可以打开任意页面。    
+
+从上面这个例子看的话，前面文档说的部分内容并不严谨，前面文档说进行 tab 切换的话是会清空页面栈，
+但看表格第一行的例子的话，并不是这样的，A 并没有触发 onUnload，那说明 tab 页是不出栈的。
+也就是说，进行 tab 切换的时候，出栈就只是普通的页面出栈，tab 页是不出的。     
 
 ## Page
 

@@ -1,5 +1,187 @@
 # 组件
 
+<!-- TOC -->
+
+- [组件](#组件)
+- [原生组件说明](#原生组件说明)
+- [视图容器](#视图容器)
+  - [view](#view)
+  - [scroll-view](#scroll-view)
+  - [swiper](#swiper)
+  - [movable-area](#movable-area)
+  - [cover-view](#cover-view)
+  - [cover-image](#cover-image)
+- [基础内容](#基础内容)
+  - [icon](#icon)
+  - [text](#text)
+  - [rich-text](#rich-text)
+  - [progress](#progress)
+  - [animation-view](#animation-view)
+- [表单组件](#表单组件)
+  - [button](#button)
+  - [checkbox](#checkbox)
+  - [form](#form)
+  - [input](#input)
+  - [label](#label)
+  - [picker](#picker)
+  - [picker-view](#picker-view)
+  - [radio](#radio)
+  - [slider](#slider)
+  - [switch](#switch)
+  - [textarea](#textarea)
+- [导航](#导航)
+- [媒体组件](#媒体组件)
+  - [audio](#audio)
+  - [image](#image)
+  - [video](#video)
+  - [camera](#camera)
+  - [live-player](#live-player)
+- [开放能力](#开放能力)
+  - [open-data](#open-data)
+  - [web-view](#web-view)
+
+<!-- /TOC -->
+
+# 原生组件说明
+
+原生组件是由客户端创建的原生组件，包括：canvas, map, animation-view, textarea, cover-view,
+cover-image, camera, web-view, video, live-player。   
+
+由于原生组件脱离在 web-view 渲染流程外，因此在使用时有以下限制：   
+
+- 原生组件的层级是最高的，所以页面中的其他组件无论 z-index 为多少，都无法盖在原生组件上
+- 原生组件无法在 scroll-view, swiper, picker-view, movable-view 中使用
+- 部分 CSS 样式无法应用于原生组件
+- 在 IOS 下，video 组件暂时不支持触摸相关事件
+
+# 视图容器
+
+## view
+
+
+属性名 | 类型 | 默认值 | 说明
+---------|----------|---------|---------
+ hover-class | String | none | 指定按下去的样式类
+ hover-stop-propagation | Boolean | false | 指定是否阻止本节点的祖先节点出现点击态
+ hover-start-time | Number | 50 | 按住后多久出现点击态，单位毫秒
+ hover-stay-time | Number | 400 | 手指松开后点击态保留时间，单位毫秒
+
+## scroll-view
+
+可滚动视图区域。   
+
+很奇怪，html 自己的滚动机制也还是可以正常工作的啊，那这个组件的意义何在。   
+
+属性名 | 类型 | 默认值 | 说明
+---------|----------|---------|---------
+ scroll-x | Boolean | false | 允许横向滚动
+ scroll-y | Boolean | false | 允许纵向滚动
+ upper-threshold | Number | 50 | 距顶部/左边多远时（单位 px），触发 scrolltoupper 事件
+ lower-threshold | Number | 50 | 同上，scrolltolower 事件
+ scroll-top | Number | - | 设置竖向滚动条位置
+ scroll-left | Number | - | 设置横向滚动条位置
+ scroll-into-view | String | - | 值为某子元素 id，设置滚动方向后，按方向滚动到该元素
+ scroll-with-animation | Boolean | false | 在设置滚动条位置时使用动画过渡
+ bindscrolltoupper | EventHandle | - | 滚动到顶部/左边，会触发 scrolltoupper 事件
+ bindscrolltolower | EventHandle | - | 滚动到底部/右边，会触发 scrolltolower 事件
+ bindscroll | EventHandle | - | 滚动时触发，event.detail = {scrollLeft, scrollTop,scrollHeight, scrollWidth, deltaX, deltaY}
+
+
+## swiper
+
+滑块视图容器，其实就是跑马灯。   
+
+
+属性名 | 类型 | 默认值 | 说明
+---------|----------|---------|---------
+ indicator-dots | Boolean | false | 是否显示面板指示点
+ indicator-color | Color | rgba(0,0,0,.3) | 指示点颜色
+ indicator-active-color | Color | #333 | 当前选中的指示点颜色
+ autoplay | Boolean | false | 是否自动播放
+ current | Number | 0 | 当前所在页面的 index
+ current-item-id | String | "" | 当前所在滑块的 item-id，不能与 current 被同时指定
+ interval | Number | 5000 | 自动切换时间间隔
+ duration | Number | 500 | 滑动动画时长
+ circular | Boolean | false | 是否采用衔接滑动
+ vertical | Boolean | false | 滑动方向是否为纵向
+ previous-margin | String | '0px' | 前边距，可用于露出前一项的一小部分
+ next-margin | String | '0px' | 后边距，可用于露出后一项的一小部分
+ display-multiple-items | Number | 1 | 同时显示的滑块数量
+ bindchange | EventHandle | - | current 改变时会触发 change 事件，detail={current:current, source:source}
+ bindanimationfinish | EventHandle | - | 动画结束时会触发 animationfinish 事件，detail同上
+
+其中只可放置 `<swiper-item/>` 组件。item 的宽高自动设置为 100%。   
+
+item 有一个 item-id 属性，即标识符。   
+
+## movable-area
+
+movable-view 的可移动区域。   
+
+movable-area 必须设置 width 和 height 属性，不设置默认为 10px。   
+
+属性名 | 类型 | 说明
+---------|----------|---------
+ scale-area | Boolean | 当里面的 movable-view 设置为支持双指缩放时，设置此值可将缩放手势生效区域修改为整个 movable-area
+
+movable-view 是可移动的视图容器，在页面中可以拖拽滑动。   
+
+
+属性名 | 类型 | 默认值 | 说明
+---------|----------|---------|---------
+ direction | String | none | movable-view 的移动方向，属性值有 all, vertical, horizontal, none
+ inertia | Boolean | false | movable-view 是否带有惯性
+ out-of-bounds | Boolean | false | 超过可移动区域后，movable-view 是否还可以移动
+ x | Number | - | 定义 x 轴方向的偏移，如果 x 的值不在可移动范围内，会自动移动到可移动范围
+ y | Number | - | 定义 y 轴方向偏移，同上
+ damping | Number | 20 | 阻尼系数，控制回弹动画
+ friction | Number | 2 | 摩擦系数
+ disabled | Boolean | false| 是否禁用
+ scale | Boolean | false | 是否支持双指缩放
+ scale-min | Number | 0.5 | 定义缩放倍数的最小值
+ scale-max | Number | 10 | 定义缩放倍数的最大值
+ scale-value | Number | 1 | 定义缩放倍数
+ animation | Boolean | true | 是否使用动画
+ bindchange | EventHandle | - | 拖动过程触发的事件 detail = {x:x, y:y, source:source}，其中 source 表示产生移动的原因，值可为 touch(拖动)、out-of-bounds（超出移动范围后的回弹）、inertia（惯性）和空字符串（setData）
+ bindscale | EventHandle | - | 缩放过程触发的事件，detail = {x:x,y:y,scale:scale}
+
+```html
+<view class="movable-view">
+    <movable-area style="height: 300px;width: 300px;background: green;">
+        <movable-view style="height: 40px; width: 40px; background: black;" x="30" y="30" direction="all">
+        </movable-view>
+    </movable-area>
+</view>
+```    
+
+- movable-view 必须设置 width 和 height 属性，不设置默认为 10px；
+- movable-view 默认为绝对定位，top 和 left 属性为 0px；
+- 当movable-view小于movable-area时，movable-view的移动范围是在movable-area内；
+- 当movable-view大于movable-area时，movable-view的移动范围必须包含movable-area（x 轴方向和 y 轴方向分开考虑）；
+- movable-view必须在组件中，并且必须是直接子节点，否则不能移动。
+
+## cover-view
+
+覆盖在原生组件之上的文本视图，可覆盖的原生组件包括 video、canvas、camera，只支持嵌套 cover-view、cover-image。   
+
+
+## cover-image
+
+覆盖在原生组件之上的图片视图，可覆盖的原生组件同 cover-view,支持嵌套在 cover-view 里。   
+
+- src: 图片路径，支持临时路径、网络地址，不支持base64
+- bindload: 图片加载成功时触发
+- binderror: 图片加载失败时触发   
+
+1. 支持 css transition 动画，transition-property 只支持 transform (translateX, translateY) 与 opacity；
+2. 文本建议都套上 cover-view 标签，避免排版错误；
+3. 只支持基本的定位、布局、文本样式。不支持设置单边的 border、background-image、shadow、overflow: visible 等；
+4. 建议子节点不要溢出父节点；
+5. 默认设置的样式有：white-space: nowrap; line-height: 1.2; display: block ；
+6. 建议不要频繁改变 s-if 表达式的值控制显隐，否则会导致 cover-view 显示异常；
+7. IOS端暂不支持一个页面有多个video时嵌套cover-view；
+8. cover-view 和 cover-image 从基础库版本1.12.0开始支持事件捕获、冒泡。
+
 # 基础内容
 
 ## icon
