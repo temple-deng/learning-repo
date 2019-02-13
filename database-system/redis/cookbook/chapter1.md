@@ -43,14 +43,14 @@ $ cd /redis
 3. 下载 Redis   
 
 ```bash
-$ wget http://download.redis.io/release/redis-4.0.1.tar.gz
+$ wget http://download.redis.io/redis-stable.tar.gz
 ```    
 
 4. 解压下载到的 Redis 源码并切换到对应的目录下：   
 
 ```bash
-$ tar zxvf redis-4.0.1.tar.gz
-$ cd redis-4.0.1
+$ tar zxvf redis-stable.tar.gz
+$ cd redis-stable
 ```   
 
 5. 为 Redis 的配置文件创建目录并把默认配置文件复制进去：   
@@ -78,7 +78,7 @@ $ make
 
 ```
 It's a good idea to run 'make test' ;)
-make[1]: Leaving directory '/redis/redis-4.0.1/src
+make[1]: Leaving directory '/redis/redis-stable/src
 ```    
 
 8. 安装 Redis    

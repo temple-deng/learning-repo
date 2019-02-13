@@ -25,6 +25,7 @@
   - [3.11 Docker 统计信息](#311-docker-统计信息)
   - [3.12 在容器内部运行进程](#312-在容器内部运行进程)
   - [3.13 停止守护容器](#313-停止守护容器)
+  - [3.14 自动重启容器](#314-自动重启容器)
   - [3.16 删除容器](#316-删除容器)
 
 <!-- /TOC -->
@@ -206,9 +207,14 @@ Docker 会为我们创建的每一个容器自动生成一个随机的名称。�
 
 ## 3.5 重新启动已经停止的容器
 
+可以使用下面的命令重新启动一个已经停止的容器：
+
 ```bash
 $ docker start CONTAINER
 ```   
+
+也就说 start 命令是启动一个容器，而不管之前该容器是刚创建未运行状态，还是已经运行过，但目前处于
+停止状态的容器。   
 
 ## 3.6 附着到容器上
 
@@ -284,6 +290,24 @@ $ docker exec -t -i daemon_dave /bin/bash
 
 ```bash
 $ docker stop daemon_dave
+```   
+
+## 3.14 自动重启容器
+
+如果由于某种错误而导致容器停止运行，还可以通过--restart标志，让Docker自动重新启动该容器。
+--restart标志会检查容器的退出代码，并据此来决定是否要重启容器。默认的行为是Docker不会重启容器。   
+
+```
+$ docker run --restart=always --name daemon_dave -d ubuntu \
+  /bin/sh -c "while true; do echo hello world; sleep 1; done"
+```   
+
+always 无论容器的退出代码是什么，Docker都会自动重启该容器。除了always，还可以将这个标志设为
+on-failure，这样，只有当容器的退出代码为非0值的时候，才会自动重启。另外，on-failure 还接受
+一个可选的重启次数参数。   
+
+```
+--restart=on-failure:5
 ```   
 
 ## 3.16 删除容器

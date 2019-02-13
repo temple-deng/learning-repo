@@ -79,6 +79,11 @@ Docker Hub 有两种类型的仓库：用户仓库和顶层仓库。用户仓库
 可以将此想象为我们是在往版本控制系统里提交变更。我们先创建一个容器，并在容器里做出修改，就像
 修改代码一样，最后再将修改提交为一个新镜像。    
 
+```
+$ docker commit -m "A new custome image" -a "James Turnbull" \
+4aab3c3... jamtur01/apache2:webserver
+```   
+
 ### 4.5.2 用 Dockerfile 构建镜像
 
 Dockerfile 使用基本的基于 DSL（Domain Specific Language）语法的指令来构建一个 Docker 镜像。
@@ -116,6 +121,10 @@ EXPOSE 80
 - 执行类似 docker commit 的操作，提交一个新的镜像层
 - Docker 再基于刚提交的镜像运行一个新容器
 - 执行 Dockerfile 中的下一条指令，知道所有指令都执行完毕     
+
+怪不得使用 docker info 的时候能看到有很多的镜像，但是 docker images 只有一部分，那其余没显示
+的镜像，应该就是我们在 docker build 过程中生成的缓存镜像吧。    
+
 
 每个 Dockerfile 的第一条指令必须是 FROM。FROM 指令指定一个已经存在的镜像，后续指令都将基于
 该镜像进行，这个镜像被称为基础镜像。   
@@ -171,6 +180,10 @@ Removing intermediate container de82d956ea6d
 Successfully built c5a9249618e1
 Successfully tagged dengbo/static_web:latest
 ```  
+
+我们可以分析一下，一开始有一句 `Sending build context to Docker daemen 2.048kB` 那应该
+就是上面说的把构建上下文发送给 docker，然后第一步，1d9c 是 ubuntu:18.04 镜像 ID，然后
+第二步运行在容器 49400 中，然后应该是构建了一个新的镜像 ff833，依次类推。   
 
 最开始的 1d9c 是 ubuntu:18.04 的镜像 ID。最后的 c5 是新创建的镜像的 ID。   
 

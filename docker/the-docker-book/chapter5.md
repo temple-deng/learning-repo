@@ -14,6 +14,7 @@
     - [5.2.4 将 Sinatra 应用程序连接到 Redis 容器](#524-将-sinatra-应用程序连接到-redis-容器)
     - [5.2.5 Docker 内部连网](#525-docker-内部连网)
     - [5.2.6 Docker Networking](#526-docker-networking)
+    - [5.2.7 通过 Docker 链接连接容器](#527-通过-docker-链接连接容器)
   - [5.3 Docker 用于持续集成](#53-docker-用于持续集成)
     - [5.3.1 构建 Jenkins 和 Docker 服务器](#531-构建-jenkins-和-docker-服务器)
 
@@ -355,6 +356,10 @@ Docker 链接，则可能需要更新一些配置，或者重启相应的容器�
 
 ### 5.2.5 Docker 内部连网
 
+第一种方法涉及 Docker 自己的网络栈。到目前为止，我们看到的 Docker 容器都是公开端口并绑定到本地
+网络接口的，这样可以把容器里的服务在本地 Docker 宿主机所在的外部网络上公开。除了这种用法，Docker
+这个特性还有种用法我们没有见过，那就是内部网络。   
+
 在安装 Docker 时，会创建一个新的网络接口，名字是 docker0。每个 Docker 容器都会在这个接口上
 分配一个 IP 地址。    
 
@@ -410,6 +415,12 @@ $ docker inspect redis
 虽然第一眼看上去这是让容器互联的一个好方案，但可惜的是，这种方法有两个大问题：第一，要在应用程序
 里对 Redis 容器的 IP 地址做硬编码；第二，如果重启容器，Docker 会改变容器的 IP 地址。   
 
+说实话暂时没弄懂这个，因为这个 MAC 上和书上命令的结果都不一致啊，后续有时间在 ubuntu 上试一试。   
+
+所以这种方式就是借助安装 Docker 时提供的一个网桥，来实现一个 Docker 容器之间的内部网络。   
+
+那这种网络的话，应该所有的容器都是可以互相访问的吧。感觉安全性不太好。  
+
 ### 5.2.6 Docker Networking
 
 容器之间的连接用网络创建，这被称为 Docker Networking。Docker Networking 允许用户创建自己的
@@ -429,7 +440,7 @@ docker network create app
 $ docker network inspect app
 ```    
 
-我们可以看到这个新网络是一个本地的桥接网络。除了运行于单个主机之上的桥接网络， 我们也可以创建一个
+我们可以看到这个新网络是一个本地的桥接网络。除了运行于单个主机之上的桥接网络，我们也可以创建一个
 overlay网络，overlay网络允许我们跨多台宿主机进行通信。     
 
 可以使用 `docker network ls` 命令列出当前系统中的所有网络，也可以使用 `docker network rm`
@@ -452,6 +463,23 @@ $ docker run -p 4567 --net=app --name webapp -ti -v $PWD/webapp:/opt/webapp deng
 这里应该是先删了之前的那个 webapp 容器吧，不然肯定冲突了。而且注意这里的 /bin/bash 覆盖了
 Dockerfile 里的 CMD，因此web程序并未启动。   
 
+由于这个容器是在 app 网络内部启动的，因此 Docker 将会感知到所有在这个网络下运行的容器，并且通过
+/etc/hosts 文件将这些容器的地址保存到本地 DNS 中。我们就在 webapp 容器中看看这些信息：   
+
+```
+$ cat /etc/hosts
+172.18.0.3  305c5....
+127.0.0.1   localhost
+....
+172.18.0.2  db
+172.18.0.2  db.app
+```    
+
+我们可以看到 /etc/hosts 文件包含了 webapp 容器的IP地址，以及一条localhost记录。同时，该文
+件还包含两条关于db容器的记录。第一条是 db 容器的主机名和IP地址172.18.0.2。第二条记录则将 app
+网络名作为域名后缀添加到主机名后面，app 网络内部的任何主机都可以使用 hostname.app 的形式来被
+解析，这个例子里是db.app。   
+
 需要我们在容器内启动应用程序：   
 
 ```bash
@@ -462,7 +490,7 @@ $ root@305c5f27dbd1:/# _nohup /opt/webapp/bin/webapp &_
 
 如果任何一个容器重启了，那么它们的 IP 地址则会自动在 /etc/hosts 文件中更新。   
 
-尴尬测试的时候，redis 报错了，说是什么保护模式。    
+话说好奇怪，redis 那个容器启动的时候没有指定端口吧，那 webapp 容器是怎么连的呢。    
 
 **将已有容器连接到 Docker 网络**    
 
@@ -474,6 +502,41 @@ $ docker network connect app db2
 ```    
 
 当然也可以通过 `docker newwork disconnect app db2`。    
+
+### 5.2.7 通过 Docker 链接连接容器
+
+连接容器的另一种选择就是使用Docker链接。在 Docker 1.9 之前，这是首选的容器连接方式，并且只有
+在运行1.9之前版本的情况下才推荐这种方式。让一个容器链接到另一个容器是一个简单的过程，这个过程要
+引用容器的名字。    
+
+让我们从新建一个 Redis 容器开始：   
+
+```
+$ docker run -d --name redis jamtur01/redis
+```   
+
+然后启动 webapp 容器，并把它链接到新的 Redis 容器上去：   
+
+```
+$ docker run -p 4567 \
+  --name webapp --link redis:db -it \
+  -v $PWD/webapp_redis:/opt/webapp jamtur01/sinatra \
+  /bin/bash
+```   
+
+--link 标志创建了两个容器间的客户——服务链接。这个标志需要两个参数：一个是要链接的容器的名字，
+另一个是链接的别名。这个别名让我们可以一致地访问容器公开的信息，而无须关注底层容器的名字。   
+
+连接也能得到一些安全上的好处。注意，启动 Redis 容器时，并没有使用 -p 标志公开 Redis 的端口。
+因为不需要这么做。通过把容器链接在一起，可以让客户容器直接访问任意服务容器的公开端口（即客户webapp
+容器可以连接到服务 redis 容器的 6379 端口）。更妙的是，只有使用 --link 标志链接到这个容器的
+容器才能连接到这个端口。容器的端口不需要对本地宿主机公开，现在我们已经拥有一个非常安全的模型。
+通过这个安全模型，就可以限制容器化应用程序被攻击，减少应用暴露的网络。   
+
+Docker 在父容器 webapp 中的以下两个地方写入了链接信息：   
+
+- /etc/hosts 文件中
+- 包含连接信息的环境变量中
 
 ## 5.3 Docker 用于持续集成
 
