@@ -174,3 +174,29 @@ int 是 C语言的一个关键字（keyword），表示一种基本的C语言数
 ```c
 // two_func.c 一个文件中包含两个函数
 #include <stdio.h>
+
+void butler(void);   /* ANSI/ISO C 函数原型*/
+
+int main(void) {
+  printf("I will summon the butler function.\n");
+  butler();
+  printf("Yes, Bring me some tea and writable DVDs.\n");
+  return 0;
+}
+
+void butler(void) {
+  printf("You rang, sir?\n");
+}
+```   
+
+`butler()` 函数在程序中出现了 3 次。第1次是函数原型（prototype），告知编译器在程序中要使用
+该函数了；第2次以函数调用的形式出现在 `main()` 中；最后一次出现在函数定义中。   
+
+C90 标准新增了函数原型，旧式的编译器可能无法识别。函数原型是一种声明形式，告知编译器正在使用某
+函数，因此函数原型也被称为函数声明（function declaration）。函数原型还指明了函数的属性。例如，
+`butler()` 函数原型中的第1个void表明，`butler()` 函数没有返回值。   
+
+那这里的意思是，函数声明和函数定义是不同的。   
+
+C标准建议，要为程序中用到的所有函数提供函数原型。标准include文件(包含文件)为标准库函数提供了
+函数原型。例如，在C标准中，stdio.h 文件包含了 `printf()` 的函数原型。
