@@ -97,6 +97,8 @@ $ docker -H tcp://127.0.0.1:1234 info
 文件系统、网络、PID、UID、IPC 等的相互隔离。前者相对容器实现一些，后者则需要宿主主机系统的深入
 支持。   
 
+貌似是命名空间管文件啊网路啊之类的隔离，而 control group 管理对 cpu，内存，IO 等资源的使用。  
+
 让进程在彼此隔离的命名空间中运行。虽然这些进程仍在共用同一个内核和某些运行时环境（runtime），但是
 彼此是不可见的，并且认为自己是独占系统。    
 
@@ -105,10 +107,10 @@ Docker 容器每次启动时候，通过调用 `func setNamespaces(daemon *Daemo
 ### 17.2.1 进程命名空间
 
 Linux 通过进程命名空间管理进程号，对于同一进程（同一个 task_struct），在不同的命名空间中，看到
-的进程号不相同。每个进程命名空间有一套自己的进程号管理方法。进程命名空间是一个父子关系的结构，子
-空间中的进程对于父空间是可见的。新 fork 出的一个进程，在父命名空间和子命名空间分别对应不同的
-进程号。例如，查看 Docker 服务主进程（dockerd）的进程号是 3393，它作为父进程启动了 docker-containerd
-进程，进程号为 3398：   
+的进程号不相同（话说怎么同一个进程会在不同的命名空间中）。每个进程命名空间有一套自己的进程号管理
+方法。进程命名空间是一个父子关系的结构，子空间中的进程对于父空间是可见的。新 fork 出的一个进程，
+在父命名空间和子命名空间分别对应不同的进程号。例如，查看 Docker 服务主进程（dockerd）的进程号是
+3393，它作为父进程启动了 docker-containerd 进程，进程号为 3398：   
 
 ```bash
 $ ps -ef | grep docker
@@ -116,6 +118,8 @@ root 3393 1 0 Jan18 ? 00:43:02 /usr/bin/dockerd -H fd:// -H tcp://127.0.0.1:2375
   -H unix:///var/run/docker.sock
 root 3398 3393 0 Jan18 ? 00:34:31 docker-containerd --config /var/run/docker/containerd/containerd.toml
 ```    
+
+。。。这个例子好像并没有使用命名空间吧。  
 
 新建一个 Ubuntu 容器，执行 sleep 命令。此时，docker-containerd 进程作为父进程，会为每个容器
 启动一个 docker-containerd-shim 进程，作为该容器内所有进程的根进程：    
@@ -137,6 +141,8 @@ root 21535 3398 0 06:57 ? 00:00:00 docker-containerd-shim --namespace moby --wor
 $ ps -ef | grep sleep
 root  21569 21535  0 06:57 ?  00:00:00 sleep 9999
 ```   
+
+话说 sleep 进程是怎么可以在宿主机上看到的。。。  
 
 而在容器内的进程空间中，则把 docker-contained-shim 进程作为 0 号根进程（类似宿主机系统中 0
 号根进程 idle），while 进程的进程号则变为 1.   

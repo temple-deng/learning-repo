@@ -11,6 +11,7 @@
 - [第 7 章 端口映射和容器互联](#第-7-章-端口映射和容器互联)
   - [7.1 端口映射实现容器访问](#71-端口映射实现容器访问)
     - [7.1.1 从外部访问容器应用](#711-从外部访问容器应用)
+  - [7.2 互联机制实现便捷互访](#72-互联机制实现便捷互访)
 - [第 8 章 使用 Dockerfile 创建镜像](#第-8-章-使用-dockerfile-创建镜像)
   - [8.1 基本结构](#81-基本结构)
   - [8.2 指令说明](#82-指令说明)
@@ -38,13 +39,16 @@ Docker 提供了 volume 子命令来管理数据卷：
 
 ```bash
 $ docker volume create -d local test
+test
 ```   
-此时查看 /var/lib/docker/volums 路径下，会发现所创建的数据卷位置（然而 Mac 上没有这个目录）：   
+此时查看 /var/lib/docker/volumes 路径下，会发现所创建的数据卷位置（然而 Mac 上没有这个目录）：   
 
 ```bash
-$ ls -l /var/lib/docker/volums
+$ ls -l /var/lib/docker/volumes
 drwxr - xr-x 3 root root 4096 May 22 06:02 test
 ```   
+
+从这看的话，卷是一个目录。  
 
 除了 create 子命令外，docker volume 还支持 inspect（查看详细信息）、ls（列出已有数据卷）、
 prune（清理无用数据卷）、rm（删除数据卷）。     
@@ -75,7 +79,9 @@ $ docker run -d -P --name web --mount type=bind,source=/webapp,destination=/opt/
 $ docker run -d -P --name web -v /webapp:/opt/webapp training/webapp pythod app.py
 ```    
 
-另外，本地目录的路径必须是绝对路径，容器内路径可以为相对路径 。    
+另外，本地目录的路径必须是绝对路径，容器内路径可以为相对路径。    
+
+那我们平时的 Dockerfile 命令是不是类似 type=volume 啊，会自动创建卷，然后 -v 选项就是 type=bind。  
 
 ## 6.2 数据卷容器
 
@@ -133,12 +139,40 @@ $ docker run --volumes-from dbdata2 -v $(pwd):/backup busybox tar xvf /backup/ba
 
 # 第 7 章 端口映射和容器互联
 
+Docker 除了通过网络访间外，还提供了两个很方便的功能来满足服务访问的基本需求：一个是允许映射容器
+内应用的服务端口到本地宿主主机；另一个是互联机制实现多个容器间通过容器名来快速访问。    
+
 ## 7.1 端口映射实现容器访问
 
 ### 7.1.1 从外部访问容器应用
 
 当容器中运行一些网络应用，要让外部访问这些应用时，可以通过 -P 或 -p 参数来指定端口映射。当使用
 -P 时，Docker 会随机映射一个 49000~499900 的端口到内部容器开放的网络端口。   
+
+-p 则可以指定要映射的端口，支持的格式有 IP:HostPort:ContainerPort | IP::ContainterPort |
+HostPort:ContainterPort。   
+
+多次使用 -p 可以绑定多个端口。   
+
+使用 `docker port` 来查看当前映射的端口配置。   
+
+## 7.2 互联机制实现便捷互访
+
+使用 --link 参数可以让容器之间安全地进行交互。   
+
+先创建一个数据库容器：   
+
+```
+$ docker run -d --name db training/postgres
+```    
+
+再创建一个 web 容器，并将它连接到 db 容器：   
+
+```
+$ docker run -d -P --name web --link db:db training/webapp pythond app.py
+```   
+
+它这里没有讲 Docker Networking 啊。   
 
 # 第 8 章 使用 Dockerfile 创建镜像
 
