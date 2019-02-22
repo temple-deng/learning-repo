@@ -136,7 +136,7 @@ OK
 (integer) 4
 ```    
 
-如果要在 "PF Chang's" 之后插入一个原生，可以使用 LINSERT:    
+如果要在 "PF Chang's" 之后插入一个元素，可以使用 LINSERT:    
 
 ```bash
 ...> LINSERT favorite_restaurants AFTER "PF Chang's" "Indian Tandoor"

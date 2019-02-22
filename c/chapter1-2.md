@@ -169,7 +169,7 @@ int 是 C语言的一个关键字（keyword），表示一种基本的C语言数
 操作系统和 C 库经常使用以一个或两个下划线字符开始的标识符（如，_kcab），因此最好避免在
 自己的程序中使用这种名称。   
 
-## 2.6 多个函数
+## 2.3 多个函数
 
 ```c
 // two_func.c 一个文件中包含两个函数
@@ -199,4 +199,119 @@ C90 标准新增了函数原型，旧式的编译器可能无法识别。函数�
 那这里的意思是，函数声明和函数定义是不同的。   
 
 C标准建议，要为程序中用到的所有函数提供函数原型。标准include文件(包含文件)为标准库函数提供了
-函数原型。例如，在C标准中，stdio.h 文件包含了 `printf()` 的函数原型。
+函数原型。例如，在C标准中，stdio.h 文件包含了 `printf()` 的函数原型。   
+
+## 2.4 关键字和保留标识符
+
+许多关键字⽤于指定不同的类型，如 int。还有⼀些关键字（如 if）⽤于控制程序中语句的执⾏顺序。   
+
+标准关键字：   
+
+- auto, register,
+- extern, sizeof, static, typedef, restrict,
+- short, float, char, struct, int, long, union, double, unsigned, void,
+- while, break, case, for, goto, if, continue, switch, default, do, else, return
+
+C90 新增关键字：   
+
+- signed, const, enum, volatile
+
+C99 新增关键字：   
+
+- inline   
+
+C11 新增关键字：   
+
+- _Alignas, _Alignof, _Atomic, _Bool, _Complex, _Generic, _Imaginary, _Noreturn,
+_Static_assert, _Thread_local
+
+# 第 3 章 数据与 C
+
+## 3.1 示例程序
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  float weight;
+  float value;
+
+  printf("Are you worth weight in platinum?\n");
+  printf("Let's check it out.\n");
+  printf("Please enter your weight in pounds: ");
+  scanf("%f", &weight);
+
+  value = 1700.0 * weight * 14.5833;
+  printf("Your weight in platinum is worth $%.2f.\n", value);
+  return 0;
+}
+```   
+
+&weight 告诉 `scanf()` 把输入的值赋给名为 weight 的变量。   
+
+## 3.2 数据：数据类型关键字
+
+如果数据是常量，则编译器一般通过用户书写的形式来识别类型，但是对变量而言，要在声明时指定其类型。   
+
+基本类型关键字：   
+
+int, long, short, unsigned, char, float, double, signed, void, _Bool, _Complex,
+_Imaginary。    
+
+在 C 语言中，用 int 关键字表示基本的整数类型。long, short, unsigned, signed 用于提供基本
+整数类型的变式，例如 unsigned short int。char 关键字用于指定字母和其他字符。另外，char 类型
+也可以表示较小的整数。float, double 和 long double 表示带小数点的数。_Bool 类型表示布尔值，
+_Complex 和 _Imaginary 分别表示复数和虚数。   
+
+通过这些关键字创建的类型，按计算机的储存⽅式可分为两⼤基本类型：整数类型和浮点数类型。    
+
+### 3.2.1 浮点数
+
+在一个值后面加上一个小数点，该值就成为一个浮点数。浮点数和整数的存储方案不同。计算机把浮点数分成
+小数部分和指数部分来表示，而且分开存储这两部分。因此，7.00 和 7 在数值上相同，但是它们的存储
+方式不同。
+
+## 3.3 C 语言基本数据类型
+
+int 类型是有符号整型，即int类型的值必须是整数，可以是正整数、负整数或零。其取值范围依计算机系统
+⽽异。⼀般⽽⾔，储存⼀个int要占⽤⼀个机器字长。ISO C规定int的取值范围最⼩为-32768～32767。   
+
+
+### 3.3.1 int 类型
+
+在C语⾔中，⽤特定的前缀表⽰使⽤哪种进制。0x或0X前缀表⽰⼗六进制值。与此类似，0前缀表⽰⼋进制。   
+
+要以八进制显示数字，使用 %o，以十六进制显示数字，使用 %x。另外，要显示各进制数的前缀0, 0x 和0X，
+必须分别使用 %#o、%#x、%#X。   
+
+### 3.3.2 其他整数类型
+
+C语⾔提供3个附属关键字修饰基本整数类型：short、long 和 unsigned（看不起我 signed）。   
+
+short int 类型（或者简写为 short）占用的存储空间可能比 int 类型少。注意这里用的是可能。   
+
+long int 或 long 占用的存储空间可能比 int 多。   
+
+long long int 或 long long 占用的存储空间可能比 long 多，该类型至少占 64 位。   
+
+unsigned int 或 unsigned 只用于非负值的场合。在C90标准中，添加了 unsigned long int或
+unsigned long 和 unsigned short类型。C99标准又添加了unsigned long long int或unsigned
+long long。    
+
+为什么说short类型“可能”⽐int类型占⽤的空间少，long类型“可能”⽐int类型占⽤的空间多？因为C语⾔
+只规定了short占⽤的存储空间不能多于int，long占⽤的存储空间不能少于int。这样规定是为了适应不同
+的机器。    
+
+通常，程序代码中使⽤的数字（如，2345）都被储存为int类型。要把⼀个较⼩的常量作为long类型对待，
+可以在值的末尾加上l（⼩写的L）或L后缀。类似地，在⽀持long long类型的系统中，也可以使⽤ll或LL
+后缀来表⽰long long类型的值，如3LL。另外，u或U后缀表⽰unsigned long long，如5ull、10LLU、
+6LLU或9Ull。    
+
+打印 unsigned int 类型的值，使⽤ %u 转换说明；打印 long 类型的值，使⽤ %ld 转换说明。在 x
+和 o 前⾯可以使⽤ l 前缀， %lx 表⽰以⼗六进制格式打印 long 类型整数，%lo 表⽰以⼋进制格式打印
+long类型整数。对于 short 类型，可以使⽤h前缀。h和l前缀都可以和u⼀起使⽤。    
+
+### 3.3.3 使用字符：char 类型
+
+
+

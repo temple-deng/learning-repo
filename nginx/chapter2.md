@@ -18,11 +18,11 @@
 
 <!-- /TOC -->
 
-构建一份配置涉及到指定全局的参数以及各独立部分的特定指令。   
+NGINX 配置文件遵循非常合理的格式。构建一份配置涉及到指定全局的参数以及各独立部分的特定指令。   
 
 ## 2.1 基本的配置格式
 
-基本的 NGINX 配置文件包括几部分，每部分都是如下划定的：   
+基本的 NGINX 配置文件包括几个 sections，每个 section 都是如下划定的：   
 
 ```
 <section> {
@@ -34,7 +34,7 @@
 
 ## 2.2 NGINX 全局配置参数
 
-全局部分用来定义一些影响整个服务器的参数，它并不满足前面的配置格式。全局部分可以包括配置指令，例如
+global section 用来配置一些影响整个服务器的参数，它并不满足前面的配置格式。全局部分可以包括配置指令，例如
 `user`, `worker_processes`，也可以包括 sections，例如 `events`。全局 section 不需要用
 大括号包裹。   
 
@@ -43,7 +43,7 @@
 - **user**: 配置 worker 进程的用户和用户组，如果省略了用户组，组名等于用户名
 - **worker_processes**: 启动几个 worker 进程。这些进程用来处理所有客户端的连接。
 - **error_log**: 错误写入到哪里。如果在各个独立的上下文中没有其他定义的 `error_log`，那么这
-就是最终会使用的写入位置
+就是最终会使用的写入位置，第二个参数用来指定写入该日志的日志级别
 - **pid**: 主进程的进程 ID 的写入文件
 - **use**: 指定使用的连接处理方法。如果使用这条指令，则必须包含在 events 上下文中
 - **worker_connections**: 配置一个 worker 进程同时打开的最大的连接的数量，这条指令在反向
@@ -68,7 +68,8 @@ events {
 
 ## 2.3 使用 include 文件
 
-配置文件中各处都可以使用 include 来引入其他配置文件。   
+配置文件中各处都可以使用 include 来引入其他配置文件。从而提高配置文件的可读性并提高配置文件的可
+重用性。   
 
 ```
 include /opt/local/etc/nginx/mime.types;
@@ -96,11 +97,11 @@ HTTP section 的配置指令都是用来处理 HTTP 连接的。
 
 这部分的指令用来处理客户端连接自身，以及不同类型的客户端：   
 
-- `chunked_transfer_encoding`: 就是那个分块编码
-- `client_body_buffer_size`: 用来为客户端请求主体设置大于默认的两个内存页的缓冲区大小，以
-防止临时文件写入磁盘（没弄懂是必须设置的大于两个内存页，还是什么意思）
-- `client_body_in_file_only`: 貌似意思是把请求主体存到文件里，好像是用来调试的，或者说我们
-后续想对请求主体做一些处理
+- `chunked_transfer_encoding`: 就是那个分块编码，启用或者禁用
+- `client_body_buffer_size`: 用来为客户端大于默认的两个内存页请求主体设置缓冲区大小，以
+防止临时文件写入磁盘
+- `client_body_in_file_only`: 一般只在 debug 的时候或者如果我们对请求主体有后续处理的时候
+才会设置为 on，强制把请求主体存到文件里
 - `client_body_in_single_buffer`: 强制将整个客户端请求主体放入一个单一的 buffer 中，以减少
 复制操作
 - `client_body_temp_path`: 存储客户端请求主体的目录
@@ -115,7 +116,8 @@ Large 错误进行响应
 - `keepalive_timeout`: 一条 keepalive 连接会保持打开多少时间（话说这个时间是指从连接打开的
 时候就开始计时，还是说从上一条双方信息发送后开始计时）。可以设置第二个参数，用来在响应中设置
 keepalive 首部
-- `large_client_header_buffers`: 一个大的请求首部的数量及尺寸
+- `large_client_header_buffers`: 一个请求首部的最大数量及尺寸（我觉得这里应该是指一个请求
+的首部键值对吧，数量是指键值对数量，大小是一个键值对的大小）
 - `msie_padding`: 没弄懂，反正是为了 IE 的配置吧
 - `msie_refresh`: 允许发送一个 refresh 而不是一个 redirect 个 MSIE 客户端（why）
 
@@ -125,7 +127,10 @@ keepalive 首部
 
 ### 2.4.2 文件 IO 指令
 
-- `aio`: 是否启用异步文件 IO。在 linux 上由于启用了 directio，自动禁用了 sendfile
+文件 IO 指令控制了 NGINX 如果分发静态文件，以及如何管理文件描述符。   
+
+- `aio`: 是否启用异步文件 IO。在 FreeBSD 上，可以用 aio 为 sendfile 来预加载数据，在
+linux 上由于还必须启用 directio，自动禁用了 sendfile
 - `directio`: 为大于给定参数的文件启用操作系统特定的标志或功能。如果在 Linux 上使用 aio，则必须
 设置这个选项。
 - `directio_alignment`: 为 directio 设置对齐。默认是 512，通常是足够的
@@ -225,10 +230,11 @@ http {
 ## 2.5 虚拟服务器部分
 
 任何以 `server` 关键字开始的上下文都被认为是一个虚拟服务器 section。其描述了将在不同 server_name
-指令下分发的一组资源的逻辑分离。    
+指令下分发的一组资源的逻辑分离。这些虚拟服务器会对 HTTP 请求做出响应，并且 server 是包含在
+http section 中的。        
 
-一个虚拟服务器由 listen 和 server_name 指令联合定义。listen 指令定义了 IP 地址和端口的组合，
-或者是一个 UNIX-domain 套接字的路径：   
+一个虚拟服务器由 listen 和 server_name 指令联合定义（其实就是服务器名及其对应的IP地址和端口
+号）。listen 指令定义了 IP 地址和端口的组合，或者是一个 UNIX-domain 套接字的路径：   
 
 ```
 listen address[:port];
@@ -236,13 +242,17 @@ listen port;
 listen unix:path;
 ```   
 
+listen 指令唯一地标识出了 NGINX 中的一个 socket 绑定。   
+
 下面是一些 `listen` 的可选参数：   
 
-- `default_server`: 将地址/端口定义为此处绑定的请求的默认值
-- `setfib`: 为 socket 设置对应的 FIB
-- `backlog`: 在 `listen()` 调用中设置 `backlog` 参数
+- `default_server`: 将地址/端口定义为此处绑定的请求的默认值（其实意思这个虚拟服务器就充当这台
+物理服务器上 NGINX 中的一个默认服务器吧，比如是请求中没有出现请求的主机名，可能就直接交给 listen
+指令有 default_server 参数的主机）
+- `setfib`: 为 socket 设置对应的 FIB，仅 FreeBSD 支持
+- `backlog`: 在 `listen()` 调用中设置 `backlog` 参数，FreeBSD 默认为 -1，其他平台默认为511
 - `rcvbuf`: 设置 socket 的 `SO_RCVBUF`
-- `sndbug`: 设置 socket 的 `SO_SNDBUF`
+- `sndbuf`: 设置 socket 的 `SO_SNDBUF`
 - `accept_filter`: 为 dataready 或 httpready 的 accept 过滤器设置名称（仅在 FreeBSD 可用）
 - `deferred`: 使用 `accept()` 调用设置 TCP_DEFER_ACCEPT
 - `bind`: 为地址/端口对进行一次分离的 `bind()` 调用
@@ -266,13 +276,15 @@ server_name ~^www\.example\.com$;
 server_name ~^www(\d+).example\.(com)$;
 ```    
 
+很明显，后者使用了正则捕获，可以使用 $1, $2 等在后续的指令中进行引用。   
+
 NGINX 会使用下面的逻辑来决定哪个虚拟服务器该为请求提供服务:   
 
 1. 匹配 `listen` 指令的 IP 地址和端口
-2. Host 首部与 `server_name` 字符串匹配
-3. Host 首部与 `server_name` 字符串开头的通配符匹配（没懂）
-4. Host 首部与 `server_name` 字符串末尾的通配符匹配
-5. Host 首部与 `server_name` 的正则匹配
+2. 将 `server_name` 指令值看成一个字符串与Host 首部匹配
+3. 将 `server_name` 指令值在开头部分带有通配符的与 Host 首部匹配
+4. 将 `server_name` 指令值在结尾部分带有通配符的与 Host 首部匹配
+5. 将 `server_name` 看成一个正则后与 Host 首部进行匹配
 6. 如果 Host 匹配失败，直接指向标记为 `default_server` 的 `listen` 指令
 7. 如果 Host 匹配失败并且没有 `default_server`，直接指向第一步中的 listen 指令的第一台服务器   
 
@@ -286,7 +298,8 @@ location [modifier] uri {...}
 location @name {...}
 ```   
 
-name location 仅可以从一个内部重定向到达。它保留了进入 location 块之前的 URI。   
+name location 仅可以从一个内部重定向到达（因为它压根没有定义进行匹配的 URI）。它保留了进入
+location 块之前的 URI。并且只在 server 上下文中可以定义。   
 
 modifier 通过以下的方式影响 location 的处理：    
 
@@ -297,8 +310,11 @@ modifier 通过以下的方式影响 location 的处理：
 
 当接收到请求时，一个 URI 会按照如下的方式检查 location:   
 
-+ 不包括正则的 locations 会进行精确匹配，独立于它们的定义顺序
++ 不包括正则的 locations 会进行精确匹配，独立于它们的定义顺序（那有点类似于默认带 = 修饰符，但是
+不会在匹配后中止搜索）
 + 正则按照在配置文件中找到它们的顺序进行匹配。正则搜索会在第一次匹配后中止   
+
+话说那找到匹配的不带正则的 locations 后，以及一个带正则的 location，然后呢，怎么选择最匹配的啊。   
 
 这个描述的匹配是针对解码过后的 URIs：例如，URI 中的 "%20" 会和 location 中的 " "(空格)匹配。   
 
@@ -313,7 +329,8 @@ location 中可以包括以下的指令：
 另外，许多 http section 的指令，也可以用在 location 中。   
 
 这里要特别提到 `try_files` 指令，它也可以用早 server 上下文中，但是大部分出现在 location 中。
-就像名字暗示的那样，其按照给定参数搜索文件，找到第一个即可。常用来从一个变量匹配潜在的文件：   
+就像名字暗示的那样，其按照给定参数按序搜索文件，找到第一个匹配的即可。常用来从一个变量匹配潜在的文件，
+然后将处理权转交给一个命名的 location：   
 
 ```
 location / {
