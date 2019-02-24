@@ -12,6 +12,11 @@
   - [1.9 信号](#19-信号)
   - [1.10 时间值](#110-时间值)
   - [1.11 系统调用和库函数](#111-系统调用和库函数)
+- [第 2 章 UNIX 标准及实现](#第-2-章-unix-标准及实现)
+  - [2.2 UNIX 标准化](#22-unix-标准化)
+    - [2.2.1 ISO C](#221-iso-c)
+    - [2.2.2 IEEE POSIX](#222-ieee-posix)
+  - [2.3 UNIX 系统实现](#23-unix-系统实现)
 
 <!-- /TOC -->
 
@@ -334,3 +339,134 @@ UNIX 所使⽤的技术是为每个系统调⽤在标准 C 库中设置⼀个具
 系统调⽤和库函数都以C函数的形式出现，两者都为应⽤程序提供服务。   
 
 
+# 第 2 章 UNIX 标准及实现
+
+## 2.2 UNIX 标准化
+
+### 2.2.1 ISO C
+
+ANSI 是美国国家标准学会（American National Standards Institute）的缩写，它是国际标准化组
+织（International Organization for Standardization， ISO）中代表美国的成员。IEC是国际
+电⼦技术委员会（International Electrotechnical Commission）的缩写。   
+
+按照 C99 标准定义的各个头文件，可将 ISO C 库分成 24 个区。POSIX.1 标准包括这些头文件以及另外
+一些头文件。所有这些头文件在 4 种 UNIX 实现（FreeBSD 8.O, Linux 3.2.0, Mac OS X 10.6.8,
+Solaris 10）中都支持。   
+
+- asserr.h: 验证程序断言
+- complex.h: 复数算术运算支持
+- ctype.h: 字符分类和映射支持
+- errno.h: 出错码
+- fenv.h: 浮点环境
+- float.h: 浮点常量及特性
+- inttypes.h: 整型格式变换
+- iso646.h: 赋值、关系及一元操作符宏
+- limits.h: 实现常量
+- locale.h: 本地化类别及相关定义
+- math.h: 数学函数、类型声明及常量
+- setjmp.h: 非局部 goto
+- signal.h: 信号
+- stdarg.h: 可变长度参数表
+- stdbool.h: 布尔类型和值
+- stddef.h: 标准定义
+- stdint.h: 整型
+- stdio.h: 标准 IO 库
+- stdlib.h: 实用函数
+- string.h: 字符串操作
+- tgmath.h: 通用类型数学宏
+- time.h: 时间和日期
+- wchar.h: 扩充的多字节和宽字符支持
+- wctype.h: 宽字符分类和映射支持    
+
+### 2.2.2 IEEE POSIX
+
+POSIX 是一个最初由 IEEE（Institute of Electrical and Electronics
+Engineers，电气和电子工程师学会）制订的标准族。POSIX 指的是可移植操作系统接口（Portable
+Operating System Interface）。    
+
+与本书相关的是1003.1操作系统接口标准，该标准的目的是提升应用程序在各种UNIX系统环境之间的可移植
+性。它定义了“符合POSIX 的”(POSIX compliant)操作系统必须提供的各种服务。该标准已被很多计算机
+制造商采用。虽然1003.1标准是以UNIX操作系统为基础的，但是它并不限于UNIX和UNIX类的系统。   
+
+由于 1003.1 标准说明了一个接口(interface)而不是一种实现(implementation)，所以并不区分系统
+调用和库函数。所有在标准中的例程都被称为函数。   
+
+下面的列表总结了 POSIX.1 指定的必需的和可选的头文件。因为 POSIX.1 包含了 ISO C 标准库函数，
+所以它还需要上面列表中列出的头文件。    
+
+必需的头文件：   
+
+- aio.h: 异步 IO
+- cpio.h: cpio 归档值
+- dirent.h: 目录项
+- dlfcn.h: 动态链接
+- fnctl.h: 文件控制
+- fnmatch.h: 文件名匹配类型
+- glob.h: 路径名模式匹配与生成
+- grp.h: 组文件
+- iconv.h: 代码集变换实用程序
+- langinfo.h: 语言信息常量
+- monetary.h: 货币类型与函数
+- netdb.h: 网络数据库操作
+- nl_typefs.h: 消息类
+- poll.h: 投票函数
+- ptrhead.h: 线程
+- pwd.h: 口令文件
+- regex.h: 正则表达式
+- sched.h: 执行调度
+- semaphore.h: 信号量
+- strings.h: 字符串
+- tar.h: tar 归档值
+- termios.h: 终端 IO
+- unistd.h: 符号常量
+- wordexp.h: 字扩充类型
+- arpa.inet.h: 因特网定义
+- net/if.h: 套接字本地接口
+- netinet/in.h: 因特网地址族
+- netinet/tcp.h: 传输控制协议定义
+- sys/mman.h: 存储管理声明
+- sys/select.h: select 函数
+- sys/socket.h: 套接字接口
+- sys/stat.h: 文件状态
+- sys/statvfs.h: 文件系统信息
+- sys/times.h: 进程时间
+- sys/types.h: 基本系统数据类型
+- sys/un.h: UNIX 域套接字定义
+- sys/utsname.h: 系统名
+- sys/wait.h: 进程控制
+
+XSI 可选头文件：   
+
+- fmtmsg.h: 消息显示结构
+- ftw.h: 文件树漫游
+- libgen.h: 路径名管理函数
+- ndbm.h: 数据库操作
+- search.h: 搜索表
+- syslog.h: 系统出错日志记录
+- utmpx.h: 用户账户数据库
+- sys/ipc.h: IPC
+- sys/msg.h: XSI 消息队列
+- sys/resource.h: 资源操作
+- sys/sem.h: XSI 信号量
+- sys/shm.h: XSI 共享存储
+- sys/time.h: 时间类型
+- sys/uio.h: 适量 IO 操作
+
+其他可选头文件：   
+
+- mqueue.h: 消息队列
+- spawn.h: 实时 spawn 接口
+
+## 2.3 UNIX 系统实现
+
+上一节说明了3个由各自独立的组织所制定的标准:ISO C、IEEE POSIX 以及Single UNIX Specification。
+但是，标准只是接口的规范。这些标准是如何与现实世界相关连的呢?这些标准由厂商采用，然后转变成具体实现。   
+
+UNIX的各种版本和变体都起源于在PDP-11系统上运行的UNIX分时系统第6版（1976年）和第7版（1979年）
+（通常称为V6和V7）。这两个版本是在贝尔实验室以外首先得到广泛应用的UNIX系统。从这棵树上演进出
+以下3个分支。    
+
+1. AT&T 分支，从此引出了系统 III 和系统 V
+2. 加州大学伯克利分校分支，从此引出了 4.xBSD 实现
+3. 由AT&T贝尔实验室的计算科学研究中心不断开发的UNIX研究版本，从此引出UNIX分时系统第8版、第9版，
+终止于1990年的第10版
