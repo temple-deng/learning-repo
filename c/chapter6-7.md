@@ -1,5 +1,38 @@
 # 第 6 章 C控制语句：循环
 
+<!-- TOC -->
+
+- [第 6 章 C控制语句：循环](#第-6-章-c控制语句循环)
+  - [6.1 while 语句](#61-while-语句)
+  - [6.2 用关系运算符和表达式比较大小](#62-用关系运算符和表达式比较大小)
+    - [6.2.1 什么是真](#621-什么是真)
+    - [6.2.2 新的 _Bool 类型](#622-新的-_bool-类型)
+    - [6.2.3 优先级和关系运算符](#623-优先级和关系运算符)
+  - [6.3 不确定循环和计数循环](#63-不确定循环和计数循环)
+  - [6.4 for 循环](#64-for-循环)
+  - [6.5 其他赋值运算符](#65-其他赋值运算符)
+  - [6.6 逗号运算符](#66-逗号运算符)
+  - [6.7 出口条件循环：do while](#67-出口条件循环do-while)
+  - [6.8 数组简介](#68-数组简介)
+  - [6.9 使用函数返回值的循环示例](#69-使用函数返回值的循环示例)
+- [第 7 章 C控制语句：分支和跳转](#第-7-章-c控制语句分支和跳转)
+  - [7.1 if else 语句](#71-if-else-语句)
+    - [7.1.1 另一个示例：介绍 getchar() 和 putchar()](#711-另一个示例介绍-getchar-和-putchar)
+    - [7.1.2 ctype.h系列的字符函数](#712-ctypeh系列的字符函数)
+  - [7.2 逻辑运算符](#72-逻辑运算符)
+    - [7.2.1 优先级](#721-优先级)
+    - [7.2.2 求值顺序](#722-求值顺序)
+  - [7.3 条件运算符：?:](#73-条件运算符)
+  - [7.4 循环辅助：continue 和 break](#74-循环辅助continue-和-break)
+    - [7.4.1 continue 语句](#741-continue-语句)
+    - [7.4.2 break 语句](#742-break-语句)
+  - [7.5 多重选择：switch 和 break](#75-多重选择switch-和-break)
+    - [7.5.1 switch 语句](#751-switch-语句)
+    - [7.5.3 多重标签](#753-多重标签)
+  - [7.6 goto 语句](#76-goto-语句)
+
+<!-- /TOC -->
+
 C 语言有 3 种循环：for, while, do while。   
 
 ## 6.1 while 语句
@@ -204,3 +237,271 @@ debts[33] = 828.12;   // 该数组元素不存在
 
 ## 6.9 使用函数返回值的循环示例
 
+编译器在程序中首次遇到 power() 时，需要知道 power() 的返回类型。此时，编译器尚未执行到 power()
+的定义，并不知道函数定义中的返回类型是 double。因此，必须通过前置声明预先说明函数的返回类型。
+前置声明告诉编译器，power() 定义在别处，其返回类型为 double。如果把 power() 函数的定义置于
+main() 的文件顶部，就可以省略前置声明，因为编译器在执行到 main() 之前已经知道 power() 的所有
+信息。但是，这不是 C 的标准风格。因为 main() 通常只提供整个程序的框架，最好把 main() 放在所有
+函数定义的前面。    
+
+# 第 7 章 C控制语句：分支和跳转
+
+## 7.1 if else 语句
+
+### 7.1.1 另一个示例：介绍 getchar() 和 putchar()
+
+getchar() 函数不带任何参数，它从输入队列中返回下一个字符。例如，下面的语句读取下一个字符输入，
+并把该字符的值赋给变量 ch：     
+
+```c
+ch = getchar();
+```    
+
+该语句和下面的语句效果相同：   
+
+```c
+scanf("%c", &ch);
+```    
+
+putchar() 函数打印它的参数。例如，下面的语句把之前赋给 ch 的值作为字符打印出来：   
+
+```c
+putchar(ch);
+```   
+
+由于这些函数只处理字符，所以它们⽐更通⽤的 `scanf()` 和 `printf()` 函数更快、更简洁。⽽且，
+注意 `getchar()` 和 `putchar()` 不需要转换说明，因为它们只处理字符。这两个函数通常定义在
+stdio.h 头⽂件中（⽽且，它们通常是预处理宏，⽽不是真正的函数）。    
+
+```c
+#include <stdio.h>
+
+#define SPACE ' '
+
+int main(void) {
+  char ch;
+  ch = getchar();
+  while (ch != '\n') {
+    if (ch == SPACE) {
+      putchar(ch);
+    } else {
+      putchar(ch + 1);
+    }
+    ch = getchar();
+  }
+
+  putchar(ch);
+  return 0;
+}
+```   
+
+### 7.1.2 ctype.h系列的字符函数
+
+C 有⼀系列专门处理字符的函数，ctype.h 头⽂件包含了这些函数的原型。这些函数接受⼀个字符作为参数，
+如果该字符属于某特殊的类别，就返回⼀个⾮零值（真）；否则，返回0（假）。例如，如果 isalpha()函数
+的参数是⼀个字母，则返回⼀个⾮零值。    
+
+```c
+#include <stdio.h>
+#include <ctype.h>
+
+int main(void) {
+  char ch;
+
+  while ((ch = getchar()) != '\n') {
+    if (isalpha(ch)) {
+      putchar(ch + 1);
+    } else {
+      putchar(ch);
+    }
+  }
+  putchar(ch);
+  return 0;
+}
+```   
+
+下面列出了 ctype.h 头文件中的一些函数。   
+
+字符测试函数：   
+
+- `isalnum()`: 字母或数字
+- `isalpha()`: 字母
+- `isblank()`: 标准的空白字符（空格、水平制表符或换行符）或任何其他本地化指定为空白的字符
+- `iscntrl()`: 控制字符，如ctrl+B
+- `isdigit()`: 数字
+- `isgraph()`: 除空格之外的任意可打印字符
+- `islower()`: 小写字母
+- `isprint()`: 可打印字符
+- `ispunct()`: 标点字符（除空格或字母数字字符以外的任何可打印字符）
+- `isspace()`: 空白字符（空格、换行符、换页符、回车符、垂直制表符、水平制表符或其他本地化定义的
+字符）
+- `isupper()`: 大写字母
+- `isxdigit()`: 十六进制数字符
+
+ctype.h 中的字符映射函数，注意字符映射函数不会修改原始的参数：   
+
+- `tolower()`
+- `toupper()`
+
+## 7.2 逻辑运算符
+
+逻辑运算符的优先级比关系运算符低：   
+
+- &&
+- ||
+- !
+
+### 7.2.1 优先级
+
+! 运算符的优先级很高，比乘法运算符还高，与递增运算符的优先级相同，只比圆括号的优先级低。&& 运算符
+的优先级比 || 运算符高，但是两者的优先级都比关系运算符低，比赋值运算符高。    
+
+### 7.2.2 求值顺序
+
+除了两个运算符共享一个运算对象的情况外，C 通常不保证先对复杂表达式中的哪部分求值。例外，下面的语句，
+可能先对表达式 5+3 求值，也可能先对表达式 9+6 求值：   
+
+```c
+apples = (5+3) * (9+6);
+```  
+
+C 把先计算哪部分的决定权留给编译器的设计者，以便针对特定系统优化设计。但是，对于逻辑运算符是个
+例外，C保证逻辑表达式的求值顺序是从左往右。&&和||运算符都是序列点，所以程序在从⼀个运算对象执⾏
+到下⼀个运算对象之前，所有的副作⽤都会⽣效。⽽且，C 保证⼀旦发现某个元素让整个表达式⽆效，便⽴即
+停⽌求值。     
+
+## 7.3 条件运算符：?:
+
+没错就是常见的那个三元运算符。略。   
+
+## 7.4 循环辅助：continue 和 break
+
+### 7.4.1 continue 语句
+
+3 种循环都可以使用 continue 语句。执行到该语句时，会跳过本次迭代的剩余部分，并开始下一轮迭代。
+如果 continue 语句在嵌套循环内，则只会影响包含该语句的内层循环：   
+
+```c
+#include <stdio.h>
+
+int main(void) {
+  const float MIN = 0.0f;
+  const float MAX = 100.0f;
+
+  float score;
+  float total = 0.0f;
+  int n = 0;
+
+  float min = MAX;
+  float max = MIN;
+
+  printf("Enter the first score(q to quit):");
+  while (scanf("%f", &score) == 1) {
+    if (score < MIN || score > MAX) {
+      printf("%0.1f is an invalid value.Try again: ", score);
+      continue; // 跳转至 while 循环的测试条件
+    }
+    printf("Accepting %0.1f:\n", score);
+    min = (score < min) ? score : min;
+    max = (score > max) ? score : max;
+    total += score;
+    n++;
+    printf("Enter next score(q to quit):");
+  }
+
+  if (n > 0) {
+    printf("Average of %d scores is %0.1f.\n", n, total / n);
+    printf("Low = %0.1f, high = %0.1f\n", min, max);
+  } else {
+    printf("No valid scores were entered.\n");
+  }
+  return 0;
+}
+```   
+
+continue 是让程序跳过循环体的余下部分。那么，从何处开始继续循环？对于 while和 do while 循环，
+执⾏ continue 语句后的下⼀个⾏为是对循环的测试表达式求值。    
+
+对于for循环，执⾏continue后的下⼀个⾏为是对更新表达式求值，然后是对循环测试表达式求值。   
+
+### 7.4.2 break 语句
+
+程序执⾏到循环中的break语句时，会终⽌包含它的循环，并继续执⾏下⼀阶段。    
+
+## 7.5 多重选择：switch 和 break
+
+```c
+#include <stdio.h>
+#include <ctype.h>
+
+int main(void) {
+  char ch;
+  printf("Give me a letter of the alphabet, and I will give ");
+  printf("an animal name\nbeginning with that letter.\n");
+  printf("Please type in a letter; type # to end my act.\n");
+
+  while ((ch = getchar()) != '#') {
+    if (ch == '\n') {
+      continue;
+    }
+
+    if (islower(ch)) {
+      switch (ch) {
+        case 'a':
+          printf("argali, a wild sheep of Asia\n");
+          break;
+        case 'b':
+          printf("babirusa, a wild pig of Malay\n");
+          break;
+        case 'c':
+          printf("coati, racoonlike mammal\n");
+          break;
+        case 'd':
+          printf("desman, aquatic, molelike critter\n");
+          break;
+        case 'e':
+          printf("echidna, the spiny anteater\n");
+          break;
+        case 'f':
+          printf("fisher, brownish marten\n");
+          break;
+        default:
+          printf("That's a stumper\n");
+      }
+    } else {
+      printf("I recognize only lowercase letter.\n");
+    }
+
+    while (getchar() != '\n') {
+      continue;
+    }
+    printf("Please type another letter or a #.\n");
+  }
+  printf("Bye\n");
+  return 0;
+}
+```    
+
+### 7.5.1 switch 语句
+
+break 语句可用于循环和 switch 语句中，但是 continue 只能用于循环中。    
+
+switch 在圆括号中的测试表达式的值应该是一个整数值。case 标签必须是整数类型的常量或整型常量表达式。   
+
+### 7.5.3 多重标签
+
+switch 语句中使用多重 case 标签。    
+
+## 7.6 goto 语句
+
+goto 语句有两部分：goto 和标签名。标签的命名遵循变量命名规范：   
+
+```c
+goto part2;
+```   
+
+要让这条语句正常工作，函数还必须包含另一条标为 part2 的语句，该语句以标签名后跟一个冒号开始：   
+
+```c
+part:printf("Refined analysis:\n");
+```   

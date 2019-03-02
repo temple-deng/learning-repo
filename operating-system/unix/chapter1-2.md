@@ -49,7 +49,7 @@
 
 2. **标准输入、标准输出和标准错误**    
 
-按惯例，没当运行一个新程序时，所有的 shell 都为其打开 3 个文件描述符，即 stdin, stdout, stderr。   
+按惯例，每当运行一个新程序时，所有的 shell 都为其打开 3 个文件描述符，即 stdin, stdout, stderr。   
 
 3. **不带缓冲的 IO**    
 
@@ -353,7 +353,7 @@ ANSI 是美国国家标准学会（American National Standards Institute）的�
 一些头文件。所有这些头文件在 4 种 UNIX 实现（FreeBSD 8.O, Linux 3.2.0, Mac OS X 10.6.8,
 Solaris 10）中都支持。   
 
-- asserr.h: 验证程序断言
+- assert.h: 验证程序断言
 - complex.h: 复数算术运算支持
 - ctype.h: 字符分类和映射支持
 - errno.h: 出错码

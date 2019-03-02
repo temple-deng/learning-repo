@@ -295,3 +295,462 @@ int main(void) {
 在前⾯的⽰例中，我们⽤shell的 umask 命令在运⾏程序的前、后打印⽂件模式创建屏蔽字。从中可见，
 更改进程的⽂件模式创建屏蔽字并不影响其⽗进程（常常是shell）的屏蔽字。    
 
+## 4.9 函数 chmod、fchmod 和 fchmodat
+
+chmod、fchmod 和 fchmodat 这3个函数使我们可以更改现有⽂件的访问权限。   
+
+```c
+#include <sys/stat.h>
+
+int chmod(const char *pathname, mode_t mode);
+int fchmod(int fd, mode_t mode);
+int fchmodat(int fd, const char *pathname, mode_t mode, int flag);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+fchmodat 函数与 chmod 函数在下⾯两种情况下是相同的：⼀种是pathname参数为绝对路径，另⼀种是
+fd 参数取值为 AT_FDCWD ⽽ pathname 参数为相对路径。否则，fchmodat计算相对于打开⽬录（由fd
+参数指向）的pathname。flag 参数可以⽤于改变 fchmodat 的⾏为，当设置了AT_SYMLINK_NOFOLLOW
+标志时，fchmodat并不会跟随符号链接。   
+
+为了改变⼀个⽂件的权限位，进程的有效⽤户ID必须等于⽂件的所有者ID，或者该进程必须具有超级⽤户权限。   
+
+参数 mode 是下列所示常量的按位或：    
+
+- S_ISUID: 执行时设置用户 ID
+- S_ISGID: 执行时设置组 ID
+- S_ISVTX: 保存正文（粘着位）
+- S_IRWXU: 用户（所有者）读、写和执行
+- S_IRUSR: 用户（所有者）读
+- S_IWUSR: 用户（所有者）写
+- S_IXUSR: 用户（所有者）执行
+- S_IRWXG: 组读、写和执行
+- S_IRGRP: 组读
+- S_IWGRP: 组写
+- S_IXGRP: 组执行
+- S_IRWXO: 其他读、写和执行
+- S_IROTH: 其他读
+- S_IWOTH: 其他写
+- S_IXOTH: 其他执行
+
+## 4.10 粘着位
+
+S_ISVTX 位被称为粘着位（sticky bit）。如果⼀个可执⾏程序⽂件的这⼀位被设置了，那么当该程序第
+⼀次被执⾏，在其终⽌时，程序正⽂部分的⼀个副本仍被保存在交换区（程序的正⽂部分是机器指令）。这
+使得下次执⾏该程序时能较快地将其装载⼊内存。其原因是：通常的UNIX⽂件系统中，⽂件的各数据块很可能
+是随机存放的，相⽐较⽽⾔，交换区是被作为⼀个连续⽂件来处理的。对于通⽤的应⽤程序，如⽂本编辑程序
+和C语⾔编译器，我们常常设置它们所在⽂件的粘着位。⾃然地，对于在交换区中可以同时存放的设置了粘着位
+的⽂件数是有限制的，以免过多占⽤交换区空间，但⽆论如何这是⼀个有⽤的技术。因为在系统再次⾃举前，
+⽂件的正⽂部分总是在交换区中，这正是名字中“粘着”的由来。后来的UNIX版本称它为保存正⽂位（saved-text
+bit），因此也就有了常量 S_ISVTX。现今较新的UNIX系统⼤多数都配置了虚拟存储系统以及快速⽂件系统，
+所以不再需要使⽤这种技术。   
+
+## 4.11 函数 chown, fchown, fchownat 和 lchown
+
+下⾯⼏个 chown 函数可⽤于更改⽂件的⽤户ID和组ID。如果两个参数 owner 或 group 中的任意⼀个是
+-1，则对应的ID不变。   
+
+```c
+#include <unistd.h>
+
+int chown(const char *pathname, uid_t owner, gid_t group);
+int fchown(int fd, uid_t owner, gid_t group);
+int fchownat(int fd, const char *pathname, uid_t owner, gid_t group);
+int lchown(const char *pathname, uid_t owner, gid_t group);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+除了所引⽤的⽂件是符号链接以外，这 4 个函数的操作类似。在符号链接情况下，lchown 和 fchownat
+（设置了AT_SYMLINK_NOFOLLOW标志）更改符号链接本⾝的所有者，⽽不是该符号链接所指向的⽂件的所有者。   
+
+fchownat 函数与 chown 或者 lchown 函数在下⾯两种情况下是相同的：⼀种是 pathname 参数为绝对
+路径，另⼀种是 fd 参数取值为 AT_FDCWD ⽽ pathname 参数为相对路径。在这两种情况下，如果flag
+参数中设置了 AT_SYMLINK_NOFOLLOW 标志，fchownat 与 lchown ⾏为相同，如果 flag 参数中清除了AT_SYMLINK_NOFOLLOW标志，则 fchownat 与 chown ⾏为相同。如果 fd 参数设置为打开⽬录的⽂件
+描述符，并且pathname参数是⼀个相对路径名，fchownat函数计算相对于打开⽬录的pathname。   
+
+## 4.12 文件长度
+
+stat 结构成员 st_size 表示以字节为单位的文件的长度。此字段只对普通文件、目录文件和符号链接有
+意义。   
+
+对于普通⽂件，其⽂件长度可以是0，在开始读这种⽂件时，将得到⽂件结束（end-of-file）指⽰。对于
+⽬录，⽂件长度通常是⼀个数（如16或512）的整倍数。    
+
+对于符号链接，文件长度是在文件名中的实际字节数。   
+
+现今，⼤多数现代的UNIX系统提供字段 st_blksize 和 st_blocks。其中，第⼀个是对⽂件I/O较合适
+的块长度，第⼆个是所分配的实际512字节块块数。回忆3.9节，其中提到了当我们将st_blksize⽤于读操作
+时，读⼀个⽂件所需的时间量最少。为了提⾼效率，标准I/O库也试图⼀次读、写st_blksize个字节。   
+
+应当了解的是，不同的UNIX版本其 st_blocks 所⽤的单位可能不是512字节的块。使⽤此值并不是可移植的。   
+
+**文件中的空洞**    
+
+空洞是由所设置的偏移量超过⽂件尾端，并写⼊了某些数据后造成的。作为⼀个例⼦，考虑下列情况：   
+
+```c
+$ ls -l core
+-rw-r--r-- 1 sar 8483248 Nov 18 12:18 core
+$ du -s core
+272    core
+```    
+
+⽂件 core 的长度稍稍超过8 MB，可是du命令报告该⽂件所使⽤的磁盘空间总量是272个512字节块（即13
+9264字节）。很明显，此⽂件中有很多空洞。   
+
+对于没有写过的字节位置，read函数读到的字节是0。如果执⾏下⾯的命令，可以看出正常的I/O操作读整个
+⽂件长度：   
+
+```c
+$ wc -c core
+8483248 core
+```    
+
+带-c选项的wc(1)命令计算⽂件中的字符数（字节）。   
+
+如果使⽤实⽤程序（如cat(1)）复制这个⽂件，那么所有这些空洞都会被填满，其中所有实际数据字节皆填
+写为0。    
+
+## 4.13 文件截断
+
+有时我们需要在⽂件尾端处截去⼀些数据以缩短⽂件。将⼀个⽂件的长度截断为0是⼀个特例，在打开⽂件时
+使⽤O_TRUNC 标志可以做到这⼀点。为了截断⽂件可以调⽤函数 truncate 和 ftruncate：   
+
+```c
+#include <unistd.h>
+
+int truncate(const char *pathname, off_t length);
+int ftruncate(int fd, off_t length);
+```   
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+这两个函数将⼀个现有⽂件长度截断为 length。如果该⽂件以前的长度⼤于 length，则超过length 以外
+的数据就不再能访问。如果以前的长度⼩于 length，⽂件长度将增加，在以前的⽂件尾端和新的⽂件尾端
+之间的数据将读作0（也就是可能在⽂件中创建了⼀个空洞）。    
+
+## 4.14 文件系统
+
+每⼀种⽂件系统类型都有它各⾃的特征，有些特征可能是混淆不清的。例如，⼤部分UNIX⽂件系统⽀持⼤⼩写
+敏感的⽂件名。因此，如果创建了⼀个名为 file.txt 的⽂件以及另外⼀个名为 file.TXT 的⽂件，就是
+创建了两个不同的⽂件。在 Mac OS X上，HFS⽂件系统是⼤⼩写保留的，并且是⼤⼩写不敏感⽐较的。因此，
+如果创建了⼀个名为file.txt的⽂件，当你再创建名为 file.TXT 的⽂件时，就会覆盖原来的file.txt
+⽂件。但是，保存在⽂件系统中的是⽂件创建时的⽂件名（即file.txt，因为是⼤⼩写保留的）。事实上，
+在“f, i, l, e, ., t, x, t”这个序列中的⼤写或⼩写字母的排列都会在搜索这个⽂件时得到匹配（⼤⼩
+写不敏感⽐较）。因此，除了file.txt和file.TXT，我们还可以⽤File.txt、fILE.tXt以及FiLe.TxT
+等名字来访问该⽂件。    
+
+我们可以把⼀个磁盘分成⼀个或多个分区。每个分区可以包含⼀个⽂件系统（见图 4-13）。i节点是固定
+长度的记录项，它包含有关⽂件的⼤部分信息。    
+
+![disk](https://raw.githubusercontent.com/temple-deng/markdown-images/master/unix/4-13.png)   
+
+如果更仔细地观察⼀个柱⾯组的i节点和数据块部分，则可以看到图4-14中所⽰的情况。注意图4-14中的下列
+各点：   
+
+![柱面](https://raw.githubusercontent.com/temple-deng/markdown-images/master/unix/4-14.png)   
+
+- 在图中有两个目录项指向同一个 i 节点。每个 i 节点中都有一个链接计数，其值是指向该 i 节点的目录
+项数。只有当链接计数减少至 0 时，才可删除该文件。在 stat 结构中，链接计数包含在 st_nlink 成员
+中，其基本系统数据类型是 nlink_t。这种链接类型称为硬链接。    
+- 另外一种链接类型称为符号链接。符号链接文件的实际内容包含了该符号链接所指向文件的名字。
+- i 节点包含了文件有关的所有信息：文件类型、文件访问权限位、文件长度和指向文件数据块的指针等。
+stat 结构中的大多数信息都取自 i 节点。只有两项重要数据存放在目录项中：文件名和 i 节点编号。
+
+
+## 4.15 函数link,linkat,unlink,unlinkat和remove
+
+创建⼀个指向现有⽂件的链接的⽅法是使⽤link函数或linkat函数：   
+
+```c
+#include <unistd.h>
+
+int link(const char *existingpath, const char *newpath);
+int linkat(inf efd, const char *existingpath, int nfd, const char *newpath, int flag);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+当现有⽂件是符号链接时，由flag参数来控制linkat函数是创建指向现有符号链接的链接还是创建指向现有
+符号链接所指向的⽂件的链接。如果在 flag 参数中设置了AT_SYMLINK_FOLLOW标志，就创建指向符号
+链接⽬标的链接。如果这个标志被清除了，则创建⼀个指向符号链接本⾝的链接。   
+
+为了删除⼀个现有的⽬录项，可以调⽤unlink函数：    
+
+```c
+#include <unistd.h>
+int unlink(const char *pathname);
+int unlinkat(int fd, const char *pathname, int flag);
+```   
+
+返回值：若成功，返回0；若出错，返回-1    
+
+flag 参数给出了⼀种⽅法，使调⽤进程可以改变 unlinkat 函数的默认⾏为。当AT_REMOVEDIR标志被
+设置时，unlinkat 函数可以类似于 rmdir ⼀样删除⽬录。如果这个标志被清除，unlinkat与unlink
+执⾏同样的操作。   
+
+我们也可以⽤ remove 函数解除对⼀个⽂件或⽬录的链接。对于⽂件，remove 的功能与unlink相同。对于
+⽬录，remove 的功能与 rmdir 相同。    
+
+```c
+#include <stdio.h>
+int remove(const char *pathname);
+```   
+
+## 4.16 函数 rename 和 renameat
+
+⽂件或⽬录可以⽤rename函数或者renameat函数进⾏重命名:    
+
+```c
+#include <stdio.h>
+
+int rename(const char *oldname, const char *newname);
+int renameat(int oldfd, const char *oldname, int newfd, const char *newname);
+```   
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+ISO C 对⽂件定义了rename函数（C标准不处理⽬录）。POSIX.1扩展此定义，使其包含了⽬录和符号链接。    
+
+根据oldname是指⽂件、⽬录还是符号链接，有⼏种情况需要加以说明。我们也必须说明如果newname已经
+存在时将会发⽣什么：    
+
+1. 如果 oldname 指的是一个文件而不是目录，那么为该文件或符号链接重命名。在这种情况下，如果 newname
+已存在，则它不能引用一个目录。如果 newname 已存在，而且不是一个目录，则先将该目录项删除然后将
+oldname 重命名为 newname。
+2. 如若 oldname 指的是一个目录，那么为该目录重命名。如果 newname 已存在，则它必须引用一个目录，
+而且该目录应当是空目录。如果 newname 存在且是一个空目录，则先将其删除，然后将 oldname 重命名
+为 newname。
+3. 如若 oldname 或 newname 引用符号链接，则处理的是符号链接本身，而不是它所引用的文件
+4. 不能对 . 和 .. 重命名
+5. 作为一个特例，如果oldname和newname引⽤同⼀⽂件，则函数不做任何更改⽽成功返回。
+
+## 4.17 符号链接
+
+符号链接是对⼀个⽂件的间接指针。   
+
+## 4.18 创建和读取符号链接
+
+可以⽤symlink或symlinkat函数创建⼀个符号链接：   
+
+```c
+#include <unistd.h>
+
+int symlink(const char *actualpath, const char *sympath);
+int symlinkat(const char *actualpath, int fd, const char *sympath);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+函数创建了一个指向 actualpath 的新目录项 sympath。在创建此符号链接时，并不要求 actualpath
+已经存在。    
+
+因为 open 函数跟随符号链接，所以需要有⼀种⽅法打开该链接本⾝，并读该链接中的名字。readlink和
+readlinkat 函数提供了这种功能。    
+
+```c
+#include <unistd.h>
+
+ssize_t readlink(const char *restrict pathname, char *restrict buf, size_t bufsize);
+ssize_t readlinkat(int fd, const char* restrict pathname, char *restrict buf, size_t bufsize);
+```    
+
+返回值：若成功，返回读取的字节数；若出错，返回-1。    
+
+两个函数组合了 open、read 和 close 的所有操作。如果函数成功执⾏，则返回读⼊buf的字节数。在buf
+中返回的符号链接的内容不以null字节终⽌。    
+
+## 4.19 文件的时间
+
+对于每个文件维护 3 个时间字段：   
+
+- st_atim: 文件数据的最后访问时间
+- st_mtim: 文件数据的最后修改时间
+- st_ctim: i 节点状态的最后修改时间
+
+注意，修改时间（st_mtim）和状态修改时间（st_ctim）之间的区别。修改时间是文件内容最后一次被修改
+的时间。状态更改时间是该文件的 i 节点最后一次被修改的时间。    
+
+## 4.20 函数 funtimens, utimensat 和 utimes
+
+⼀个⽂件的访问和修改时间可以⽤以下⼏个函数更改。futimens和utimensat函数可以指定纳秒级精度的
+时间戳。⽤到的数据结构是与stat函数族相同的timespec结构:   
+
+```c
+#include <sys/stat.h>
+
+int futimens(int fd, const struct timespec times[2]);
+int utimensat(int fd, const char *path, const struct timespec times[2], int flag);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+这两个函数的times数组参数的第⼀个元素包含访问时间，第⼆元素包含修改时间。   
+
+时间戳可以按下列4种⽅式之⼀进⾏指定：   
+
+1. 如果 times 参数是⼀个空指针，则访问时间和修改时间两者都设置为当前时间。
+2. 如果 times 参数指向两个 timespec 结构的数组，任⼀数组元素的 tv_nsec 字段的值为 UTIME_NOW，
+相应的时间戳就设置为当前时间，忽略相应的 tv_sec 字段。
+3. 如果 times 参数指向两个 timespec 结构的数组，任⼀数组元素的 tv_nsec 字段的值为 UTIME_OMIT，
+相应的时间戳保持不变，忽略相应的 tv_sec 字段。
+4. 如果 times 参数指向两个 timespec 结构的数组，且 tv_nsec 字段的值为既不是 UTIME_NOW 也
+不是 UTIME_OMIT，在这种情况下，相应的时间戳设置为相应的 tv_sec 和tv_nsec字段的值。    
+
+执⾏这些函数所要求的优先权取决于times参数的值：    
+
+- 如果 times 是一个空指针，或者任一 tv_nsec 字段设为 UTIME_NOW，则进程的有效用户 ID 必须
+等于该文件的所有者 ID；进程对该文件必须具有写权限，或者进程是一个超级用户进程
+- 如果 times 是⾮空指针，并且任⼀ tv_nsec 字段的值既不是 UTIME_NOW 也不是UTIME_OMIT，
+则进程的有效⽤户ID必须等于该⽂件的所有者ID，或者进程必须是⼀个超级⽤户进程。对⽂件只具有写
+权限是不够的。
+- 如果 times 是⾮空指针，并且两个 tv_nsec 字段的值都为 UTIME_OMIT，就不执⾏任何的权限检查。    
+
+futimens 和 utimensat 函数都包含在POSIX.1 中，第 3 个函数 utimes包含在Single UNIX
+Specification 的XSI扩展选项中。   
+
+```c
+#include <sys/time.h>
+
+int utimes(const char *pathname, const struct timeval times[2]);
+```   
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+utimes 函数对路径名进⾏操作。times 参数是指向包含两个时间戳（访问时间和修改时间）元素的数组的
+指针，两个时间戳是⽤秒和微妙表⽰的。    
+
+注意，我们不能对状态更改时间 st_ctim（i节点最近被修改的时间）指定⼀个值，因为调⽤utimes函数时，
+此字段会被⾃动更新。    
+
+## 4.21 函数 mkdir, mkdirat 和 rmdir
+
+⽤ mkdir 和 mkdirat 函数创建⽬录，⽤ rmdir 函数删除⽬录。    
+
+```c
+#include <sys/stat.h>
+
+int mkdir(const char *pathname, mode_t mode);
+int mkdirat(int fd, const char *pathname, mode_t mode);
+```   
+
+返回值：若成功，返回0；若出错，返回-1。   
+
+这两个函数创建⼀个新的空⽬录。其中，.和..⽬录项是⾃动创建的。所指定的⽂件访问权限mode由进程的
+⽂件模式创建屏蔽字修改。    
+
+mkdirat 函数与 mkdir 函数类似。当 fd 参数具有特殊值 AT_FDCWD 或者 pathname 参数指定了绝对
+路径名时，mkdirat 与 mkdir 完全⼀样。否则，fd 参数是⼀个打开⽬录，相对路径名根据此打开⽬录
+进⾏计算。    
+
+⽤ rmdir 函数可以删除⼀个空⽬录。空⽬录是只包含 . 和 .. 这两项的⽬录。   
+
+```c
+#include <unistd.h>
+int rmdir(const char *pathname);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。   
+
+## 4.22 读目录
+
+对某个⽬录具有访问权限的任⼀⽤户都可以读该⽬录，但是，为了防⽌⽂件系统产⽣混乱，只有内核才能写
+⽬录。回忆 4.5 节，⼀个⽬录的写权限位和执⾏权限位决定了在该⽬录中能否创建新⽂件以及删除⽂件，
+它们并不表⽰能否写⽬录本⾝。    
+
+⽬录的实际格式依赖于 UNIX 系统实现和⽂件系统的设计。早期的系统（如 V7）有⼀个⽐较简单的结构：
+每个⽬录项是16个字节，其中 14 个字节是⽂件名，2个字节是i节点编号。⽽对于4.2BSD，由于它允许
+更长的⽂件名，所以每个⽬录项的长度是可变的。这就意味着读⽬录的程序与系统相关。为了简化读⽬录的过程，
+UNIX 现在包含了⼀套与⽬录有关的例程，它们是POSIX.1的⼀部分。很多实现阻⽌应⽤程序使⽤ read 函数
+读取⽬录的内容，由此进⼀步将应⽤程序与⽬录格式中与实现相关的细节隔离。    
+
+```c
+#include <dirent.h>
+
+DIR *opendir(const char *pathname);
+DIR *fdopendir(int fd);
+```     
+
+返回值：若成功，返回指针；若出错，返回NULL。    
+
+```c
+struct dirent *readdir(DIR *dp);
+```   
+
+返回值：若成功，返回指针；若在⽬录尾或出错，返回NULL。    
+
+```c
+void rewinddir(DIR *dp);
+int closeDIR(DIR *dp);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。   
+
+```c
+long telldir(DIR *dp);
+```   
+
+返回值：与dp关联的⽬录中的当前位置。    
+
+```c
+void seekdir(DIR *dp, long loc);
+```    
+
+fdopendir函数最早出现在SUSv4中，它提供了⼀种⽅法，可以把打开⽂件描述符转换成⽬录处理函数需要的
+DIR结构。    
+
+telldir 和 seekdir 函数不是基本 POSIX.1 标准的组成部分。它们是SUS中的XSI扩展，所以可以期望
+所有符合UNIX系统的实现都会提供这两个函数。    
+
+定义在头⽂件 &lt;dirent.h&gt; 中的 dirent 结构与实现有关。实现对此结构所做的定义⾄少包含
+下列两个成员：    
+
+```c
+ino_t d_ino;   /* i-node number */
+char d_name[];   /* null-terminated filename */
+```   
+
+DIR 结构是⼀个内部结构，上述 7 个函数⽤这个内部结构保存当前正在被读的⽬录的有关信息。其作⽤类似
+于FILE结构。FILE结构由标准I/O库维护，我们将在第5章中对它进⾏说明。    
+
+由 opendir 和 fdopendir 返回的指向 DIR 结构的指针由另外5个函数使⽤。opendir 执⾏初始化操作，
+使第⼀个 readdir 返回⽬录中的第⼀个⽬录项。DIR 结构由fdopendir创建时，readdir返回的第⼀项
+取决于传给 fdopendir 函数的⽂件描述符相关联的⽂件偏移量。注意，⽬录中各⽬录项的顺序与实现有关。
+它们通常并不按字母顺序排列。    
+
+## 4.23 函数 chdir, fchdir 和 getcwd
+
+每个进程都有⼀个当前⼯作⽬录，此⽬录是搜索所有相对路径名的起点。当前⼯作⽬录是进程的⼀个属性，
+起始⽬录则是登录名的⼀个属性。    
+
+进程调用 chdir 和 fchdir 函数可以更改当前工作目录：   
+
+```c
+#include <unistd.h>
+
+int chdir(const char *pathname);
+int fchdir(int fd);
+```    
+
+返回值：若成功，返回0；若出错，返回-1。    
+
+函数 getcwd 可以获取当前工作目录完整的绝对路径名。   
+
+```c
+#include <unistd.h>
+char *getcwd(char *buf, size_t size);
+```   
+
+返回值：若成功，返回buf；若出错，返回NULL   
+
+## 4.24 设备特殊文件
+
+st_dev 和 st_rdev 这两个字段经常引起混淆：    
+
+- 每个文件系统所在的存储设备都由其主、次设备号表示。设备号所用的数据类型是基本系统数据类型 dev_t。
+主设备号标识设备驱动程序，有时编码为与其通信的外设版；次设备号标识特定的子设备。一个磁盘驱动器
+经常包含若干个文件系统。在同一磁盘驱动器上的各文件系统通常具有相同的主设备号，但是次设备号确不同。
+- 我们通常使用两个宏：major 和 minor 来访问主、次设备号，大多数实现都定义这两个宏。
+
