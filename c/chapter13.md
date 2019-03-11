@@ -82,3 +82,101 @@ exit() 函数关闭所有打开的文件并结束程序。exit() 的参数被传
 要求0或宏EXIT_SUCCESS用于表明成功结束程序，宏EXIT_FAILURE用于表明结束程序失败。这些宏和exit()
 原型都位于stdlib.h头文件中。    
 
+## 13.5 随机访问：fseek() 和 ftell()
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#define CNTL_Z '\032'
+#define SLEN 81
+
+int main(void) {
+  char file[SLEN];
+  char ch;
+  FILE *fp;
+
+  long count, last;
+  puts("Enter the name of the file to be processed:");
+  scanf("%80s", file);
+
+  if ((fp = fopen(file, "rb")) == NULL) {
+    printf("reverse can't open %s\n", file);
+    exit(EXIT_FAILURE);
+  }
+
+  fseek(fp, 0L, SEEK_END);
+
+  last = ftell(fp);
+
+  for (count = 1L; count <= last; count++) {
+    fseek(fp, -count, SEEK_END);
+    ch = getc(fp);
+    if (ch != CNTL_Z && ch != '\r') {
+      putchar(ch);
+    }
+  }
+
+  putchar('\n');
+  fclose(fp);
+  return 0;
+}
+```   
+
+该程序使用二进制模式，以便处理MS-DOS文本和UNIX文件。   
+
+### 13.5.1 fseek() 和 ftell() 的工作原理
+
+fseek() 的第2个参数是偏移量。该参数表示从起始点开始要移动的距离。该参数必须是一个 long 类型的
+值，可以为正（前移）、负（后移）或0（保持不动）。   
+
+fseek() 的第3个参数是模式，该参数确定起始点。根据 ANSI 标准，在 stdio.h 头文件规定了几个表示
+模式的明示常量：    
+
+- SEEK_SET: 文件开始处
+- SEEK_CUR: 当前位置
+- SEEK_END: 文件末尾    
+
+如果一切正常，fseek() 的返回值为0；如果出现错误，返回 -1。    
+
+ftell() 函数的返回类型是 long，它返回的是当前的位置。    
+
+### 13.5.2 二进制模式和文本模式
+
+我们设计的程序在UNIX和MS-DOS环境下都可以运行。UNIX只有一种文件格式，所以不需要进行特殊的转换。
+然而MS-DOS要格外注意。许多MS-DOS编辑器都用Ctrl+Z标记文本文件的结尾。以文本模式打开这样的文件
+时，C 能识别这个作为文件结尾标记的字符。但是，以二进制模式打开相同的文件时，Ctrl+Z字符被看作
+是文件中的一个字符，而实际的文件结尾符在该字符的后面。文件结尾符可能紧跟在Ctrl+Z字符后面，或者
+文件中可能用空字符填充，使该文件的大小是256的倍数。在DOS环境下不会打印空字符。     
+
+### 13.5.3 fgetpos() 和 fsetpos() 函数
+
+fseek() 和 ftell() 潜在的问题是，它们都把文件大小限制在 long 类型能表示的范围内。鉴于此，
+ANCI 新增了两个处理较大文件的新定位函数：fgetpos() 和 fsetpos()。这两个函数不使用 long
+类型的值表示位置，它们使用一种新类型：fpos_t（代表 file position type）。fpos_t 不是基本
+类型，它根据其他类型来定义。    
+
+```c
+int fgetpos(FILE * restrict stream, fpos_t * restrict pos);
+```    
+
+调用该函数时，它把 fpos_t 类型的值放在 pos 指向的位置上，该值描述了文件中的一个位置。如果成功，
+fgetpos() 函数返回0；如果失败，返回非0。    
+
+```c
+int fsetpos(FILE *stream, const fpos_t *pos);
+```   
+
+调用该函数时，使用pos指向位置上的fpos_t类型值来设置文件指针指向该值指定的位置。如果成功，
+fsetpos()函数返回0；如果失败，则返回非0。fpos_t类型的值应通过之前调用fgetpos()获得。    
+
+## 13.6 标准 IO 的机理
+
+通常，使用标准 IO 的第1步是调用 fopen() 打开文件。fopen() 函数不仅打开一个文件，还创建了一个
+缓冲区（在读写模式下会创建两个缓冲区）以及一个包含文件和缓冲区数据的结构。另外，fopen()返回一个
+指向该结构的指针，以便其他函数知道如何找到该结构。假设把该指针赋给一个指针变量fp，我们说 fopen()
+函数“打开一个流”。    
+
+这个结构通常包含一个指定流中当前位置的文件位置指示器。除此之外，它还包含错误和文件结尾指示器、一个
+指向缓冲区开始处的指针、一个文件标识符和一个计数。    
+
+我们主要考虑文件输入。通常，使用标准 IO 的第2步是调用一个定义在 stdio.h 中的输入函数。
