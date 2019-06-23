@@ -1,4 +1,4 @@
-# Clipboard API and events(2018.11.08)
+# Clipboard API and events(2019.05.13)
 
 ## 概览
 
@@ -13,14 +13,16 @@
 
 - Clipboard Event API - 为通用的剪切板操作，包括剪切、复制和粘贴提供了钩子，以便 web 应用
 能够按需调整剪切板的数据
-- Async Clipboard API - 提供了对剪切板数据的直接的读写访问。
+- Async Clipboard API - 提供了对剪切板数据的直接的读写访问。由于这个功能被认为是太过强大的，
+因此访问这个 API 需要收到权限的控制。   
 
 ## 2. Use Cases
 
 ### 2.1 修改默认的剪切板操作
 
-- **Metadata**。当从一份文档中复制文本时，我们可能也想要获取到复制文件的一些元数据，例如说被拷贝
-内容的来源
+在许多场景下，我们可能都希望去修改默认的剪切板操作（剪切/复制/粘贴），这里有一些例子：   
+
+- **Metadata**。当从一份文档中复制文本时，我们可能也想要获取到文本文档的一些元数据。
 - **Rich content editing**。当复制一段包含超链接或者其他结构的文本时，我们可能想要回重新组织
 内容的结构，以保留那些重要的信息。
 - **Graphics with built-in semantics**（具有内置语义的图片）。为了去制作一些支持富文本操作，
@@ -39,15 +41,19 @@
 ## 3. 术语
 
 术语 **可编辑内容**（editable context）指那些 `contenteditable` 属性不为 false 的 HTML
-元素，或者是 textarea 元素，或者是一个 type 属性为 "text", "search", "tel", "url", "email",
-"password", "number" 的 input 元素。    
+元素（即 editing host），或者是 textarea 元素，或者是一个 type 属性为 "text", "search",
+"tel", "url", "email", "password", "number" 的 input 元素。    
 
 ## 4. Model
 
 系统都提供了一个系统剪切板。    
 
-系统剪切板包含一个剪切板item 的列表，统称为系统剪切板数据。系统剪切板数据是一个 DataTransfer
-对象，反映了剪切板的内容。    
+系统剪切板包括了一系列的 clipboard items，这些 items 叫做系统剪切板数据。   
+
+- 对于 Clipboard Event API 来说，剪切板数据是通过一个 `DataTransfer` 对象暴露出来的，这个
+对象是剪切板内容的一个副本
+- 对于 Asynchronous Clipboard API 来说，剪切板是通过一个 `ClipboardItem` 对象的序列暴露
+出来的，同样也是剪切板内容的一个副本     
 
 ## 5. 剪切板事件
 
@@ -69,8 +75,8 @@ pasteEvent.clipboardData.items.add('My string', 'text/plain');
 document.dispatchEvent(pasteEvent);
 ```   
 
-合成事件事实上不会真的去修改剪切板或者文档。换句话说，上面的脚本不会触发一个 paste 事件，数据
-也不会被粘贴到文档中。    
+合成事件事实上不会真的去修改剪切板或者文档。换句话说，上面的脚本虽然触发一个 paste 事件，但是数据
+不会被粘贴到文档中。    
 
 ### 5.2 剪切板事件
 
@@ -79,7 +85,7 @@ document.dispatchEvent(pasteEvent);
 无论何时剪切板的内容发生变化时，都会触发 clipboardchange 事件。这些改变可能由下面的原因引起的：    
 
 - 用户的剪切或者粘贴操作
-- 使用了第 7 节中的 API 的脚本写入数据到剪切板
+- 使用了第 7 节中异步剪切板 API 写入数据到剪切板
 - 用户代理之外的更新剪切板的操作    
 
 如果是在用户代理之外发生了剪切板内容变化，那么 clipboard 事件必须在用户代理重新获取焦点后触发。    
@@ -94,16 +100,20 @@ document.dispatchEvent(pasteEvent);
 
 copy 事件可以冒泡，可以被取消，并且可以被合成。   
 
+可以动手构建并分发一个 copy 事件，不过其并不会影响到系统剪切板的内容。   
+
 #### 5.2.3 cut 事件
 
 当用户进行一次剪切操作时，用户代理会触发 cut 事件。    
 
-在一个可编辑内容中，如果这个事件没有被取消，这个操作会将当前选中的数据放置到剪切板中，并且
-从文档中移除选中的部分。cut 事件在被选中内容移除前触发。   
+在一个 editing context 中，如果这个事件没有被取消，这个操作会将当前选中的数据放置到剪切板中，并且
+从文档中移除选中的部分。cut 事件在被选中内容移除前触发。当 cut 操作完成，选择会被折叠。  
 
-在一个非可编辑内容中，clipboardData 是一个空列表。注意这种情况下，cut 事件仍然会触发。   
+在一个非 editing context 中，clipboardData 是一个空列表。注意这种情况下，cut 事件仍然会触发。   
 
 同 copy 事件，cut 事件也会冒泡，也可以被取消，也能被合成。    
+
+可以动手构建并分发一个 cut 事件，不过其并不会影响到文档及系统剪切板的内容。   
 
 #### 5.2.4 paste 事件
 
@@ -121,7 +131,8 @@ copy 事件可以冒泡，可以被取消，并且可以被合成。
 
 在下面条件之一为 true 时，事件处理函数可以向剪切板中写入数据：    
 
-- 引发此次剪切板事件的行为由用户代理自己的用户接口调用的，例如，从 "Copy" 菜单项或者快捷键
+- 引发此次剪切板事件的行为由用户代理自己的用户接口调用的，例如，从 "Copy" 菜单项或者快捷键（那
+其实就代表这是一个用户触发的操作）
 - The action which trigger the event is invoked from a scripting thread which is
 allowed to show a popup。    
 
