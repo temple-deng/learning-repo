@@ -51,6 +51,8 @@ puts() 函数只显示字符串，而且自动在显示的字符串末尾加上�
 
 ### 11.1.1 在程序中定义字符串
 
+上面的程序使用了多种方法（即字符串常量、char 类型数组、指向 char 的指针）定义字符串。   
+
 1. **字符串字面量（字符串常量）**    
 
 用双引号括起来的内容称为字符串字面（string literal），也叫作字符串常量（string constant）。
@@ -79,7 +81,13 @@ int main(void) {
 定义字符串数组时，必须让编译器知道需要多少空间。一种方法是用足够空间的数组储存字符串。    
 
 在指定数组大小时，要确保数组的元素个数至少比字符串长度多1。所有未被使用的元素都被自动初始化为0
-（这里的0指的是char形式的空字符串，而不是数字字符0）    
+（这里的0指的是char形式的空字符串，而不是数字字符0）。    
+
+通常，让编译器确定数组的大小很方便。回忆一下，省略数组初始化声明中的大小，编译器会自动计算数组的大小：   
+
+```c
+const char m2[] = "If you can't think of anything, fake it.";
+```   
 
 还可以使用指针表示法创建字符串：   
 
@@ -113,7 +121,55 @@ ar1+1这样的操作，标识数组的下一个元素。但是不允许进行++a
 变量pt1留出一个储存位置，并把字符串的地址储存在指针变量中。该变量最初指向该字符串的首字符，但是
 它的值可以改变。    
 
+字符串字面量被视为 `const` 数组。由于 pt1 指向这个 const 数组，所以应该把 pt1 声明为指向
+const 数据的指针。这意味着不能用 pt1 改变它所指向的数据，但是仍然可以改版 pt1 的值。    
+
 总之，初始化数组把静态存储区的字符串拷贝到数组中，而初始化指针只把字符串的地址拷贝给指针。    
+
+```c
+#define MSG "I'm special"
+#include <stdio.h>
+
+int main() {
+  char ar[] = MSG;
+  const char * pt = MSG;
+  printf("address of \"I'm special\": %p \n", "I'm special");
+  printf("                 address ar: %p\n", ar);
+  printf("                 address pt: %p\n", pt);
+  printf("      address of MSG: %p\n", MSG);
+  printf("address of \"I'm special\": %p  \n", "I'm special");
+  return 0;
+}
+```    
+
+输出类似：    
+
+```
+address of "I'm special": 0x100000f10
+address ar: 0x7fff5fbff858
+address pt: 0x100000f10
+address of MSG: 0x100000f10
+address of "I'm special": 0x100000f10
+```     
+
+这程序的输出说明了什么？第一，pt 和 MSG 的地址相同，而 ar 的地址不同。第二，虽然字符串字面量
+"I'm special" 在程序的两个 `printf()` 函数中出现了两次，但是编译器只使用了一个存储位置，而且
+与 MSG 的地址相同。编译器可以把多次使用的相同字面量储存在一处或多处。另一个编译器可能在不同的
+位置储存 3 个 "I'm special"。    
+
+数组和指针表示字符串的区别是否很重要？通常不太重要，但是这取决于想用程序做什么。我们来进一步讨论
+这个主题。    
+
+4. **数组和指针的区别**     
+
+```c
+char heart[] = "I love Tillie!";
+const char * head = "I love Millie!";
+```     
+
+两者主要的区别是：数组名 heart 是常量，而指针名 head 是变量。     
+
+只有指针表示法可以进行赋值和递增/减操作。    
 
 ## 11.2 字符串输入
 
@@ -158,7 +214,9 @@ int main(void) {
 ```   
 
 gets() 唯一的参数是 words，它无法检查数组是否装得下输入行。如果输入的字符串过长，会导致缓冲区
-溢出。     
+溢出。因此部分编译器在运行上述程序时可以会给出警告。     
+
+C11 标准委员会从标准中废除了 `gets()` 函数。   
 
 ### 11.2.3 gets()的替代品
 
@@ -169,7 +227,7 @@ gets() 唯一的参数是 words，它无法检查数组是否装得下输入行�
 fgets() 函数通过第 2 个参数限制读入的字符数来解决溢出的问题。该函数专门设计用于处理文件输入。
 fgets() 和 gets() 的区别如下。    
 
-fget() 函数的第 2 个参数指明了读入字符的最大数量。如果该参数的值是 n，那么 fgets() 将读入
+fgets() 函数的第 2 个参数指明了读入字符的最大数量。如果该参数的值是 n，那么 fgets() 将读入
 n-1 个字符，或者读到遇到第一个换行符为止。    
 
 如果 fgets() 读到一个换行符，会把它储存在字符串中。这点与 gets() 不同，gets() 会丢弃换行符。
@@ -218,6 +276,51 @@ what the hellDone
 注意第一次输入中，由于使用的是 fgets，然后字符个数又不够，那么换行符就也输入了进去。
 所以 puts 输出的时候有两个换行符。而 fputs 不在字符串末尾添加换行符，所以并未打印出空行。   
 
+`fgets()` 函数返回指向 `char` 的指针。如果一切进行顺利，该函数返回的地址与传入的第 1 个参数
+相同。但是，如果函数读到文件结尾，它将返回一个特殊的指针：空指针。该指针保证不会指向有效的数据，
+所以可用于标识这种特殊情况。在代码中，可以用数字 0 来代替，不过在 C 语言中用宏 NULL 来代替更
+常见。    
+
+```c
+#include <stdio.h>
+#define STLEN 10
+
+int main(void) {
+  char words[STLEN];
+  puts("Enter strings (empty line to quit):");
+
+  while (fgets(words, STLEN, stdin) != NULL && words[0] != '\n') {
+    fputs(words, stdout);
+  }
+  puts("Done.");
+  return 0;
+}
+```     
+
+输出示例：    
+
+```c
+By the way, the gets() function
+By the way, the gets() function
+also returns a null pointer if it
+also return a null pointer if it
+encounters end-of-file.
+encounters end-of-file.
+Done.
+```     
+
+虽然 STLEN 被设置为 10，但是该程序似乎在处理过长的输入时完全没问题。程序中的 `fgets()` 一次
+读入 STLEN - 1 个字符。所以，一开始它只读入了 By the wa，并储存为 By the wa\0；接着 `fputs()`
+打印该字符串，而且并未换行。然后 while 循环进入下一轮迭代，`fgets()` 继续从剩余的输入中读入数据，
+即读入 y, the ge 并储存为 y,the ge\0；接着 `fputs()` 在刚才打印字符串的这一行接着打印第 2
+次读入的字符串。然后，while 进入下一轮迭代，`fgets()` 继续读取输入、`fputs()` 打印字符串，这
+一过程循环进行，直到读入最后的 tion\n，储存为 tion\n\0，`fputs` 打印该字符串，由于字符串中的
+\n，光标被移至下一行开始处。     
+
+系统使用缓冲的 IO。这意味着用户在按下 Return 键之前，输入都被储存在临时存储区中。按下 Return
+键就在输入中增加了一个换行符，并把整行输入发送给 `fgets()`。对于输出，`fputs()` 把字符发送给
+另一个缓冲区，当发送换行符时，缓冲区中的内容被发送至屏幕上。   
+
 2. **gets_s()函数**    
 
 gets_s() 和 fgets() 类似，用一个参数限制读入的字符数。   
@@ -262,6 +365,7 @@ puts 在遇到空字符时就停止输出，所以必须确保有空字符。
 fputs() 函数是 puts() 针对文件定制的版本。它们的区别如下。    
 
 fputs 函数的第 2 个参数指明要写入数据的文件。与puts 不同，fputs 不会在输出的末尾添加换行符。   
+
 ### 11.3.3 printf 函数
 
 和puts()一样，printf()也把字符串的地址作为参数。与puts()不同的是，printf()不会自动在每个字符
@@ -277,11 +381,22 @@ strlen()、strcat()、strcmp()、strncmp()、strcpy() 和 strncpy()。另外,还
 
 strlen()函数用于统计字符串的长度。   
 
+```c
+void fit(char * string, int size) {
+  if (strlen(string) > 20) {
+    string[size] = '\0';
+  }
+}
+```    
+
+注意这里好像是第一次见到这样的用法 `string[size]` 而 string 是一个指针。然后根据测试基本上
+其他类型的指针也都能这样工作，也就是说对于访问元素的大括号，其实是针对指针进行工作的。      
+
 ### 11.4.2 strcat() 函数
 
 strcat()（用于拼接字符串）函数接受两个字符串作为参数。该函数把第2个字符串的备份附加在第1个字符串
 末尾，并把拼接后形成的新字符串作为第1个字符串，第2个字符串不变。strcat()函数的类型是char *（即，
-指向char的指针)。strcat()函数返回第1个参数，即拼接第2个字符串后的第1个字符串的地址。    
+指向char的指针）。strcat()函数返回第1个参数，即拼接第2个字符串后的第1个字符串的地址。    
 
 ```c
 #include <stdio.h>
@@ -375,7 +490,7 @@ int main(void) {
 不是两个字符串是否相等，而是这两个字符串的地址是否相同。因为 ANSWER 和 try 储存在不同的位置，
 所以这两个地址不可能相同。    
 
-strcpm() 函数通过比较运算符来比较字符串，如果两个字符串参数相同，该函数就返回0，否则返回非零值。   
+strcmp() 函数通过比较运算符来比较字符串，如果两个字符串参数相同，该函数就返回0，否则返回非零值。   
 
 ```c
 #include <stdio.h>
@@ -403,6 +518,8 @@ int main(void) {
 如果在字母表中第1个字符串位于第2个字符串前面，strcmp()就返回负数；反之，strcmp则返回正数。   
 
 strcmp()函数比较字符串中的字符，直到发现不同的字符为止，这一过程可能会持续到字符串的末尾。而strncmp()函数在比较两个字符串时，可以比较到字符不同的地方，也可以只比较第3个参数指定的字符数。   
+
+
 
 ### 11.4.5 strcpy() 和 strcncpy() 函数
 

@@ -1,95 +1,124 @@
 # HTMLMediaElement
 
-## 题外话
+## 1. 题外话
 
 媒体元素加载的时候可能都是范围请求，服务器可能用206 Partial Content 响应，之后这个HTTP响应可能会一直
 持续到文件下载完成，不过如果我们播放时进行跳的播放，可能之前的链接会被关闭吧，然后发送新的范围请求，
 请求的位置就不一样了。   
 
-## HTMLMediaElement
+## 2. HTMLMediaElement
 
 HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。    
 
-### 属性
+## 3. 属性
 
-##### HTMLMediaElement.audioTracks   
+### 3.1 audioTracks   
 
-一个 AudioTrackList 对象，包含元素包含的 AudioTrack 对象。（具体内容以后再加）但是看说明 `<audio>` 元素虽然可以包含 `<track>` 元素，但是会
-被忽视，不清楚这个字幕是怎么作用的。        
+只读属性。返回一个 `AudioTrackList` 对象。   
 
-##### HTMLMediaElement.autoplay   
+返回的结果是实时的 *live*，意味着其内容是动态变化的。    
+
+音轨，好像就是左声道右声道这种东西。    
+
+AudioTrackList 的属性，`length, onaddtrack, onchange, onremovetrack`。     
+
+方法 `getTrackById(id)`。   
+
+对 `AudioTrack` 对象最常见的用法是切换其 `enabled` 属性来静音或者播放这条音轨。   
+
+属性：   
+
+- enabled
+- id(Read Only)
+- kind(Read Only)
+  + alternative
+  + descriptions
+  + main
+  + main-desc
+  + translation
+  + commentary
+- label(Read Only)
+- language(Read Only)
+- sourceBuffer(Read Only)
+
+### 3.2 autoplay   
 
 对应于 autoplay HTML 属性。布尔值属性。    
 
-##### HTMLMediaElement.buffered
+### 3.3 buffered
 
 只读属性。返回一个新的 TimeRanges 对象表明浏览器此刻缓存的媒体资源的时间范围。    
 
-##### HTMLMediaElement.controller
+### 3.4 controller
 
 安排给元素的一个 MediaController 对象。没有安排的话就为 null。默认为null。   
 
-##### HTMLMediaElement.controls
+### 3.5 controls
 
 对应于 controls HTML 属性。布尔值属性。   
 
-##### HTMLMediaElement.crossOrigin
+### 3.6 controlsList
+
+只读属性。返回一个 DOMTokenList 对象，可以获取到哪些控制组件没被显示，列表中的值可以包含
+`nodownload`, `nofullscreen`, `noremoteplayback`。    
+
+### 3.7 crossOrigin
 
 没什么好说的吧，应该是个枚举属性值，字符串。    
 
-##### HTMLMediaElement.currentSrc   
+### 3.8 currentSrc   
 
 只读属性。一个绝对的 URL 地址，代表当前选中的资源的位置。不过当 `networkState` 属性为 EMPTY 时
 为空串。    
 
-##### HTMLMediaElement.currentTime   
+### 3.9 currentTime   
 
 以秒为单位。当前的播放时间。    
 
-##### HTMLMediaElement.defaultMuted   
+### 3.10 defaultMuted   
 
 对应于 muted 属性，表明默认情况下是否静音。不过这个属性没有动态效果，也就是说只代表默认的效果，
 但是修改它并没什么效果吧，貌似可能只有在视频播放前的阶段修改有效果，如果想要修改还是使用 `muted` 属性。    
 
-##### HTMLMediaElement.defaultPlaybackRate
+### 3.11 defaultPlaybackRate
 
 默认的播放速率吧，1就是正常速度，小于1就慢了呗，MDN上说0.0是无效值会抛出异常，但测验时没什么问题，不过
 修改这个速率也没什么效果。想要修改速率应该是使用下面的 `playbackRate`。    
 
-##### HTMLMediaElement.disableRemotePlayback  
+### 3.12 disableRemotePlayback  
 
 布尔值属性，决定是否媒体元素允许有一个远程播放的UI。暂不清楚这个UI是什么意思。   
 
-##### HTMLMediaElement.duration
+### 3.13 duration
 
 只读。以秒为单位的媒体的长度。如果媒体数据可用但是长度未知，值就是NaN，如果媒体是流，没有预定义的长度，
 只是 Inf(Infinity?)。   
 
-##### HTMLMediaElement.ended
+### 3.14 ended
 
 只读。是否结束播放。如果媒体是 MediaStream，如果流的 active 属性为 false，值就为 true。如果循环播放完了，又开始播放，属性就为 false了。   
 
-##### HTMLMediaElement.error   
+### 3.15 error   
 
 只读。MediaError 对象，或者在没错时为 null。   
 
-##### HTMLMediaElement.loop
+### 3.16 loop
 
 布尔值属性。   
 
-##### HTMLMediaElement.mediaGroup
+### 3.17 mediaGroup
 
 对应于 mediagroup HTML 属性，元素所属 group 的名字，一组媒体元素共享 controller。不用说，不知道什么东西。   
 
-##### HTMLMediaElement.mediaKeys  
+### 3.18 mediaKeys  
 
 只读。返回一个 MediaKeys 对象或 null。待补充。   
 
-##### HTMLMediaElement.muted
+### 3.19 muted
 
 布尔值属性。
 
-##### HTMLMediaElement.networkState
+### 3.20 networkState
 
 只读。表示通过网络获取媒体资源的当前状态。数值型。可能的值有：   
 
@@ -98,23 +127,23 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
 + 2-NETWORK_LOADING: 浏览器在下载元素数据。
 + 3-NETWORK_NO_SOURCE: 没有正确的 src 被找到
 
-##### HTMLMediaElement.paused
+### 3.21 paused
 
 只读。
 
-##### HTMLMediaElement.playbackRate
+### 3.22 playbackRate
 
 播放速率吧，这里MDN上说负值可能倒退播放，但是测验时没有效果。
 
-##### HTMLMediaElement.played   
+### 3.23 played   
 
 只读。返回一个 TimeRanges 对象，包含浏览器已经播放的范围。  
 
-##### HTMLMediaElement.preload
+### 3.24 preload
 
 对应于 preload HTML 属性，枚举属性吧，'auto', 'metadata', 'none', ''。none 表示元素不应该预加载，auto 表示整个元素文件应该被下载，空字符串等同于 auto。
 
-##### HTMLMediaElement.readyState
+### 3.25 readyState
 
 只读：  
 
@@ -124,49 +153,49 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
 + 3-HAVE_FUTURE_DATA
 + 4-HAVE_ENOUGH_DATA
 
-##### HTMLMediaElement.seekable
+### 3.26 seekable
 
 只读。返回一个 TimeRanges 对象，包含用户可以跳播的部分吧。   
 
-##### HTMLMediaElement.seeking
+### 3.27 seeking
 
-只读。返回一个布尔值，表示是否媒体正在跳到新的位置。什么意思？
+只读。返回一个布尔值，表示是否媒体正在跳到新的位置。  
 
-##### HTMLMediaElement.sinkId
+### 3.28 sinkId
 
 只读。待补充
 
-##### HTMLMediaElement.src
+### 3.29 src
 
 对应于 src HTML 属性。注意使用的媒体资源的 URL 地址。
 
-##### HTMLMediaElement.srcObject
+### 3.30 srcObject
 
 返回一个对象，通常是与元素相关的媒体源，通常是个 MediaStream 对象，但也可以是 MediaSource, Blob, File 对象。     
 
-##### HTMLMediaElement.textTracks
+### 3.31 textTracks
 
 只读。返回元素包含的 TextTrack 对象组成的列表。    
 
-##### HTMLMediaElement.videoTracks
+### 3.32 videoTracks
 
 只读。返回元素包含的 VideoTrack 对象组成的列表。   
 
-##### HTMLMediaElement.volume   
+### 3.33 volume   
 
 从0.0到1.0。    
 
-### 方法
+## 4. 方法
 
-##### HTMLMediaElement.addTextTrack()   
+### 4.1 addTextTrack()   
 
 给元素添加一个 text track。   
 
-##### HTMLMediaElement.captureStream()
+### 4.2 captureStream()
 
 返回一个 MediaStream 对象，捕获了媒体内容的流。   
 
-##### HTMLMediaElement.canPlayType(mediaType)   
+### 4.3 canPlayType(mediaType)   
 
 是否支持播放指定的类型。
 
@@ -176,60 +205,60 @@ HTMLVideoElement 及 HTMLAudioElement 继承了 HTMLMediaElement 接口。
   - 'maybe': 在播放前无法确定是否能播放
   - '': 不能播放
 
-##### HTMLMediaElement.fastSeek(time)   
+### 4.4 fastSeek(time)   
 
 直接跳转到指定的位置时间吧。    
 
-##### HTMLMediaElement.load()
+### 4.5 load()
 
 待补充。    
 
-##### HTMLMediaElement.pause()
+### 4.6 pause()
 
 暂停播放。
 
-##### HTMLMediaElement.play()
+### 4.7 play()
 
 尝试开始播放。返回一个 Promise。如果成功开始播放就是 fulfilled，如果由于一些问题播放失败，就是 rejected。
 
-##### HTMLMediaElement.seekToNextFrame()
+### 4.8 seekToNextFrame()
 
-##### HTMLMediaElement.setMediaKeys()
+### 4.9 setMediaKeys()
 
-##### HTMLMediaElement.setSinkId()
+### 4.10 setSinkId()
 
 
-## HTMLVideoElement
+## 5. HTMLVideoElement
 
-### 属性
+## 6. 属性
 
-##### HTMLVideoElement.height
+## 6.1 height
 
 MDN上说返回的是字符串。测验时是 number 类型。以 number 为准。
 
-##### HTMLVideoElement.poster
+### 6.2 poster
 
 对应于 poster 属性。一个绝对的 URL 字符串地址。   
 
-##### HTMLVideoElement.videoHeight
+### 6.3 videoHeight
 
 只读。返回元素文件本身的高度吧。   
 
-##### HTMLVideoElement.videoWidth
+### 6.4 videoWidth
 
 同上，宽度。    
 
-##### HTMLVideoElement.width
+### 6.5 width
 
 同 height，宽度。    
 
-### 方法
+## 7. 方法
 
-##### HTMLVideoElement.getVideoPlaybackQuality()
+### 7.1 getVideoPlaybackQuality()
 
 创建并返回一个 VideoPlaybackQuality 对象。
 
-## HTMLAudioElement
+## 8. HTMLAudioElement
 
 这个的话可能没什么独立的属性与方法。    
 
