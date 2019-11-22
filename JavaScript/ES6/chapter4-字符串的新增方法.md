@@ -73,6 +73,17 @@ s.codePointAt(1) // 57271
 s.codePointAt(2) // 97
 ```      
 
+codePointAt()方法是测试一个字符由两个字节还是由四个字节组成的最简单方法。   
+
+```js
+function is32Bit(c) {
+  return c.codePointAt(0) > 0xFFFF;
+}
+
+is32Bit("𠮷") // true
+is32Bit("a") // false
+```     
+
 ## 4.4 includes(), startsWith(), endsWith()
 
 includes()：返回布尔值，表示是否找到了参数字符串。(既然有了indexOf为什么还要这个方法，注意：indexOf方法可以寻找子串，而不是仅仅单个字符)    

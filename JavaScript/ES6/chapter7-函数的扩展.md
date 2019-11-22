@@ -14,6 +14,25 @@
 
 ## 7.1 函数参数的默认值
 
+参数变量是默认声明的，所以不能用 `let` 或 `const` 再次声明：    
+
+```js
+function (x = 5) {
+  let x = 1;  // error 
+  const x = 2;  // error
+}
+```    
+
+但是使用 `var` 还是可以的：    
+
+```js
+function foo(x) {
+  var x = 3;
+  console.log(x);
+}
+foo(4);   // 3
+```    
+
 使用参数默认值时，函数不能有同名参数：    
 
 ```js

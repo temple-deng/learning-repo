@@ -23,17 +23,27 @@ ES6 对这一点做出了改进，只要将码点放入大括号，就能正确�
 // "𠮷"
 ```    
 
+有了这种表示法之后，JavaScript 共有 6 种方法可以表示一个字符。   
+
+```js
+'\z' === 'z'  // true
+'\172' === 'z' // true
+'\x7A' === 'z' // true
+'\u007A' === 'z' // true
+'\u{7A}' === 'z' // true
+```
+
 ## 3.2 字符串的遍历器接口
 
 字符串可以被for...of循环遍历。  
 
 ```javascript
-    for (let codePoint of 'foo') {
-      console.log(codePoint)
-    }
-    // "f"
-    // "o"
-    // "o"
+for (let codePoint of 'foo') {
+  console.log(codePoint)
+}
+// "f"
+// "o"
+// "o"
 ```  
 
 ## 3.3 模板字符串

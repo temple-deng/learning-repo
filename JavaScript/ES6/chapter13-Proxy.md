@@ -1,54 +1,69 @@
-# Proxy  
+# 13. Porxy和Reflect
 
-## 1. 概述
+<!-- TOC -->
 
-Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。Proxy 这个词的原意是代理，用在这里表示由它来“代理”某些操作，可以译为“代理器”。  
+- [13. Porxy和Reflect](#13-porxy和reflect)
+  - [13.1 Proxy](#131-proxy)
+    - [1. get(target, propKey, receiver)](#1-gettarget-propkey-receiver)
+    - [2. set(target, propKey, value, receiver)](#2-settarget-propkey-value-receiver)
+    - [3. apply(target, object, args)](#3-applytarget-object-args)
+    - [4. has(target, propKey)](#4-hastarget-propkey)
+    - [5. construct(target, args)](#5-constructtarget-args)
+    - [6. deleteProperty(target, propKey)](#6-deletepropertytarget-propkey)
+    - [7. defineProperty(target, propKey, propDesc)](#7-definepropertytarget-propkey-propdesc)
+    - [8. getOwnPropertyDescriptor(target, propKey)](#8-getownpropertydescriptortarget-propkey)
+    - [9. getPrototypeOf(target)](#9-getprototypeoftarget)
+    - [10. isExtensible(target)](#10-isextensibletarget)
+    - [11. ownKeys(target)](#11-ownkeystarget)
+    - [12. preventExtensions(target)](#12-preventextensionstarget)
+    - [13. setPrototypeOf(target, proto)](#13-setprototypeoftarget-proto)
+  - [13.2 Proxy.revocable()](#132-proxyrevocable)
 
-```javascript
-var obj = new Proxy({}, {
-  get: function (target, key, receiver) {
-    console.log(`getting ${key}!`);
-    return Reflect.get(target, key, receiver);
-  },
-  set: function (target, key, value, receiver) {
-    console.log(`setting ${key}!`);
-    return Reflect.set(target, key, value, receiver);
-  }
-});
-```    
+<!-- /TOC -->
 
-上面代码对一个空对象架设了一层拦截，重定义了属性的读取（get）和设置（set）行为。  
+## 13.1 Proxy  
 
+```
+	var proxy = new Proxy(target, handler)
 
-ES6 原生提供 Proxy 构造函数，用来生成 Proxy 实例。  
+	//proxt支持的拦截操作
+	get(target, propKey, receiver)
+	//拦截对象属性的读取，比如proxy.foo和proxy['foo']，返回类型不限。最后一个参数receiver可选，当target对象设置了propKey属性的get函数时，receiver对象会绑定get函数的this对象。
 
-`var proxy = new Proxy(target, handler)`  
+	set(target, propKey, value, receiver)
+	//拦截对象属性的设置，比如proxy.foo = v或proxy['foo'] = v，返回一个布尔值。
 
-Proxy 对象的所有用法，都是上面这种形式，不同的只是`handler`参数的写法。其中，`new Proxy()`表示生成一个Proxy实例，`target`参数表示所要拦截的目标对象，`handler`参数也是一个对象，用来定制拦截行为。  
+	has(target, propKey)
+	//拦截propKey in proxy的操作，返回一个布尔值。
 
-注意，要使得Proxy起作用，必须针对Proxy实例进行操作，而不是针对目标对象进行操作。    
+	deleteProperty(target, propKey)
+	//拦截delete proxy[propKey]的操作，返回一个布尔值。
 
-一个技巧是将 Proxy 对象，设置到`object.proxy`属性，从而可以在object对象上调用。  
+	enumerate(target)
+	//拦截for (var x in proxy)，返回一个遍历器。
 
-`var object = { proxy: new Proxy(target, handler) };`  
+	ownKeys(target)
+	//拦截Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)，返回一个数组。该方法返回对象所有自身的属性，而Object.keys()仅返回对象可遍历的属性。
 
-Proxy 实例也可以作为其他对象的原型对象。   
+	getOwnPropertyDescriptor(target, propKey)
+	//拦截Object.getOwnPropertyDescriptor(proxy, propKey)，返回属性的描述对象。
 
-```javascript
-var proxy = new Proxy({}, {
-  get: function(target, property) {
-    return 35;
-  }
-});
+	defineProperty(target, propKey, propDesc)
+	//拦截Object.defineProperty(proxy, propKey, propDesc）、Object.defineProperties(proxy, propDescs)，返回一个布尔值。
 
-let obj = Object.create(proxy);
-obj.time // 35
-```    
+	getPrototypeOf(target)
+	//拦截Object.getPrototypeOf(proxy)，返回一个对象。
 
-上面代码中，`proxy`对象是`obj`对象的原型，`obj`对象本身并没有`time`属性，所以根据原型链，会在`proxy`对象上读取该属性，导致被拦截。   
+	setPrototypeOf(target, proto)
+	//拦截Object.setPrototypeOf(proxy, proto)，返回一个布尔值。
 
+	//如果目标对象是函数，那么还有两种额外操作可以拦截。
+	apply(target, object, args)
+	//拦截Proxy实例作为函数调用的操作，比如proxy(...args)、proxy.call(object, ...args)、proxy.apply(...)。
 
-## 2. 具体的拦截可以实现的方法
+	construct(target, args, proxy)
+	//拦截Proxy实例作为构造函数调用的操作，比如new proxy(...args)。
+```  
 
 ### 1. get(target, propKey, receiver)  
 
@@ -347,21 +362,24 @@ setPrototypeOf方法主要用来拦截Object.setPrototypeOf方法。
 
 注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（extensible），setPrototypeOf方法不得改变目标对象的原型。   
 
-## 3. Proxy.revocable  
 
-Proxy.revocable方法返回一个可取消的 Proxy 实例。  
 
-```javascript
+## 13.2 Proxy.revocable()
+
+`Proxy.revocable()` 方法返回一个可取消的 Proxy 实例。    
+
+```js
 let target = {};
 let handler = {};
 
-let {proxy, revoke} = Proxy.revocable(target, handler);
+let {proxy, revoke} = Proxy.revocable(target, hanlder);
 
 proxy.foo = 123;
-proxy.foo // 123
+proxy.foo;   // 123
 
 revoke();
-proxy.foo // TypeError: Revoked
+proxy.foo	// // TypeError: Revoked
 ```   
 
-Proxy.revocable方法返回一个对象，该对象的proxy属性是Proxy实例，revoke属性是一个函数，可以取消Proxy实例。上面代码中，当执行revoke函数之后，再访问Proxy实例，就会抛出一个错误。  
+`Proxy.revocable` 方法返回一个对象，该对象的 `proxy` 属性是Proxy实例，`revoke` 属性是一个函数，
+可以取消Proxy实例。上面代码中，当执行revoke函数之后，再访问Proxy实例，就会抛出一个错误。   
