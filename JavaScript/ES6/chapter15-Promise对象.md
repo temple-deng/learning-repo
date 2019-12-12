@@ -146,7 +146,8 @@ resolved，因此会调用`then`方法指定的回调函数，而不会调用`ca
 var p = Promise.race([p1,p2,p3]);
 ```  
 
-上面代码中，只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise实例的返回值，就传递给p的回调函数。  
+上面代码中，只要p1、p2、p3之中有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的Promise
+实例的返回值，就传递给p的回调函数。  
 
 需要注意的是p1,p2,p3中有一个完成后，其余的两个并不会停止执行，但是不会再触发then回调。  
 
@@ -185,8 +186,6 @@ fulfilled时，对象有 `value` 属性，rejected时有 `reason` 属性，对�
 `Promise.any()` 方法接受一组 Promise 实例作为参数，包装成一个新的 Promise 实例。只要参数
 实例有一个变成 `fulfilled` 状态，包装实例就变成了 `fulfilled` 状态；如果所有参数实例都
 变成了 `rejected` 状态，包装实例就会变成 rejected 状态。    
-
-
 
 ## 15.8 Promise.resolve()
 
