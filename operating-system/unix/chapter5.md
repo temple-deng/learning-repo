@@ -476,6 +476,13 @@ precision 说明整型转换后最少输出数字位数、浮点数转换后⼩�
 
 宽度和精度字段两者皆可为*。此时，⼀个整型参数指定宽度或精度的值。该整型参数正好位于被转换的参数之前。    
 
+```c
+#include <stdio.h>
+int scanf(const char * restrict format, ...);
+int fscanf(FILE *restrict fp, const char *restrict format, ...);
+int sscanf(const char *restrict buf, const char *restrict format, ...);
+```  
+
 与 printf 族相同，scanf 族也使用由 `<stdarg.h>` 说明的可变长度参数表。   
 
 ```c
