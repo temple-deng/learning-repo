@@ -230,9 +230,13 @@ const listItems = numbers.map((number) =>
 
 key 仅在数组的的上下文中才有意义。   
 
+通常来说 key 是作为给 React 的一种提示，并且这个属性不会传递给你的组件。    
+
 ## Forms
 
 一个值由 React 控制渲染的表单输入元素称为一个受控组件。    
+
+textarea 和 select 的问题。  
 
 由于 `<input type="file">` 的值是只读的，因此它是一个非受控组件。    
 

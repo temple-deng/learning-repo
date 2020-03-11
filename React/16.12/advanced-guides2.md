@@ -42,6 +42,12 @@ class ErrorBoundary extends Component {
 }
 ```      
 
+从 `getDerivedStateFromError()` 也能猜到，这个函数应该返回 state 内容，然后重新渲染。  
+
+### 注意点
+
+从 React16 开始，任何未被 
+
 ## Refs 转发
 
 refs 转发是一种自动将组件的一个引用传递给其后代的技术。    

@@ -6,6 +6,7 @@
   - [Code Splitting](#code-splitting)
     - [import()](#import)
     - [React.lazy](#reactlazy)
+    - [命名导出](#命名导出)
   - [Context](#context)
     - [什么时候用 Context](#什么时候用-context)
     - [API](#api)
@@ -65,13 +66,23 @@ function MyComponent() {
 `fallback` 属性接受任何在组件加载过程中你想展示的 React 元素。你可以将 `Suspense` 组件置于
 懒加载组件之上的任何位置。你甚至可以用一个 Suspense 组件包裹多个懒加载组件。    
 
+### 命名导出
+
+`React.lazy` 目前只支持 default 导出。   
+
 ## Context
 
-Context 提供了一种将数据直接通过组件树向下传递，而不用手动在每次传递的方案。   
+Context 提供了一种将数据直接通过组件树向下传递，且不用手动在每层传递的方案。   
 
 ### 什么时候用 Context
 
 一般用在许多组件需要共享某些类全局数据的情况。    
+
+那为什么这时候不用全局变量呢，我觉得是因为全局变量修改了以后，组件并不能得到通知，也就不能进行
+更新，而 context 修改后，监听的组件是可以收到更新的。    
+
+那么就可以推断出一个 context 需要哪些内容了，首先是在某一层级定义一个 context 关联的数据，
+然后在其后代节点组件中进行监听。至少应该需要这两部分。   
 
 ```js
 // 首先创建一个 theme context，默认是 light
@@ -105,6 +116,8 @@ class ThemedButton extends React.Comonent {
   }
 }
 ```    
+
+这里 ThemeContext 就是 context 对象，而 Provider 组件其实就是在组件树中插入 context。   
 
 ### API
 
@@ -355,6 +368,8 @@ function Content() {
 
 ReactDOM.render(<App />, document.root);
 ```     
+
+所以 React.createContext 应该是接受任何 JS 合法值做参数。   
 
 因为 context 会使用参考标识（reference identity）来决定何时进行渲染，这里可能会有一些陷阱，
 当 provider 的父组件进行重渲染时，可能会在 consumers 组件中触发意外的渲染。    
