@@ -537,7 +537,4 @@ const puppeteer = require('puppeteer');
 
 - return `Array<BrowserContext>`   
 
-创建一个新的隐身模式的 context:   
-
-```js
-```
+创建一个新的隐身模式的 context。

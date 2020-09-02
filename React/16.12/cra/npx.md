@@ -36,7 +36,7 @@ npx --shell-auto-fallback [shell]
 如果提供了完整的说明符，或者使用 `--package` 选项，则 npx 会使用临时安装的包的最新版本来执行，
 也可以通过 `--ignore-existing` 强制使用这样的行为。   
 
-- `-p, --package <pkg>`: 定义要安装的包，默认等于 `<command>`。一般来说，只能包包含有多个
+- `-p, --package <pkg>`: 定义要安装的包，默认等于 `<command>`。一般来说，只有包包含有多个
 可执行文件，或者可执行文件的名称好包名不同时会用到这个选项。
 - `--no-install`：带有这个选项的话，npx 只会从当前路径或 `$prefix/node_modules/.bin` 中
 搜索 `<command>`，而不会去尝试安装不存在的命令
