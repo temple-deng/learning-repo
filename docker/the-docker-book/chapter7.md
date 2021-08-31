@@ -87,7 +87,7 @@ redis
 
 ```
 FROM python
-LABEL maintainer="dengbo01@baidu.com"
+LABEL maintainer="630435133@qq.com"
 ADD . /composeapp
 WORKDIR /composeapp
 RUN pip install -r requirements.txt

@@ -51,7 +51,7 @@ Dockerfile:
 ```
 FROM ubuntu:18.04
 LABEL author="dengbo"
-LABEL email="dengbo01@baidu.com"
+LABEL email="630435132@qq.com"
 ENV REFRESHED_AD 2019-02-13
 RUN apt-get -yqq update
 RUN apt-get -yqq install ruby ruby-dev make nodejs gcc
@@ -231,7 +231,7 @@ Dockerfile:
 ```
 FROM ubuntu:18.04
 LABEL author="dengbo"
-LABEL email="dengbo01@baidu.com"
+LABEL email="630435133@qq.com"
 ENV REFRESHED_AD 2019-02-13
 RUN apt-get -yqq update
 RUN apt-get -yqq install nodejs npm
@@ -309,7 +309,7 @@ Dockerfile:
 ```
 FROM ubuntu:18.04
 LABEL author="dengbo"
-LABEL email="dengbo01@baidu.com"
+LABEL email="630435133@qq.com"
 ENV REFRESHED_AD 2019-02-13
 RUN apt-get -yqq update
 RUN apt-get install -yqq software-properties-common python-software-properties
@@ -326,7 +326,7 @@ CMD []
 ```
 FROM ubuntu:18.04
 LABEL author="dengbo"
-LABEL email="dengbo01@baidu.com"
+LABEL email="630435133@qq.com"
 ENV REFRESHED_AD 2019-02-13
 RUN apt-get -yqq update
 RUN apt-get install -yqq wget
@@ -356,7 +356,7 @@ Dockerfile:
 
 ```
 FROM dbredis
-LABEL maintainer="dengbo01@baidu.com"
+LABEL maintainer="630435133@qq.com"
 ENTRYPOINT ["/redis/bin/redis-server", "--logfile /var/log/redis/redis-server.log"]
 ```   
 
@@ -374,7 +374,7 @@ Dockerfile:
 
 ```
 FROM dbredis
-LABEL maintainer="dengbo01@baidu.com"
+LABEL maintainer="630435133@qq.com"
 ENTRYPOINT ["/redis/bin/redis-server",  "--logfile /var/log/redis/redis-replica.log", "--slaveof redis_primary 6379"]
 ```   
 
@@ -409,7 +409,7 @@ $ docker run -d -h redis_replica1 --name redis_replica1 \
 
 ```
 FROM dbredis
-LABEL maintainer="dengbo01@baidu.com"
+LABEL maintainer="630435133@qq.com"
 WORKDIR /redis
 RUN mkdir conf
 RUN cp /redis/redis-stable/redis.conf /redis/conf/redis.conf
