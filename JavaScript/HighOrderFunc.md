@@ -104,7 +104,6 @@ Function.prototype.uncurrying = function() {
 调用该函数的请求。  
 
 ```javascript
-
 var throttle = function( fn, interval) {
   var _self = fn,
       timer,
@@ -128,5 +127,17 @@ var throttle = function( fn, interval) {
       _self.apply( _me, args);
     }, interval || 500)
   }
+}
+
+var throttle = function (fn, interval) {
+    let last = 0;
+
+    return function (...args) {
+        const now = Date.now();
+        if (now - last > interval) {
+            fn.apply(this, args);
+            last = now;
+        }
+    }
 }
 ```  

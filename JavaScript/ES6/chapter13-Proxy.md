@@ -39,9 +39,6 @@
 	deleteProperty(target, propKey)
 	//拦截delete proxy[propKey]的操作，返回一个布尔值。
 
-	enumerate(target)
-	//拦截for (var x in proxy)，返回一个遍历器。
-
 	ownKeys(target)
 	//拦截Object.getOwnPropertyNames(proxy)、Object.getOwnPropertySymbols(proxy)、Object.keys(proxy)，返回一个数组。该方法返回对象所有自身的属性，而Object.keys()仅返回对象可遍历的属性。
 

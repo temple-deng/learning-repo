@@ -109,7 +109,8 @@ scopes，如果一个 SW 为这个 URL 注册了，那 UI 线程就搜寻一个�
 
 ## 布局
 
-主线程遍历 DOM 树和计算样式，创建布局树。布局树和 DOM 树类似，但是只包含页面可见的内容，
+主线程遍历 DOM 树和计算样式，创建布局树。布局树包括了节点盒子的 x,y 坐标和盒子的尺寸。
+布局树和 DOM 树类似，但是只包含页面可见的内容，
 `display:none` 的节点肯定就不存在于布局树上，不过伪元素是可能包含在布局树中。   
 
 ## 绘制
@@ -145,6 +146,12 @@ Draw quads| 包含例如片在内存中的位置，在页面中哪部分绘制�
 这个组合器帧然后通过 IPC 提交给浏览器进程。这时，由于浏览器 UI 变动，从 UI 线程中来的另一个
 组合器帧或者由扩展生成的来自其他渲染进程的组合器帧可能也被添加进 browser 进程。这些组合器帧
 发送给 GPU 来展示在屏幕上。    
+
+综上所述，整个流程应该是：解析 html,css 生成 DOM 树和计算样式 -&gt; 根据 DOM 树和样式生成 Layout tree -&gt;
+遍历 Layout tree 创建 paint records -&gt; 遍历 Layout tree 生成 Layer tree -&gt; 将 Layer tree 提交
+给 compositor 线程，主现场任务到此结束 -&gt; compositor 现场将 layer tree 再分片 tile，交给 raster thread
+进行栅格化 -&gt; raster thread 将数据存储在 GPU 上 -&gt; compositor 将 draw quads 收集起来生成 compositor frame
+-&gt; 通知 browser 进程，然后 browser 进程将 frame 发送给 GPU。   
 
 ![composit](https://raw.githubusercontent.com/temple-deng/markdown-images/master/browser/composit.png)   
 
