@@ -1,3 +1,4 @@
+```html
 <App>
     <div>
         <header>blablabla</header>
@@ -7,7 +8,7 @@
         </Content>
     </div>
 </App>
-
+```    
 
 首先 performSyncWorkOnRoot -> renderRootSync(prepareFreshStack)，这一步 prepareFreshStack 会设置 workInProgressRoot 和
 workInProgress（直接拷贝一个副本），然后 workLoopSync，然后 performUnitOfWork(workInProgress)。    

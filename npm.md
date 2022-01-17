@@ -177,7 +177,7 @@ server.js:
 
 ## npm-scripts
 
-+ prepublish: 在包被打包和发布前执行，以及不使用任何参数本地安装 `npm install` 时执行
++ prepublish: 在包被打包和发布前执行，以及不使用任何参数本地安装 `npm install` 时执行（即配置了这个钩子的包，在这个包中执行 npm install 的时候，而不是说别的包依赖这个包，然后安装带有这个钩子的包时执行）
 + prepare: 同上，不过是在 prepublish 后，prepublishOnly 后执行
 + prepublishOnly: 在包被打包和 prepared 前执行，仅在 `npm publish` 时执行
 + prepack: 在打包成 tarball 前执行 `npm pack, npm publish`
