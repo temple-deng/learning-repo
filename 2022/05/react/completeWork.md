@@ -771,7 +771,9 @@ export function diffProperties(
 
 所以这个函数，就是比较了 oldProps 和 newProps，将要删除了的属性，有变动的属性，新增的属性放入了一个数组中，其中索引为偶数的是属性名，索引为奇数是属性值，null 表示属性被删除。
 
-#### appendAllChildren
+#### appendAllChildren   
+
+即把以 wip 这个 fiber 为根的子树的所有 dom 串联起来，基本上就是把下层的 dom append 到当前节点的 dom 中。   
 
 ```ts
 function appendAllChildren (
@@ -845,12 +847,17 @@ export function finalizeInitialChildren(
   setInitialProperties(domElement, type, props, rootContainerInstance);
 
   // 但是返回值不太看懂是什么意思
+  // 这里的意思是，如果是输入元素有 autoFocus，那就打上 Update 标签
+  // 在 layoutEffect 中处理，调用 focus 方面聚焦
   switch (type) {
     case 'button':
     case 'input':
     case 'select':
     case 'textarea':
       return !!props.autoFocus;
+    // 这里 img 的 update 标签是在 layoutEffect 中赋值 src
+    // 推测这样的原因是在 mutation 阶段处理完事件的监听
+    // 在 layout 阶段在处理 src 属性，不容易出错
     case 'img':
       return true;
     default:
@@ -928,6 +935,9 @@ function bubbleProperties(completedWork: Fiber) {
 所以，总是一串操作完，completeWork(img) 生成了 img dom 元素，绑定在对应的 fiber 节点上。    
 
 目前 fiber(img) 上有 `Update` 的 flags。   
+
+这里需要注意的一点是，一般来说，在 beginWork 的时候 lanes 都会重置，不过可能在 processUpdateQueue 中会有重新设置，但是 childLanes 在 `createWorkInProgress` 中进行赋值，所以这个可能是保留下来了。那最后得出来的这个 lanes
+究竟是什么呢。   
 
 ### completeWork(Edit)    
 

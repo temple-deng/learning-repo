@@ -13,6 +13,7 @@
     - [commitMutationEffectsOnFiber](#commitmutationeffectsonfiber)
     - [commitPlacement](#commitplacement)
     - [commitWork](#commitwork)
+  - [mutationEffects 总结](#mutationeffects-总结)
   - [commitLayoutEffects](#commitlayouteffects)
     - [commitLayoutEffects_begin](#commitlayouteffects_begin)
     - [commitLayoutEffectOnFiber](#commitlayouteffectonfiber)
@@ -320,6 +321,9 @@ function prepareForCommit(containerInfo: Container): Object | null {
 }
 
 function commitBeforeMutationEffects_begin() {
+  // 深度遍历
+  // 遍历过程类似 beginWork 的过程，先向下找，找的一个满足要求的节点后，complete
+  // 然后看兄弟，继续 begin，如果没有兄弟就向上 complete
   while (nextEffect !== null) {
     const fiber = nextEffect;
     const child = fiber.child;
@@ -333,8 +337,7 @@ function commitBeforeMutationEffects_begin() {
       ensureCorrectReturnPointer(child, fiber);
       nextEffect = child;
     } else {
-      // 走 else 的话，可能是找到一个节点，没有打 subtreeFlag
-      // 但节点本身打没打 flag 不能确定，
+      // 走 else 的话，一般来说就是找到了一个 BeforeMutationMask flag 的节点
       commitBeforeMutationEffects_complete();
     }
   }
@@ -447,6 +450,7 @@ function commitMutationEffects_begin(root: FiberRoot, lanes: Lanes) {
       for (let i = 0; i < deletions.length; i++) {
         const childToDelete = deletions[i];
         try {
+          // 卸载 fiber 节点为根的子树，同时从 dom 中移除对应的 dom 结构
           commitDeletion(root, childToDelete, fiber);
         } catch (error) {
           captureCommitPhaseError(childToDelete, fiber, error);
@@ -464,6 +468,14 @@ function commitMutationEffects_begin(root: FiberRoot, lanes: Lanes) {
   }
 }
 ```    
+
+其实除去具体 `commitMutationEffectsOnFiber` 以外，Mutation 和 BeforeMutation 的功能都大体差不多，首先
+是 `commitXXXEffects_begin`，深度有限遍历找到第一个打了对应 flag 的节点，找到以后就针对这个节点进行
+`commitXXXEffects_complete`，进行 `commitXXXEffectOnFiber` 对节点具体的 tag 进行处理，处理完以后回到
+complete 中，如果有 sibling 就从 sibling 继续 begin 流程，否则就回到上层进行 complete。   
+
+而 beforeMutation 中需要处理的 flag 其实就 Snapshot 一个，就比较简单，而 mutation 的话，flag 就比较多了，
+首先在 begin 中就进入了 deletion 操作，然后在 onFiber 中又处理了其他的 flag。
 
 #### commitDeletion   
 
@@ -496,6 +508,8 @@ function unmountHostComponents(
 
   while (true) {
     // 看样子这里是找到最近的一个 HostRoot/HostPortal 容器或者 HostComponent
+    // 即，首先向上找到最近的 HostComponent/HostRoot/HostPortal 节点
+    // 注意不同的节点 tab，currentParent 值的意义不同
     if (!currentParentIsValid) {
       let parent = node.return;
       findParent: while (true) {
@@ -520,10 +534,12 @@ function unmountHostComponents(
     }
 
     if (node.tag === HostComponent || node.tag === HostText) {
+      // 如果是 dom 节点，就递归卸载整个子树
       commitNestedUnmounts(finishedRoot, node, nearestMountedAncestor);
       // After all the children have unmounted, it is now safe to remove the
       // node from the tree.
-      // 就是直接 removeChild
+      // 如果向上找到的 dom 容器是一个 hostRoot fiber 节点，那这种相当于当前 fiber 就是最顶层的 dom 节点了
+      // 直接从 react 应用挂载的 dom 元素上删除这个 dom 节点
       if (currentParentIsContainer) {
         removeChildFromContainer(
           ((currentParent as any) as Container),
@@ -531,6 +547,7 @@ function unmountHostComponents(
         );
       } else {
         // 也是 removeChild
+        // 否则从最近的 hostComponent 上删除
         removeChild(
           ((currentParent as any) as Instance),
           (node.stateNode as Instance | TextInstance),
@@ -550,6 +567,7 @@ function unmountHostComponents(
       }
     } else {
       // 普通的 ClassComponent, FunctionComponent
+      // 首先卸载当前节点，然后递归向下处理
       commitUnmount(finishedRoot, node, nearestMountedAncestor);
       // Visit children because we may find more host components below.
       if (node.child !== null) {
@@ -577,7 +595,11 @@ function unmountHostComponents(
   }
 }
 
-// 虽然看不太懂，但感觉是从一个 HostComponent 开始，向下一层层递归卸载节点
+// 如果当前要卸载的节点是 dom 节点，就从当前节点开始，和之前见过的很多遍历过程一样
+// 深度优先遍历，不过是先序遍历，从上到下，一个个卸载节点，说是卸载，其实有作用的一般就是函数组件
+// 和类组件，函数组件就是调用 effect.destory，类组件就是调用 componentWillUnmount
+// 处理完当前节点就看 兄弟节点，否则就向上卸载父亲节点
+// 这样遍历完成后，整个子树就都卸载完成了，不过 dom 结构还并未解体
 function commitNestedUnmounts(
   finishedRoot: FiberRoot,
   root: Fiber,
@@ -774,6 +796,11 @@ function commitMutationEffectsOnFiber(
 
 #### commitPlacement   
 
+对于 Placement 来说，要更新的 dom 应该在 placement fiber 下最近的 dom fiber 上，这种 dom fiber
+可能会有多个吧，比如一个数组。   
+
+这里具体干了什么没看懂，但大致意思应该是插入 dom 节点到现在的树上。  
+
 ```ts
 function commitPlacement(finishedWork: Fiber): void {
   // Recursively insert all host nodes into the parent.
@@ -864,6 +891,8 @@ function getHostSibling(fiber: Fiber): Instance {
 ```    
 
 #### commitWork   
+
+commmtWork 的工作可以分为两类，对于函数式组件，需要处理 layoutEffect 的 destroy，对于 hostComponent 需要处理属性的更新。    
 
 ```ts
 function commitWork(current: Fiber | null, finishedWork: Fiber): void {
@@ -981,6 +1010,12 @@ function commitWork(current: Fiber | null, finishedWork: Fiber): void {
   );
 }
 ```   
+
+### mutationEffects 总结
+
+所以 beforeMutationEffects 基本上就是处理类组件的 snapshot flag，而 mutationEffects 的话，任务比较多了，
+首先是 childDeletion，处理节点的删除，递归从上到下一个个节点进行卸载，最后把 dom 结构从页面删除，其次是 placement，这个的话主要是 dom 节点的插入，负责把新的 dom 节点插入到页面上，然后是 update，包括函数组件的 update
+和 hostComponent 的 update，函数组件的 update 就是 layoutEffect 的 destroy，hostComponent 组件的 update 就是 dom 属性的更新。   
 
 ### commitLayoutEffects
 
@@ -1210,6 +1245,11 @@ function commitLayoutEffectOnFiber(
   }
 }
 ```    
+
+layoutEffects 的功能也不少，首先也是根据 tag 分情况讨论，对于函数组件，主要是 layoutEffect 的 create，
+对于类组件就是 `componentDidMount` 和 `componentDidUpdate` 的调用。同时还是 updateQueue 的处理，
+就 updateQueue.effects 上的回调，要调用一下啊。对于 HostComponent 的话就比较简单，对于带有 autoFocus 的输入
+元素，focus 一下，对于 img 元素设置 src 属性。   
 
 ### 总结
 

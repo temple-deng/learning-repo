@@ -19,6 +19,7 @@
     - [useEffect](#useeffect-1)
     - [flushPassiveEffects](#flushpassiveeffects)
     - [useLayoutEffect](#uselayouteffect)
+  - [effect 对变量的访问](#effect-对变量的访问)
   - [更新](#更新)
     - [useState](#usestate-2)
     - [dispatchSetState](#dispatchsetstate)
@@ -331,7 +332,7 @@ export function renderWithHooks<Props, SecondArg>(
   renderLanes = nextRenderLanes;
   currentlyRenderingFiber = workInProgress;
 
-  // 这里这么大胆的吗
+  // 这里这么大胆的吗，要注意这里对 state 和 queue 的重置
   workInProgress.memoizedState = null;
   workInProgress.updateQueue = null;
   workInProgress.lanes = NoLanes;
@@ -408,7 +409,10 @@ ReactCurrentDispatcher.current =
     : HooksDispatcherOnUpdate;
 
 let children = Component(props, secondArg);
-```   
+```    
+
+所以 renderWithHooks 首先是设置了一些本地的全局变量，然后重置了 wip 上的一些相关变量，然后最关键的是设置 dispatcher，
+然后就是调用函数体生成后代，之后的话好像是一些全局变量的重置。   
 
 那我们先看下 Hook 的基本数据结构和 `HooksDispatcherOnMount`。    
 
@@ -523,6 +527,7 @@ function mountWorkInProgressHook(): Hook {
     currentlyRenderingFiber.memoizedState = workInProgressHook = hook;
   } else {
     // Append to the end of the list
+    // 单链表
     workInProgressHook = workInProgressHook.next = hook;
   }
   return workInProgressHook;
@@ -864,7 +869,11 @@ commitHookEffectListMount(
     HookLayout | HookHasEffect,
     finishedWork,
 );
-```  
+```    
+
+### effect 对变量的访问   
+
+目前来看，effect 中对 state, props 的访问，都是在作用域链上，所以可以访问到，至于更新 state，我们后面再看。   
 
 
 ### 更新
@@ -905,6 +914,8 @@ function dispatchSetState<S, A>(
 
     // 经调试发现没有 alternate，符合猜测
     const alternate = fiber.alternate;
+    // 这个条件很奇怪，感觉只有组件初次渲染后，第一次调用setstate 的时候会满足
+    // 以及 alternate.lanes === NoLanes 的条件，反正就是要么之前是白板，要么之前就没更新
     if (
       fiber.lanes === NoLanes &&
       (alternate === null || alternate.lanes === NoLanes)
@@ -1061,6 +1072,7 @@ function updateWorkInProgressHook(): Hook {
   // use as a base. When we reach the end of the base list, we must switch to
   // the dispatcher used for mounts.
   // nextCurrentHook 应该是当前要处理的这个 hook，这里就是找一下是那个
+  // nextCurrentHook 即 current 上要处理的这个 hook，不停的靠 next 指针向后
   let nextCurrentHook: null | Hook;
   if (currentHook === null) {
     const current = currentlyRenderingFiber.alternate;
@@ -1074,6 +1086,9 @@ function updateWorkInProgressHook(): Hook {
   }
 
   // 但是这个又是干嘛，两个变量分别位于两个 fiber 上？
+  // nextWorkInProgressHook 貌似是下个 hook，不是本次要处理的 hook
+  // 因为 renderWithHooks 一开始清空了 wip.memorizedState，所以一般第一次走这个函数的话 next 是 null
+  // 并且后面再调用一般也是 null
   let nextWorkInProgressHook: null | Hook;
   if (workInProgressHook === null) {
     nextWorkInProgressHook = currentlyRenderingFiber.memoizedState;
@@ -1095,6 +1110,7 @@ function updateWorkInProgressHook(): Hook {
       throw new Error('Rendered more hooks than during the previous render.');
     }
 
+    // 从当前 hook 克隆一个 hook 到 wip 上
     currentHook = nextCurrentHook;
 
     const newHook: Hook = {

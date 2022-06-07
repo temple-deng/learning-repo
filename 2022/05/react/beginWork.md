@@ -43,6 +43,7 @@
   - [提前退出](#提前退出)
     - [attemptEarlyBailoutIfNoSchduledUpdate](#attemptearlybailoutifnoschduledupdate)
     - [bailoutOnAlreadyFinishedWork](#bailoutonalreadyfinishedwork)
+  - [fiber 的生成和复用](#fiber-的生成和复用)
 
 <!-- /TOC -->
 
@@ -1409,7 +1410,14 @@ function updateFromMap(
 }
 ```
 
-多子节点的调和算法，两次循环的过程这个网上到处都有，就不细说了。
+多子节点的调和算法，两次循环的过程这个网上到处都有，就不细说了。    
+
+其实注意这里面两个方法 `updateSlot` 和 `updateFromMap` 内容是类似的，都是拿一个 oldFiber 和 newElement 进行比较对比，看看能否可以复用，逻辑也很简单:   
+
+- newElem 是字符串，如果 oldFiber 有 key，那就不能复用，直接新建，否则尝试复用
+- newElem 是普通 elem，如果 key 相等，尝试复用，否则直接新建   
+
+尝试复用的逻辑也很简单，就是首先看下类型一致吗，类型一致，就 `useFiber` 复用，否则新建 fiber。   
 
 #### updateSlot
 
@@ -2347,3 +2355,23 @@ function bailoutOnAlreadyFinishedWork(
   return workInProgress.child;
 }
 ```
+
+
+### fiber 的生成和复用
+
+这里我们看下 fiber 节点和 alternate 的生成及复用。   
+
+首先 fiber 一般都是在 reconcile 过程中生成的，即 `reconcileChildFibers` 中，而 reconcile 又可以首先根据 newElement 的类型分成这么几种：   
+
+- newElement 是个单节点，且非字符串和数字，调用 `reconcileSingleElement`
+- newElement 是个数组，调用 `reconcileChildrenArray`
+- newElement 是个单字符串或数字节点，调用 `reconcileSingleTextNode`    
+
+然后我们在看下不同情况下的处理情况。    
+
+首先是 `reconcileSingleElement`，会先尝试寻找 oldChild 中同 key, elementType 的 fiber 节点，如果有
+调用 `useFiber` 创建新的 fiber 节点，而 `useFiber` 背后又是 `createWorkInProgress`，在这个函数中会尝试使用
+fiber.alternate 作为新的 fiber 节点返回，但是不是这届返回，会依据 current 的属性做一些必要属性的复制和重置。   
+
+而如果找不到可以复用的 fiber，就调用 `createFiberFromElement`，那这个基本上就是生成新的 fiber 节点了。而新的 fiber 节点的 lanes 是 renderLanes，不过这个 lanes 在 beginWork 中，会被重置，但是 `createWorkInProress` 的 lanes 是和 current 一致的，不过也会在 beginWork 中被重置掉。   
+

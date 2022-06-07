@@ -7,13 +7,13 @@
 - [Week36 8.30-9.5](#week36-830-95)
 - [webpack](#webpack)
 - [Guides](#guides)
-    - [Getting Started](#getting-started)
-    - [Asset Management](#asset-management)
-    - [Output Management](#output-management)
-    - [Development](#development)
-    - [Code Spliting](#code-spliting)
-    - [Caching](#caching)
-    - [编写库](#编写库)
+  - [Getting Started](#getting-started)
+  - [Asset Management](#asset-management)
+  - [Output Management](#output-management)
+  - [Development](#development)
+  - [Code Spliting](#code-spliting)
+  - [Caching](#caching)
+  - [编写库](#编写库)
 
 <!-- /TOC -->
 
