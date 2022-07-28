@@ -1,0 +1,422 @@
+# 第 10 章 使用编辑器
+
+## 10.1 vim 编辑器
+
+### 10.1.1 vim 基础   
+
+两种模式：   
+
+- 普通模式：会将按键解释为命令
+- 插入模式
+
+普通模式下的命令：   
+
+- h: 光标左移一个字符
+- j: 下移一行
+- k: 上移一行
+- l: 右移一个字符
+- ctrl + F: 下翻一屏
+- ctrl + B: 上翻一屏
+- G: 最后一行
+- num G: 移动到第 num 行
+- gg: 第一行    
+
+vim编辑器在普通模式下有个特别的功能叫命令行模式。命令行模式提供了一个交互式命令
+行，可以输入额外的命令来控制vim的行为。要进入命令行模式，在普通模式下按下冒号键。光
+标会移动到消息行，然后出现冒号，等待输入命令。    
+
+命令模式下的命令：   
+
+- q: 如果未修改数据，退出
+- q!: 取消所有修改并退出
+- w filename: 将文件保存到另一个文件中
+- wq: 写入数据并保存退出    
+
+### 10.1.3 编辑数据    
+
+编辑命令：    
+
+- x: 删除当前光标所在位置的字符
+- dd: 删除当前行
+- dw: 删除当前所在单词
+- d$: 删除当前位置到行尾的内容
+- J: 删除当前位置行尾的换行符
+- u: 撤销前一编辑命令
+- a: 在当前光标后追加数据（追加什么数据呢）
+- A: 在当前光标所在行行尾追加数据（这两个都是直接进入插入模式了）    
+
+有些编辑命令允许使用数字修饰符来指定重复该命令多少次。比如，命令2x会删除从光标当
+前位置开始的两个字符，命令5dd会删除从光标当前所在行开始的5行。     
+
+### 10.1.4 复制和粘贴    
+
+可以用dd命令删除一行文本，然后把光标移动到缓冲区的某个要放置该行文本的
+位置，然后用p命令。该命令会将文本插入到当前光标所在行之后。可以将它和任何删除文本的命令一起搭配使用。    
+
+复制文本则要稍微复杂点。 vim中复制命令是y（代表yank）。可以在y后面使用和d命令相同
+的第二字符（ yw表示复制一个单词， y$表示复制到行尾）。    
+
+可视模式会在你移动光标时高亮显示文本。可以用可视模式选取要复制的文本。要进入可视
+模式，应移动光标到要开始复制的位置，并按下v键。你会注意到光标所在位置的文本已经被高
+亮显示了。下一步，移动光标来覆盖你想要复制的文本（甚至可以向下移动几行来复制更多行的
+文本）。在移动光标时， vim会高亮显示复制区域的文本。在覆盖了要复制的文本后，按y键来激
+活复制命令。现在寄存器中已经有了要复制的文本，移动光标到你要放置的位置，使用p命令来粘贴。     
+
+### 10.1.5 查找和替换    
+
+可以使用vim查找命令来轻松查找缓冲区中的数据。要输入一个查找字符串，就按下斜线（ `/`）
+键。光标会跑到消息行，然后vim会显示出斜线。在输入你要查找的文本后，按下回车键。 vim
+编辑器会采用以下三种回应中的一种。   
+
+- 如果要查找的文本出现在光标当前位置之后，则光标会跳到该文本出现的第一个位置。
+- 如果要查找的文本未在光标当前位置之后出现，则光标会绕过文件末尾，出现在该文本所在的第一个位置（并用一条消息指明）。
+- 输出一条错误消息，说明在文件中没有找到要查找的文本。    
+
+
+要继续查找同一个单词，按下斜线键，然后按回车键。或者使用n键，表示下一个（ next）。     
+
+替换命令允许你快速用另一个单词来替换文本中的某个单词。必须进入命令行模式才能使用替换命令。替换命令的格式是：`:s/old/new/`    
+
+# 第 11 章 构建基本脚本   
+
+## 11.2 创建 shell 脚本文件
+
+在shell脚本中，你可以在独立的行中书写命令。   
+
+## 11.4 使用变量   
+
+### 11.4.3 命令替换
+
+有两种方法可以将命令输出赋给变量：   
+
+- 反引号字符 \`
+- `$()` 格式     
+
+```bash
+testing=`date`
+testing=$(date)
+```    
+
+命令替换会创建一个子shell来运行对应的命令。   
+
+在命令行提示符下使用路径`./`运行命令的话，也会创建出子shell；要是运行命令的时候不加入路径，就不会创建子shell。    
+
+## 11.5 重定向输入和输出    
+
+- `>`
+- `>>` 追加数据
+- `<`
+- `<<` 内联输入重定向
+
+## 11.7 执行数学运算
+
+在bash中，在将一个数学运算结果赋给某个变量时，可以用美元符和方括号（ `$[ operation ]`）将数学表达式围起来。    
+
+```bash
+$ var1=$[1 + 5]
+$ echo $var1
+6
+$ var2=$[$var1 * 2]
+$ echo $var2
+12
+```    
+
+所以现在，`${}` 是变量解释，`$()` 是执行命令，`$[]` 是执行数学表达式。   
+
+bash shell数学运算符只支持整数运算。  
+
+### 11.7.3 浮点解决方案    
+
+bash 计算器 bc 能够识别：    
+
+- 数字（整数和浮点数）
+- 变量（简单变量和数字）
+- 注释（以 # 或 `/**/` 开始的行）
+- 表达式
+- 编程语句
+- 函数
+
+
+要退出bash计算器，你必须输入quit。浮点运算是由内建变量scale控制的。必须将这个值设置为你希望在计算结果中保留的小数位数，否则无法得到期望的结果。    
+
+## 11.8 退出脚本
+
+exit 命令允许你在脚本结束时指定一个退出状态码。   
+
+# 第 12 章 使用结构化命令    
+
+## 12.1 使用 if-then 语句
+
+```bash
+if command
+then
+    commands
+fi
+
+if command; then
+    commands
+fi
+```    
+
+bash shell的if语句会运行if后面的那个命令。如果该命令的退出状态码是0（该命令成功运行），位于then部分的命令就会被执行。   
+
+## 12.2 if-then-else 语句    
+
+```bash
+if command
+then
+    commands
+else
+    commands
+fi
+
+if command1
+then
+    commands
+elif command2
+then
+    more commands
+fi
+```     
+
+## 12.4 test 命令
+
+```bash
+test condition
+[ condition ]
+```    
+
+test 命令可以判断三类条件：   
+
+- 数值比较
+- 字符串比较
+- 文件比较    
+
+### 12.4.1 数值比较
+
+
+- `n1 -eq n2`: n1 是否与 n2 相等
+- `n1 -ge n2`: n1 是否大于等于 n2
+- `n1 -gt n2`: n1 是否大于 n2
+- `n1 -le n2`: n1 是否小于等于 n2
+- `n1 -lt n2`: n1 是否小于 n2
+- `n1 -ne n2`: n1 是否不等于 n2
+
+### 12.4.2 字符串比较    
+
+- `str1 = str2`
+- `str1 != str2`
+- `str1 \< str2`
+- `str1 \> str2`
+- `-n str1`: str1 的长度是否非0
+- `-z str1`: str1 的长度是否为 0
+
+### 12.4.3 文件比较
+
+- `-d file`: 检查 file 是否存在并是一个目录
+- `-e file`: 是否存在
+- `-f file`: 是否是一个文件
+- `-r file`: 是否可读
+- `-s file`: 是否存在且非空
+- `-w file`: 是否可写
+- `-x file`: 是否可执行
+- `-O file`: 是否存在且属当前用户所有
+- `-G file`: 是否存在且默认组与当前用户相同
+- `file1 -nt file2`: file1 是否比 file2 新
+- `file1 -ot file2`: file1 是否比 file2 旧    
+
+## 12.6 if-then 的高级特性
+
+双括号命令允许你在比较过程中使用高级数学表达式。 test命令只能在比较中使用简单的算术操作。     
+
+`(( expression ))`。    
+
+- `val++`
+- `val--`
+- `++val`
+- `--val`
+- `!`
+- `~`
+- `**`
+- `<<`
+- `>>`
+- `&`
+- `|`
+- `&&`
+- `||`     
+
+双方括号命令提供了针对字符串比较的高级特性。    
+
+`[[ expression ]]`      
+
+## 12.7 case 命令    
+
+```bash
+case $USER in
+rich | barbara)
+    echo "Welcome, $USER"
+    echo "Please enjoy your visit";;
+testing)
+    echo "Special testing account";;
+jessica)
+    echo "Do not forget to log off when you're done";;
+*)
+    echo "Sorry, you are not allowed here";;
+esac
+```
+
+# 第 13 章 更多的结构化命令     
+
+## 13.1 for 命令
+
+```bash
+for var in list
+do
+    commands
+done
+```    
+
+for命令最基本的用法就是遍历for命令自身所定义的一系列值:   
+
+```bash
+for test in Alabama Alaska Arizona Arkansas California Colorado
+do
+    echo The next state is $test
+done
+```    
+
+在最后一次迭代后， $test变量的值会在shell脚本的剩余部分一直保持有效。它会一直保持最后一次迭代的值。   
+
+```bash
+for file in /home/rich/test/*
+do
+    if [ -d "$file" ]
+    then
+        echo "$file is a directory"
+    elif [ -f "$file" ]
+    then
+        echo "$file is a file"
+    fi
+done
+```    
+
+## 13.2 C 风格的 for 命令    
+
+```bash
+for (( variable assingment; condition; iteration process ))
+
+for (( i=1; i <= 10; i++ ))
+do
+    echo "The next number is $i"
+done
+```    
+
+## 13.3 while 命令
+
+```bash
+while test command
+do
+    other commands
+done
+```      
+
+## 13.4 until 命令
+
+until命令和while命令工作的方式完全相反。 until命令要求你指定一个通常返回非零退出状态码的测试命令。只有测试命令的退出状态码不为0， bash shell才会执行循环中列出的命令。一旦测试命令返回了退出状态码0，循环就结束了    
+
+```bash
+until test commands
+do
+    other commands
+done
+```     
+
+## 13.7 控制循环    
+
+- break 命令
+- continue 命令
+
+# 第 14 章 处理用户输入
+
+## 14.1 命令行参数
+
+位置参数，`$0` 是程序名，`$1` 是第一个参数，依次类推。   
+
+```bash
+#!/bin/zsh
+
+fact=1
+for (( number=1; number <= $1; number++ ))
+do
+	fact=$[ $fact * $number  ]
+done
+echo The fact of $1 is $fact
+```    
+
+## 14.2 特殊参数变量    
+
+`$#` 统计传了多少个命令行参数
+
+`$*` 变量会将命令行上提供的所有参数当做一个单词保存。   
+
+`$@` 变量会将命令行上提供的所有参数当做同一个字符串的多个独立的单词。   
+
+## 14.3 移动变量    
+
+shift命令能够用来操作命令行参
+数。跟字面上的意思一样， shift命令会根据它们的相对位置来移动命令行参数。
+在使用shift命令时，默认情况下它会将每个参数变量向左移动一个位置。所以，变量$3
+的值会移到$2中，变量$2的值会移到$1中，而变量$1的值则会被删除（注意，变量$0的值，也就是程序名，不会改变）。    
+
+```bash
+echo "The original parameters: $*"
+shift 2
+echo "Here's the new first parameter: $1"
+```    
+
+## 14.2 处理选项    
+
+可以按照普通参数一样处理。   
+
+```bash
+#!/bin/zsh
+
+echo
+while [ -n "$1" ]
+do
+        case "$1" in
+          -a) echo "Found the -a option" ;;
+          -b) echo "Found the -b option" ;;
+          -c) echo "Found the -c option" ;;
+           *) echo "$1 is not an option" ;;
+        esac
+       shift
+done
+```       
+
+shell 会用双破折线来表明选项列表结束。    
+
+### 14.4.2 使用 getopt 命令
+
+getopt命令可以接受一系列任意形式的命令行选项和参数，并自动将它们转换成适当的格式。它的命令格式如下：    
+
+```bash
+getopt optstring parameters
+```     
+
+首先，在optstring中列出你要在脚本中用到的每个命令行选项字母。然后，在每个需要参
+数值的选项字母后加一个冒号。 getopt命令会基于你定的optstring解析提供的参数。     
+
+```bash
+$ getopt ab:cd -a -b test1 -cd test2 test3
+-a -b test1 -c -d -- test2 test3
+```     
+
+optstring 定义了四个有效选项字母：a, b, c, d。b 后面有冒号，表明他需要参数值。然后后面的就是调用时的命令行参数。    
+
+话说那我有个选项名不是单字母怎么办呢。   
+
+在脚本中使用 getopt 格式化选项和参数，需要借助 set 命令。    
+
+
+
