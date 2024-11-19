@@ -7,7 +7,6 @@ public class Outer1 {
     }
 }
 
-
 class Outer {
     public class Inner {
         Inner() {

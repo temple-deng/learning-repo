@@ -28,7 +28,13 @@ public class CreatingStreams {
     }
 
     public static void main(String[] args) {
-        String contents = "This Alibaba Cloud International Website DNS Service Level Agreement (“SLA”) applies to your purchase and use of the Alibaba Cloud International Website Alibaba Cloud DNS (“Service”) and your use of the Service is subjected to the terms and conditions of the Alibaba Cloud International Website Product Terms of Service (“Product Terms”) between the relevant Alibaba Cloud entity described in the Product Terms (“Alibaba Cloud”, “us”, or “we”) and you. This SLA only applies to your purchase and use of the Services for a fee, and shall not apply to any free Services or trial Services provided by us.";
+        String contents
+            = "This Alibaba Cloud International Website DNS Service Level Agreement (“SLA”) applies to your purchase "
+            + "and use of the Alibaba Cloud International Website Alibaba Cloud DNS (“Service”) and your use of the "
+            + "Service is subjected to the terms and conditions of the Alibaba Cloud International Website Product "
+            + "Terms of Service (“Product Terms”) between the relevant Alibaba Cloud entity described in the Product "
+            + "Terms (“Alibaba Cloud”, “us”, or “we”) and you. This SLA only applies to your purchase and use of the "
+            + "Services for a fee, and shall not apply to any free Services or trial Services provided by us.";
         Stream<String> words = Stream.of(contents.split("\\PL+"));
 
         show("words", words);

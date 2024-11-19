@@ -1,0 +1,24 @@
+<svg width="300" height="300" 
+  xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40" cy="60" r="20" style="fill: none; stroke: black;" />
+  <g font-size="12pt">
+    <switch>
+      <g systemLanguage="en-UK">
+        <text x="10" y="30">
+          A circle
+        </text>
+        <text x="10" y="100">
+          without colour.
+        </text>
+      </g>
+      <g systemLanguage="en">
+        <text x="10" y="30">
+          A circle
+        </text>
+        <text x="10" y="100">
+          without color.
+        </text>
+      </g>
+    </switch>
+  </g>
+</svg>
