@@ -300,6 +300,20 @@ for (variable : collection) statement
 Arrays.sort(a);
 ```
 
+Arrays 上的常用方法：
+
+- sort
+- binarySearch
+- fill
+- equals
+- copyOf
+- copyOfRange
+- asList
+- hashCode
+- toString
+- setAll
+- stream
+
 # 第 4 章 对象与类
 
 ## 4.2 使用预定义类
